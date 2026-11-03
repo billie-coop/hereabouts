@@ -84,10 +84,11 @@ const buildPack = (lang: string, spec: PackSpec): string => {
   const outdir = join(TEMPROOT, hash);
   const path = join(outdir, `${lang}.json`);
   if (!fs.existsSync(path)) {
-    // compile the pack
-    const cmd = '../../../cldr/node_modules/.bin/cldr-compiler';
-    const args = ['pack', '-l', lang, '-o', outdir, '-c', configpath];
-    subprocess.execFileSync(cmd, args, { cwd: __dirname });
+    // compile the pack with the workspace's built compiler (no node_modules/.bin lookup, so it
+    // works with any package manager layout)
+    const compiler = join(__dirname, '..', '..', '..', 'cldr-compiler', 'bin', 'compiler.js');
+    const args = [compiler, 'pack', '-l', lang, '-o', outdir, '-c', configpath];
+    subprocess.execFileSync(process.execPath, args, { cwd: __dirname });
   }
   return path;
 };

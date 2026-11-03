@@ -2879,7 +2879,7 @@ export interface ZoneInfo {
 
 // Warnings were encountered during analysis:
 //
-// /Users/steve/Dev/github.com/billie-coop/cldr-engine-2/packages/cldr-core/lib/resource/pack.d.ts:18:9 - (ae-incompatible-release-tags) The symbol "__index" is marked as @public, but its signature references "ExceptionIndex" which is marked as @internal
+// /Users/steve/Dev/github.com/billie-coop/hereabouts/packages/cldr-core/lib/resource/pack.d.ts:18:9 - (ae-incompatible-release-tags) The symbol "__index" is marked as @public, but its signature references "ExceptionIndex" which is marked as @internal
 
 // (No @packageDocumentation comment for this package)
 
