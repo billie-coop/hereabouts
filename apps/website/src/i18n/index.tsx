@@ -1,7 +1,7 @@
 import {
   createTranslator,
   resolveMessage,
-  type TranslateArgs,
+  type TranslateKeyArgs,
   translate,
 } from '@billie-coop/hereabouts';
 import type { ReactNode } from 'react';
@@ -25,12 +25,7 @@ export const translator = createTranslator({
 });
 
 /** Translate for one locale. Keys and placeholders are checked against `en.ts` at compile time. */
-export type T = <K extends MessageKey>(
-  key: K,
-  // When the key is unknown, K falls back to every key: arguments are then optional, so the
-  // error names the key.
-  ...args: MessageKey extends K ? [args?: Record<string, unknown>] : TranslateArgs<K>
-) => string;
+export type T = <K extends MessageKey>(key: K, ...args: TranslateKeyArgs<typeof en, K>) => string;
 
 // The key and its arguments are checked by T's signature; this call just passes them on.
 const translateAny = translate as (

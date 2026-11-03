@@ -183,6 +183,8 @@ test('type checks on keys and arguments', () => {
   const t2 = createTranslator({ source: ids });
   expect(translate(t2, 'en', 'greeting', { name: 'Ada' })).toEqual('Hello Ada');
   expect(translate(t2, 'en', 'bye')).toEqual('Bye');
+  const one = createTranslator({ source: { 'Hi {name}': 'Hi {name}' } });
+  expect(translate(one, 'en', 'Hi {name}', { name: 'Ada' })).toEqual('Hi Ada');
   const unchecked = () => {
     // @ts-expect-error unknown key
     translate(t, 'de', 'Save chnages?');
@@ -192,6 +194,8 @@ test('type checks on keys and arguments', () => {
     translate(t, 'de', '{count} invoices', { n: 3 });
     // @ts-expect-error id-keyed catalogs read placeholders from the literal message
     translate(t2, 'en', 'greeting');
+    // @ts-expect-error a one-key catalog still requires the arguments
+    translate(one, 'en', 'Hi {name}');
     // @ts-expect-error a catalog can only have source keys
     const bad: MessageCatalog<Key> = { Nope: 'x' };
     return bad;

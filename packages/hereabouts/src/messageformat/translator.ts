@@ -209,14 +209,19 @@ export type TranslateArgs<P extends string> = [MessageArgNames<P>] extends [neve
   ? [args?: MessageNamedArgs]
   : [args: { [N in MessageArgNames<P>]: MessageArg } & MessageNamedArgs];
 
+// True when T is a union of two or more types.
+type IsUnion<T, U = T> = T extends unknown ? ([U] extends [T] ? false : true) : never;
+
 /**
- * Arguments for `translate`. When the key isn't one of the source keys, TypeScript falls back to
- * the union of all keys; arguments are then optional, so the error names the unknown key rather
- * than missing arguments.
+ * Arguments for `translate` with key `K` of source catalog `S`: required when the message has
+ * placeholders. When the key isn't one of the source keys, TypeScript infers `K` as the union of
+ * all keys; arguments are then optional, so the error names the unknown key rather than missing
+ * arguments. Use it to type your own wrapper around `translate`.
+ *
+ * @public
  */
-type KeyArgs<S, K extends keyof S> = keyof S extends K
-  ? [args?: MessageNamedArgs]
-  : TranslateArgs<PatternFor<S, K>>;
+export type TranslateKeyArgs<S, K extends keyof S> =
+  true extends IsUnion<K> ? [args?: MessageNamedArgs] : TranslateArgs<PatternFor<S, K>>;
 
 // ---------------------------------------------------------------------------------------------
 
@@ -290,7 +295,7 @@ export const translate = <S extends Record<string, string>, K extends keyof S & 
   translator: Translator<S>,
   locale: string,
   key: K,
-  ...args: KeyArgs<S, K>
+  ...args: TranslateKeyArgs<S, K>
 ): string => {
   const [message, language] = resolveMessage(translator, locale, key);
   // Text with no braces or apostrophes formats to itself.

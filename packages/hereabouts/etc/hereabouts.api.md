@@ -2692,15 +2692,19 @@ export const toJapaneseDate: (data: LocaleData, date: CalendarDate | ZonedDateTi
 // @public
 export const toPersianDate: (data: LocaleData, date: CalendarDate | ZonedDateTime | Date) => PersianDate;
 
-// Warning: (ae-forgotten-export) The symbol "KeyArgs" needs to be exported by the entry point index.d.ts
-//
 // @public
-export const translate: <S extends Record<string, string>, K extends keyof S & string>(translator: Translator<S>, locale: string, key: K, ...args: KeyArgs<S, K>) => string;
+export const translate: <S extends Record<string, string>, K extends keyof S & string>(translator: Translator<S>, locale: string, key: K, ...args: TranslateKeyArgs<S, K>) => string;
 
 // @public
 export type TranslateArgs<P extends string> = [MessageArgNames<P>] extends [never] ? [args?: MessageNamedArgs] : [args: {
     [N in MessageArgNames<P>]: MessageArg;
 } & MessageNamedArgs];
+
+// Warning: (ae-forgotten-export) The symbol "IsUnion" needs to be exported by the entry point index.d.ts
+// Warning: (ae-forgotten-export) The symbol "PatternFor" needs to be exported by the entry point index.d.ts
+//
+// @public
+export type TranslateKeyArgs<S, K extends keyof S> = true extends IsUnion<K> ? [args?: MessageNamedArgs] : TranslateArgs<PatternFor<S, K>>;
 
 // @public
 export interface Translator<S extends Record<string, string> = Record<string, string>> {

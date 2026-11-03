@@ -67,11 +67,6 @@ created. Nothing here is published yet; update this file as things are decided o
 
 ## Found along the way, not fixed
 
-- **Translator argument check with a one-key catalog.** `translate(t, locale, key)` without
-  arguments is a compile error when the message has placeholders, except when the source
-  catalog has exactly one key: `KeyArgs` in `src/messageformat/translator.ts` treats "the key
-  is every key of the catalog" as its unknown-key fallback, which is also true then, so the
-  arguments become optional. Real catalogs have more keys; a fix is a small type change.
 - **`LanguageTagField` is a getter in the CommonJS build** (compiled enums reassign their
   variable, so rollup keeps a live binding). Harmless; noted in the export test.
 
