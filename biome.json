@@ -1,0 +1,96 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.9/schema.json",
+  "files": {
+    "maxSize": 3500000,
+    "includes": [
+      "**",
+      "!**/dist",
+      "!**/lib",
+      "!**/lib-es",
+      "!**/temp",
+      "!**/.scratch",
+      "!**/node_modules",
+      "!**/coverage",
+      "!**/package.json",
+      "!**/.claude",
+      "!**/.vscode",
+      "!packages/*/etc",
+      "!packages/cldr/packs",
+      "!packages/cldr-compiler/.cldr",
+      "!packages/timezone/src/autogen.zonedata.ts",
+      "!**/autogen.*.ts",
+      "!**/*.generated.ts"
+    ]
+  },
+  "formatter": {
+    "indentStyle": "space",
+    "lineWidth": 100
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single"
+    }
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
+  "json": {
+    "parser": {
+      "allowComments": true
+    }
+  },
+  "linter": {
+    "rules": {
+      "style": {
+        "noUnusedTemplateLiteral": "off",
+        "noNonNullAssertion": "off",
+        "noParameterAssign": "off",
+        "useTemplate": "off"
+      },
+      "suspicious": {
+        "noConstEnum": "off",
+        "noExplicitAny": "off",
+        "noAssignInExpressions": "off",
+        "useIterableCallbackReturn": "off",
+        "noGlobalIsFinite": "off",
+        "noGlobalIsNan": "off",
+        "noDuplicateEnumValues": "off",
+        "noPrototypeBuiltins": "off"
+      },
+      "complexity": {
+        "noForEach": "off",
+        "noStaticOnlyClass": "off",
+        "noCommaOperator": "off",
+        "useArrowFunction": "off",
+        "useLiteralKeys": "off",
+        "useOptionalChain": "off"
+      }
+    }
+  },
+  "overrides": [
+    {
+      "includes": [
+        "**/__tests__/**",
+        "**/__benchmarks__/**",
+        "**/__stress__/**",
+        "examples/**",
+        "packages/cldr-compiler/**",
+        "packages/*/scripts/**",
+        "packages/timezone/tztool/**"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "useNodejsImportProtocol": "off",
+            "useConst": "off"
+          },
+          "complexity": {
+            "useOptionalChain": "off"
+          }
+        }
+      }
+    }
+  ]
+}

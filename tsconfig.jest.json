@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // Use es6 target to get better coverage report
+    "target": "es6",
+    "module": "esnext"
+  }
+}

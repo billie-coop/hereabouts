@@ -1,0 +1,43 @@
+{
+  "name": "@phensley/datetime",
+  "version": "1.16.0",
+  "description": "Days, times of day and instants as plain data, with explicit time zones",
+  "sideEffects": false,
+  "main": "lib/index.js",
+  "module": "lib-es/index.js",
+  "types": "lib/index.d.ts",
+  "author": "Patrick Hensley <pathensley@gmail.com>",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/phensley/cldr-engine/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/phensley/cldr-engine"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "api": "api-extractor run -c ./etc/api-extractor.json --verbose",
+    "api:local": "yarn run api -l",
+    "build": "yarn run build:cj && yarn run build:es && yarn run build:cjs-bundle",
+    "build:cj": "tsc -p ./tsconfig.json",
+    "build:es": "tsc -p ./tsconfig.json --module esnext --outDir lib-es",
+    "build:cjs-bundle": "rollup -c ../../rollup.cjs.config.mjs",
+    "build:lint": "tsc -p ./tsconfig.lint.json",
+    "build:watch": "tsc -p ./tsconfig.json -w --preserveWatchOutput",
+    "clean": "rimraf ./lib ./lib-es ./.scratch",
+    "clean:full": "yarn run clean && rimraf ./node_modules",
+    "coverage": "vitest run --coverage",
+    "prepublish": "yarn run build",
+    "test": "vitest --run",
+    "test:watch": "vitest"
+  },
+  "files": [
+    "lib/",
+    "lib-es/"
+  ],
+  "dependencies": {
+    "@phensley/timezone": "workspace:~1.16.0",
+    "tslib": "^2.8.1"
+  }
+}

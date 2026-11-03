@@ -1,0 +1,82 @@
+#!/bin/bash
+
+# Build cldr modern json archives from upstream sources.
+# There is naturally a lag between new cldr releases being tagged in git and
+# the official json files being available for download.
+# This lets us build them locally and integrate earlier.
+
+# extra dependencies:
+#   ant
+#   git lfs extension
+
+DIR=$(cd `dirname $0`; pwd)
+VERSION=38.0.0
+TAG=release-38
+BUILD=${DIR}/.cldrbuild
+CLDR=${BUILD}/cldr
+OUTPUT=${BUILD}/unicode-cldr
+STATUS=provisional
+
+if [ ! -d ${CLDR} ] ; then
+    mkdir -p ${BUILD}
+    cd ${BUILD}
+    git clone git@github.com:unicode-org/cldr.git
+fi
+
+cd ${CLDR}
+
+git reset --hard
+git fetch origin
+git checkout master
+git reset --hard
+git checkout $TAG
+
+patch -p1 <<EOF
+diff --git a/tools/java/org/unicode/cldr/util/DtdData.java b/tools/java/org/unicode/cldr/util/DtdData.java
+index a0acd3ff21..3728d1d5a3 100644
+--- a/tools/java/org/unicode/cldr/util/DtdData.java
++++ b/tools/java/org/unicode/cldr/util/DtdData.java
+@@ -809,7 +809,7 @@ public class DtdData extends XMLFileReader.SimpleHandler {
+             return xpathComparator(a, b);
+         }
+
+-        public int xpathComparator(XPathParts a, XPathParts b) {
++        synchronized public int xpathComparator(XPathParts a, XPathParts b) {
+             // there must always be at least one element
+             String baseA = a.getElement(0);
+             String baseB = b.getElement(0);
+EOF
+
+cd tools/java
+ant clean all jar
+
+if [ -d ${OUTPUT} ] ; then
+    rm -rf ${OUTPUT}
+fi
+
+MAINTYPES="
+main
+rbnf
+segments
+"
+
+for type in ${MAINTYPES} ; do
+    # uncomment -m 'en|root' for testing
+    java -Xmx12g -DCLDR_DIR=${CLDR} \
+        -jar ./cldr.jar ldml2json -c ${CLDR}/common/ \
+        -d ${OUTPUT} -r true -p true -t ${type} -s ${STATUS} -l optional 
+#        -m 'en|root'
+done
+
+java -DCLDR_DIR=${CLDR} \
+    -jar ./cldr.jar ldml2json -c ${CLDR}/common/ \
+    -d ${OUTPUT} -r true -p true -t supplemental -s ${STATUS} -l optional
+
+cd ${OUTPUT}
+for name in `echo {*-modern,cldr-rbnf,cldr-core} | xargs` ; do
+    echo "archiving ${name}"
+    tar cfz ${VERSION}.tar.gz ${name}
+    mkdir -p ${name}/archive
+    mv ${VERSION}.tar.gz ${name}/archive
+done
+

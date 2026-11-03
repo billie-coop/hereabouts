@@ -1,0 +1,2724 @@
+{
+  "NumberingSystemRules": {
+    "armenian-lower": {
+      "private": 0,
+      "rules": [
+        {
+          "rule": "−→→;",
+          "value": "-x"
+        },
+        {
+          "rule": "=#,##0.00=;",
+          "value": "x.x"
+        },
+        {
+          "rule": "0;",
+          "value": "0"
+        },
+        {
+          "rule": "ա;",
+          "value": "1"
+        },
+        {
+          "rule": "բ;",
+          "value": "2"
+        },
+        {
+          "rule": "գ;",
+          "value": "3"
+        },
+        {
+          "rule": "դ;",
+          "value": "4"
+        },
+        {
+          "rule": "ե;",
+          "value": "5"
+        },
+        {
+          "rule": "զ;",
+          "value": "6"
+        },
+        {
+          "rule": "է;",
+          "value": "7"
+        },
+        {
+          "rule": "ը;",
+          "value": "8"
+        },
+        {
+          "rule": "թ;",
+          "value": "9"
+        },
+        {
+          "rule": "ժ[→→];",
+          "value": "10"
+        },
+        {
+          "rule": "ի[→→];",
+          "value": "20"
+        },
+        {
+          "rule": "լ[→→];",
+          "value": "30"
+        },
+        {
+          "rule": "խ[→→];",
+          "value": "40"
+        },
+        {
+          "rule": "ծ[→→];",
+          "value": "50"
+        },
+        {
+          "rule": "կ[→→];",
+          "value": "60"
+        },
+        {
+          "rule": "հ[→→];",
+          "value": "70"
+        },
+        {
+          "rule": "ձ[→→];",
+          "value": "80"
+        },
+        {
+          "rule": "ղ[→→];",
+          "value": "90"
+        },
+        {
+          "rule": "ճ[→→];",
+          "value": "100"
+        },
+        {
+          "rule": "մ[→→];",
+          "value": "200"
+        },
+        {
+          "rule": "յ[→→];",
+          "value": "300"
+        },
+        {
+          "rule": "ն[→→];",
+          "value": "400"
+        },
+        {
+          "rule": "շ[→→];",
+          "value": "500"
+        },
+        {
+          "rule": "ո[→→];",
+          "value": "600"
+        },
+        {
+          "rule": "չ[→→];",
+          "value": "700"
+        },
+        {
+          "rule": "պ[→→];",
+          "value": "800"
+        },
+        {
+          "rule": "ջ[→→];",
+          "value": "900"
+        },
+        {
+          "rule": "ռ[→→];",
+          "value": "1000"
+        },
+        {
+          "rule": "ս[→→];",
+          "value": "2000"
+        },
+        {
+          "rule": "վ[→→];",
+          "value": "3000"
+        },
+        {
+          "rule": "տ[→→];",
+          "value": "4000"
+        },
+        {
+          "rule": "ր[→→];",
+          "value": "5000"
+        },
+        {
+          "rule": "ց[→→];",
+          "value": "6000"
+        },
+        {
+          "rule": "ւ[→→];",
+          "value": "7000"
+        },
+        {
+          "rule": "փ[→→];",
+          "value": "8000"
+        },
+        {
+          "rule": "ք[→→];",
+          "value": "9000"
+        },
+        {
+          "rule": "=#,##0=;",
+          "value": "10000"
+        }
+      ]
+    },
+    "armenian-upper": {
+      "private": 0,
+      "rules": [
+        {
+          "rule": "−→→;",
+          "value": "-x"
+        },
+        {
+          "rule": "=#,##0.00=;",
+          "value": "x.x"
+        },
+        {
+          "rule": "0;",
+          "value": "0"
+        },
+        {
+          "rule": "Ա;",
+          "value": "1"
+        },
+        {
+          "rule": "Բ;",
+          "value": "2"
+        },
+        {
+          "rule": "Գ;",
+          "value": "3"
+        },
+        {
+          "rule": "Դ;",
+          "value": "4"
+        },
+        {
+          "rule": "Ե;",
+          "value": "5"
+        },
+        {
+          "rule": "Զ;",
+          "value": "6"
+        },
+        {
+          "rule": "Է;",
+          "value": "7"
+        },
+        {
+          "rule": "Ը;",
+          "value": "8"
+        },
+        {
+          "rule": "Թ;",
+          "value": "9"
+        },
+        {
+          "rule": "Ժ[→→];",
+          "value": "10"
+        },
+        {
+          "rule": "Ի[→→];",
+          "value": "20"
+        },
+        {
+          "rule": "Լ[→→];",
+          "value": "30"
+        },
+        {
+          "rule": "Խ[→→];",
+          "value": "40"
+        },
+        {
+          "rule": "Ծ[→→];",
+          "value": "50"
+        },
+        {
+          "rule": "Կ[→→];",
+          "value": "60"
+        },
+        {
+          "rule": "Հ[→→];",
+          "value": "70"
+        },
+        {
+          "rule": "Ձ[→→];",
+          "value": "80"
+        },
+        {
+          "rule": "Ղ[→→];",
+          "value": "90"
+        },
+        {
+          "rule": "Ճ[→→];",
+          "value": "100"
+        },
+        {
+          "rule": "Մ[→→];",
+          "value": "200"
+        },
+        {
+          "rule": "Յ[→→];",
+          "value": "300"
+        },
+        {
+          "rule": "Ն[→→];",
+          "value": "400"
+        },
+        {
+          "rule": "Շ[→→];",
+          "value": "500"
+        },
+        {
+          "rule": "Ո[→→];",
+          "value": "600"
+        },
+        {
+          "rule": "Չ[→→];",
+          "value": "700"
+        },
+        {
+          "rule": "Պ[→→];",
+          "value": "800"
+        },
+        {
+          "rule": "Ջ[→→];",
+          "value": "900"
+        },
+        {
+          "rule": "Ռ[→→];",
+          "value": "1000"
+        },
+        {
+          "rule": "Ս[→→];",
+          "value": "2000"
+        },
+        {
+          "rule": "Վ[→→];",
+          "value": "3000"
+        },
+        {
+          "rule": "Տ[→→];",
+          "value": "4000"
+        },
+        {
+          "rule": "Ր[→→];",
+          "value": "5000"
+        },
+        {
+          "rule": "Ց[→→];",
+          "value": "6000"
+        },
+        {
+          "rule": "Ւ[→→];",
+          "value": "7000"
+        },
+        {
+          "rule": "Փ[→→];",
+          "value": "8000"
+        },
+        {
+          "rule": "Ք[→→];",
+          "value": "9000"
+        },
+        {
+          "rule": "=#,##0=;",
+          "value": "10000"
+        }
+      ]
+    },
+    "cyrillic-lower": {
+      "private": 0,
+      "rules": [
+        {
+          "rule": "−→→;",
+          "value": "-x"
+        },
+        {
+          "rule": "←←.→→→;",
+          "value": "x.x"
+        },
+        {
+          "rule": "0҃;",
+          "value": "0"
+        },
+        {
+          "rule": "=%%cyrillic-lower-1-10=҃;",
+          "value": "1"
+        },
+        {
+          "rule": "а҃і;",
+          "value": "11"
+        },
+        {
+          "rule": "в҃і;",
+          "value": "12"
+        },
+        {
+          "rule": "г҃і;",
+          "value": "13"
+        },
+        {
+          "rule": "д҃і;",
+          "value": "14"
+        },
+        {
+          "rule": "є҃і;",
+          "value": "15"
+        },
+        {
+          "rule": "ѕ҃і;",
+          "value": "16"
+        },
+        {
+          "rule": "з҃і;",
+          "value": "17"
+        },
+        {
+          "rule": "и҃і;",
+          "value": "18"
+        },
+        {
+          "rule": "ѳ҃і;",
+          "value": "19"
+        },
+        {
+          "rule": "к→%%cyrillic-lower-final→;",
+          "value": "20"
+        },
+        {
+          "rule": "л→%%cyrillic-lower-final→;",
+          "value": "30"
+        },
+        {
+          "rule": "м→%%cyrillic-lower-final→;",
+          "value": "40"
+        },
+        {
+          "rule": "н→%%cyrillic-lower-final→;",
+          "value": "50"
+        },
+        {
+          "rule": "ѯ→%%cyrillic-lower-final→;",
+          "value": "60"
+        },
+        {
+          "rule": "ѻ→%%cyrillic-lower-final→;",
+          "value": "70"
+        },
+        {
+          "rule": "п→%%cyrillic-lower-final→;",
+          "value": "80"
+        },
+        {
+          "rule": "ч→%%cyrillic-lower-final→;",
+          "value": "90"
+        },
+        {
+          "rule": "р→%%cyrillic-lower-final→;",
+          "value": "100"
+        },
+        {
+          "rule": "с→%%cyrillic-lower-final→;",
+          "value": "200"
+        },
+        {
+          "rule": "т→%%cyrillic-lower-final→;",
+          "value": "300"
+        },
+        {
+          "rule": "у→%%cyrillic-lower-final→;",
+          "value": "400"
+        },
+        {
+          "rule": "ф→%%cyrillic-lower-final→;",
+          "value": "500"
+        },
+        {
+          "rule": "х→%%cyrillic-lower-final→;",
+          "value": "600"
+        },
+        {
+          "rule": "ѱ→%%cyrillic-lower-final→;",
+          "value": "700"
+        },
+        {
+          "rule": "ѿ҃;",
+          "value": "800"
+        },
+        {
+          "rule": "ѿ→→;",
+          "value": "801"
+        },
+        {
+          "rule": "ц→%%cyrillic-lower-final→;",
+          "value": "900"
+        },
+        {
+          "rule": "҂←%%cyrillic-lower-1-10←→%%cyrillic-lower-post→;",
+          "value": "1000"
+        },
+        {
+          "rule": "҂←←[ →→];",
+          "value": "10000/1000"
+        },
+        {
+          "rule": "←%%cyrillic-lower-thousands←[ →→];",
+          "value": "11000/1000"
+        },
+        {
+          "rule": "҂҂←←[ →→];",
+          "value": "1000000"
+        },
+        {
+          "rule": "҂҂҂←←[ →→];",
+          "value": "1000000000"
+        },
+        {
+          "rule": "҂҂҂҂←←[ →→];",
+          "value": "1000000000000"
+        },
+        {
+          "rule": "҂҂҂҂҂←←[ →→];",
+          "value": "1000000000000000"
+        },
+        {
+          "rule": "=#,##0=;",
+          "value": "1000000000000000000"
+        }
+      ]
+    },
+    "cyrillic-lower-1-10": {
+      "private": 1,
+      "rules": [
+        {
+          "rule": "а;",
+          "value": "1"
+        },
+        {
+          "rule": "в;",
+          "value": "2"
+        },
+        {
+          "rule": "г;",
+          "value": "3"
+        },
+        {
+          "rule": "д;",
+          "value": "4"
+        },
+        {
+          "rule": "є;",
+          "value": "5"
+        },
+        {
+          "rule": "ѕ;",
+          "value": "6"
+        },
+        {
+          "rule": "з;",
+          "value": "7"
+        },
+        {
+          "rule": "и;",
+          "value": "8"
+        },
+        {
+          "rule": "ѳ;",
+          "value": "9"
+        },
+        {
+          "rule": "і;",
+          "value": "10"
+        }
+      ]
+    },
+    "cyrillic-lower-final": {
+      "private": 1,
+      "rules": [
+        {
+          "rule": "҃;",
+          "value": "0"
+        },
+        {
+          "rule": "҃=%%cyrillic-lower-1-10=;",
+          "value": "1"
+        },
+        {
+          "rule": "а҃і;",
+          "value": "11"
+        },
+        {
+          "rule": "в҃і;",
+          "value": "12"
+        },
+        {
+          "rule": "г҃і;",
+          "value": "13"
+        },
+        {
+          "rule": "д҃і;",
+          "value": "14"
+        },
+        {
+          "rule": "є҃і;",
+          "value": "15"
+        },
+        {
+          "rule": "ѕ҃і;",
+          "value": "16"
+        },
+        {
+          "rule": "з҃і;",
+          "value": "17"
+        },
+        {
+          "rule": "и҃і;",
+          "value": "18"
+        },
+        {
+          "rule": "ѳ҃і;",
+          "value": "19"
+        },
+        {
+          "rule": "҃к;",
+          "value": "20"
+        },
+        {
+          "rule": "к→→;",
+          "value": "21"
+        },
+        {
+          "rule": "҃л;",
+          "value": "30"
+        },
+        {
+          "rule": "л→→;",
+          "value": "31"
+        },
+        {
+          "rule": "҃м;",
+          "value": "40"
+        },
+        {
+          "rule": "м→→;",
+          "value": "41"
+        },
+        {
+          "rule": "҃н;",
+          "value": "50"
+        },
+        {
+          "rule": "н→→;",
+          "value": "51"
+        },
+        {
+          "rule": "҃ѯ;",
+          "value": "60"
+        },
+        {
+          "rule": "ѯ→→;",
+          "value": "61"
+        },
+        {
+          "rule": "҃ѻ;",
+          "value": "70"
+        },
+        {
+          "rule": "ѻ→→;",
+          "value": "71"
+        },
+        {
+          "rule": "҃п;",
+          "value": "80"
+        },
+        {
+          "rule": "п→→;",
+          "value": "81"
+        },
+        {
+          "rule": "҃ч;",
+          "value": "90"
+        },
+        {
+          "rule": "ч→→;",
+          "value": "91"
+        }
+      ]
+    },
+    "cyrillic-lower-post": {
+      "private": 1,
+      "rules": [
+        {
+          "rule": "҃;",
+          "value": "0"
+        },
+        {
+          "rule": "=%cyrillic-lower=;",
+          "value": "1"
+        }
+      ]
+    },
+    "cyrillic-lower-thousands": {
+      "private": 1,
+      "rules": [
+        {
+          "rule": "҃;",
+          "value": "0"
+        },
+        {
+          "rule": "҃҂а;",
+          "value": "1"
+        },
+        {
+          "rule": "҃҂в;",
+          "value": "2"
+        },
+        {
+          "rule": "҃҂г;",
+          "value": "3"
+        },
+        {
+          "rule": "҃҂д;",
+          "value": "4"
+        },
+        {
+          "rule": "҃҂є;",
+          "value": "5"
+        },
+        {
+          "rule": "҃҂ѕ;",
+          "value": "6"
+        },
+        {
+          "rule": "҃҂з;",
+          "value": "7"
+        },
+        {
+          "rule": "҃҂и;",
+          "value": "8"
+        },
+        {
+          "rule": "҃҂ѳ;",
+          "value": "9"
+        },
+        {
+          "rule": "҃҂і;",
+          "value": "10"
+        },
+        {
+          "rule": "҂а҃҂і;",
+          "value": "11"
+        },
+        {
+          "rule": "҂в҃҂і;",
+          "value": "12"
+        },
+        {
+          "rule": "҂г҃҂і;",
+          "value": "13"
+        },
+        {
+          "rule": "҂д҃҂і;",
+          "value": "14"
+        },
+        {
+          "rule": "҂є҃҂і;",
+          "value": "15"
+        },
+        {
+          "rule": "҂ѕ҃҂і;",
+          "value": "16"
+        },
+        {
+          "rule": "҂з҃҂і;",
+          "value": "17"
+        },
+        {
+          "rule": "҂и҃҂і;",
+          "value": "18"
+        },
+        {
+          "rule": "҂ѳ҃҂і;",
+          "value": "19"
+        },
+        {
+          "rule": "҂к→→;",
+          "value": "20"
+        },
+        {
+          "rule": "҂л→→;",
+          "value": "30"
+        },
+        {
+          "rule": "҂м→→;",
+          "value": "40"
+        },
+        {
+          "rule": "҂н→→;",
+          "value": "50"
+        },
+        {
+          "rule": "҂ѯ→→;",
+          "value": "60"
+        },
+        {
+          "rule": "҂ѻ→→;",
+          "value": "70"
+        },
+        {
+          "rule": "҂п→→;",
+          "value": "80"
+        },
+        {
+          "rule": "҂ч→→;",
+          "value": "90"
+        },
+        {
+          "rule": "҂р→→;",
+          "value": "100"
+        },
+        {
+          "rule": "҂с→→;",
+          "value": "200"
+        },
+        {
+          "rule": "҂т→→;",
+          "value": "300"
+        },
+        {
+          "rule": "҂у→→;",
+          "value": "400"
+        },
+        {
+          "rule": "҂ф→→;",
+          "value": "500"
+        },
+        {
+          "rule": "҂х→→;",
+          "value": "600"
+        },
+        {
+          "rule": "҂ѱ→→;",
+          "value": "700"
+        },
+        {
+          "rule": "҂ѿ→→;",
+          "value": "800"
+        },
+        {
+          "rule": "҂ц→→;",
+          "value": "900"
+        }
+      ]
+    },
+    "ethiopic": {
+      "private": 0,
+      "rules": [
+        {
+          "rule": "−→→;",
+          "value": "-x"
+        },
+        {
+          "rule": "←←፡→→;",
+          "value": "x.x"
+        },
+        {
+          "rule": "ባዶ;",
+          "value": "0"
+        },
+        {
+          "rule": "፩;",
+          "value": "1"
+        },
+        {
+          "rule": "፪;",
+          "value": "2"
+        },
+        {
+          "rule": "፫;",
+          "value": "3"
+        },
+        {
+          "rule": "፬;",
+          "value": "4"
+        },
+        {
+          "rule": "፭;",
+          "value": "5"
+        },
+        {
+          "rule": "፮;",
+          "value": "6"
+        },
+        {
+          "rule": "፯;",
+          "value": "7"
+        },
+        {
+          "rule": "፰;",
+          "value": "8"
+        },
+        {
+          "rule": "፱;",
+          "value": "9"
+        },
+        {
+          "rule": "፲[→→];",
+          "value": "10"
+        },
+        {
+          "rule": "፳[→→];",
+          "value": "20"
+        },
+        {
+          "rule": "፴[→→];",
+          "value": "30"
+        },
+        {
+          "rule": "፵[→→];",
+          "value": "40"
+        },
+        {
+          "rule": "፶[→→];",
+          "value": "50"
+        },
+        {
+          "rule": "፷[→→];",
+          "value": "60"
+        },
+        {
+          "rule": "፸[→→];",
+          "value": "70"
+        },
+        {
+          "rule": "፹[→→];",
+          "value": "80"
+        },
+        {
+          "rule": "፺[→→];",
+          "value": "90"
+        },
+        {
+          "rule": "፻[→→];",
+          "value": "100"
+        },
+        {
+          "rule": "←←፻[→→];",
+          "value": "200"
+        },
+        {
+          "rule": "፼[→→];",
+          "value": "10000"
+        },
+        {
+          "rule": "←←፼[→→];",
+          "value": "20000"
+        },
+        {
+          "rule": "፼→%%ethiopic-p1→;",
+          "value": "100000000"
+        },
+        {
+          "rule": "←←፼→%%ethiopic-p1→;",
+          "value": "200000000"
+        },
+        {
+          "rule": "፼→%%ethiopic-p2→;",
+          "value": "1000000000000"
+        },
+        {
+          "rule": "←←፼→%%ethiopic-p2→;",
+          "value": "2000000000000"
+        },
+        {
+          "rule": "፼→%%ethiopic-p3→;",
+          "value": "10000000000000000"
+        },
+        {
+          "rule": "←←፼→%%ethiopic-p3→;",
+          "value": "20000000000000000"
+        },
+        {
+          "rule": "=#,##0=;",
+          "value": "1000000000000000000"
+        }
+      ]
+    },
+    "ethiopic-p": {
+      "private": 1,
+      "rules": [
+        {
+          "rule": "=%ethiopic=;",
+          "value": "1"
+        },
+        {
+          "rule": "←←፼[→→];",
+          "value": "10000"
+        },
+        {
+          "rule": "←←፼→%%ethiopic-p1→;",
+          "value": "100000000"
+        },
+        {
+          "rule": "←←፼→%%ethiopic-p2→;",
+          "value": "1000000000000"
+        },
+        {
+          "rule": "←←፼→%%ethiopic-p3→;",
+          "value": "10000000000000000"
+        }
+      ]
+    },
+    "ethiopic-p1": {
+      "private": 1,
+      "rules": [
+        {
+          "rule": "፼;",
+          "value": "0"
+        },
+        {
+          "rule": "፼=%%ethiopic-p=;",
+          "value": "1"
+        },
+        {
+          "rule": "←%ethiopic←፼[→%ethiopic→];",
+          "value": "10000"
+        }
+      ]
+    },
+    "ethiopic-p2": {
+      "private": 1,
+      "rules": [
+        {
+          "rule": "፼፼;",
+          "value": "0"
+        },
+        {
+          "rule": "፼፼=%%ethiopic-p=;",
+          "value": "1"
+        },
+        {
+          "rule": "←%ethiopic←፼→%%ethiopic-p1→;",
+          "value": "100000000"
+        }
+      ]
+    },
+    "ethiopic-p3": {
+      "private": 1,
+      "rules": [
+        {
+          "rule": "፼፼፼;",
+          "value": "0"
+        },
+        {
+          "rule": "፼፼፼=%%ethiopic-p=;",
+          "value": "1"
+        },
+        {
+          "rule": "←%ethiopic←፼→%%ethiopic-p2→;",
+          "value": "1000000000000"
+        }
+      ]
+    },
+    "georgian": {
+      "private": 0,
+      "rules": [
+        {
+          "rule": "−→→;",
+          "value": "-x"
+        },
+        {
+          "rule": "=#,##0.00=;",
+          "value": "x.x"
+        },
+        {
+          "rule": "=#,##0=;",
+          "value": "0"
+        },
+        {
+          "rule": "ა;",
+          "value": "1"
+        },
+        {
+          "rule": "ბ;",
+          "value": "2"
+        },
+        {
+          "rule": "გ;",
+          "value": "3"
+        },
+        {
+          "rule": "დ;",
+          "value": "4"
+        },
+        {
+          "rule": "ე;",
+          "value": "5"
+        },
+        {
+          "rule": "ვ;",
+          "value": "6"
+        },
+        {
+          "rule": "ზ;",
+          "value": "7"
+        },
+        {
+          "rule": "ჱ;",
+          "value": "8"
+        },
+        {
+          "rule": "თ;",
+          "value": "9"
+        },
+        {
+          "rule": "ი[→→];",
+          "value": "10"
+        },
+        {
+          "rule": "კ[→→];",
+          "value": "20"
+        },
+        {
+          "rule": "ლ[→→];",
+          "value": "30"
+        },
+        {
+          "rule": "მ[→→];",
+          "value": "40"
+        },
+        {
+          "rule": "ნ[→→];",
+          "value": "50"
+        },
+        {
+          "rule": "ჲ[→→];",
+          "value": "60"
+        },
+        {
+          "rule": "ო[→→];",
+          "value": "70"
+        },
+        {
+          "rule": "პ[→→];",
+          "value": "80"
+        },
+        {
+          "rule": "ჟ[→→];",
+          "value": "90"
+        },
+        {
+          "rule": "რ[→→];",
+          "value": "100"
+        },
+        {
+          "rule": "ს[→→];",
+          "value": "200"
+        },
+        {
+          "rule": "ტ[→→];",
+          "value": "300"
+        },
+        {
+          "rule": "უ[→→];",
+          "value": "400"
+        },
+        {
+          "rule": "ჳ[→→];",
+          "value": "500"
+        },
+        {
+          "rule": "ფ[→→];",
+          "value": "600"
+        },
+        {
+          "rule": "ქ[→→];",
+          "value": "700"
+        },
+        {
+          "rule": "ღ[→→];",
+          "value": "800"
+        },
+        {
+          "rule": "ყ[→→];",
+          "value": "900"
+        },
+        {
+          "rule": "შ[→→];",
+          "value": "1000"
+        },
+        {
+          "rule": "ჩ[→→];",
+          "value": "2000"
+        },
+        {
+          "rule": "ც[→→];",
+          "value": "3000"
+        },
+        {
+          "rule": "ძ[→→];",
+          "value": "4000"
+        },
+        {
+          "rule": "წ[→→];",
+          "value": "5000"
+        },
+        {
+          "rule": "ჭ[→→];",
+          "value": "6000"
+        },
+        {
+          "rule": "ხ[→→];",
+          "value": "7000"
+        },
+        {
+          "rule": "ჴ[→→];",
+          "value": "8000"
+        },
+        {
+          "rule": "ჵ[→→];",
+          "value": "9000"
+        },
+        {
+          "rule": "ჯ[→→];",
+          "value": "10000"
+        },
+        {
+          "rule": "=#,##0=;",
+          "value": "20000"
+        }
+      ]
+    },
+    "greek-lower": {
+      "private": 0,
+      "rules": [
+        {
+          "rule": "−→→;",
+          "value": "-x"
+        },
+        {
+          "rule": "←←.→→→;",
+          "value": "x.x"
+        },
+        {
+          "rule": "=%%greek-numeral-minuscules=´;",
+          "value": "0"
+        }
+      ]
+    },
+    "greek-numeral-majuscules": {
+      "private": 1,
+      "rules": [
+        {
+          "rule": "𐆊;",
+          "value": "0"
+        },
+        {
+          "rule": "Α;",
+          "value": "1"
+        },
+        {
+          "rule": "Β;",
+          "value": "2"
+        },
+        {
+          "rule": "Γ;",
+          "value": "3"
+        },
+        {
+          "rule": "Δ;",
+          "value": "4"
+        },
+        {
+          "rule": "Ε;",
+          "value": "5"
+        },
+        {
+          "rule": "Ϝ;",
+          "value": "6"
+        },
+        {
+          "rule": "Ζ;",
+          "value": "7"
+        },
+        {
+          "rule": "Η;",
+          "value": "8"
+        },
+        {
+          "rule": "Θ;",
+          "value": "9"
+        },
+        {
+          "rule": "Ι[→→];",
+          "value": "10"
+        },
+        {
+          "rule": "Κ[→→];",
+          "value": "20"
+        },
+        {
+          "rule": "Λ[→→];",
+          "value": "30"
+        },
+        {
+          "rule": "Μ[→→];",
+          "value": "40"
+        },
+        {
+          "rule": "Ν[→→];",
+          "value": "50"
+        },
+        {
+          "rule": "Ξ[→→];",
+          "value": "60"
+        },
+        {
+          "rule": "Ο[→→];",
+          "value": "70"
+        },
+        {
+          "rule": "Π[→→];",
+          "value": "80"
+        },
+        {
+          "rule": "Ϟ[→→];",
+          "value": "90"
+        },
+        {
+          "rule": "Ρ[→→];",
+          "value": "100"
+        },
+        {
+          "rule": "Σ[→→];",
+          "value": "200"
+        },
+        {
+          "rule": "Τ[→→];",
+          "value": "300"
+        },
+        {
+          "rule": "Υ[→→];",
+          "value": "400"
+        },
+        {
+          "rule": "Φ[→→];",
+          "value": "500"
+        },
+        {
+          "rule": "Χ[→→];",
+          "value": "600"
+        },
+        {
+          "rule": "Ψ[→→];",
+          "value": "700"
+        },
+        {
+          "rule": "Ω[→→];",
+          "value": "800"
+        },
+        {
+          "rule": "Ϡ[→→];",
+          "value": "900"
+        },
+        {
+          "rule": "͵←←[→→];",
+          "value": "1000"
+        },
+        {
+          "rule": "←←Μ[ →→];",
+          "value": "10000"
+        },
+        {
+          "rule": "←←ΜΜ[ →→];",
+          "value": "100000000"
+        },
+        {
+          "rule": "←←ΜΜΜ[ →→];",
+          "value": "1000000000000"
+        },
+        {
+          "rule": "←←ΜΜΜΜ[ →→];",
+          "value": "10000000000000000"
+        },
+        {
+          "rule": "=#,##0=;",
+          "value": "1000000000000000000"
+        }
+      ]
+    },
+    "greek-numeral-minuscules": {
+      "private": 1,
+      "rules": [
+        {
+          "rule": "𐆊;",
+          "value": "0"
+        },
+        {
+          "rule": "α;",
+          "value": "1"
+        },
+        {
+          "rule": "β;",
+          "value": "2"
+        },
+        {
+          "rule": "γ;",
+          "value": "3"
+        },
+        {
+          "rule": "δ;",
+          "value": "4"
+        },
+        {
+          "rule": "ε;",
+          "value": "5"
+        },
+        {
+          "rule": "ϝ;",
+          "value": "6"
+        },
+        {
+          "rule": "ζ;",
+          "value": "7"
+        },
+        {
+          "rule": "η;",
+          "value": "8"
+        },
+        {
+          "rule": "θ;",
+          "value": "9"
+        },
+        {
+          "rule": "ι[→→];",
+          "value": "10"
+        },
+        {
+          "rule": "κ[→→];",
+          "value": "20"
+        },
+        {
+          "rule": "λ[→→];",
+          "value": "30"
+        },
+        {
+          "rule": "μ[→→];",
+          "value": "40"
+        },
+        {
+          "rule": "ν[→→];",
+          "value": "50"
+        },
+        {
+          "rule": "ξ[→→];",
+          "value": "60"
+        },
+        {
+          "rule": "ο[→→];",
+          "value": "70"
+        },
+        {
+          "rule": "π[→→];",
+          "value": "80"
+        },
+        {
+          "rule": "ϟ[→→];",
+          "value": "90"
+        },
+        {
+          "rule": "ρ[→→];",
+          "value": "100"
+        },
+        {
+          "rule": "σ[→→];",
+          "value": "200"
+        },
+        {
+          "rule": "τ[→→];",
+          "value": "300"
+        },
+        {
+          "rule": "υ[→→];",
+          "value": "400"
+        },
+        {
+          "rule": "φ[→→];",
+          "value": "500"
+        },
+        {
+          "rule": "χ[→→];",
+          "value": "600"
+        },
+        {
+          "rule": "ψ[→→];",
+          "value": "700"
+        },
+        {
+          "rule": "ω[→→];",
+          "value": "800"
+        },
+        {
+          "rule": "ϡ[→→];",
+          "value": "900"
+        },
+        {
+          "rule": "͵←←[→→];",
+          "value": "1000"
+        },
+        {
+          "rule": "←←μ[ →→];",
+          "value": "10000"
+        },
+        {
+          "rule": "←←μμ[ →→];",
+          "value": "100000000"
+        },
+        {
+          "rule": "←←μμμ[ →→];",
+          "value": "1000000000000"
+        },
+        {
+          "rule": "←←μμμμ[ →→];",
+          "value": "10000000000000000"
+        },
+        {
+          "rule": "=#,##0=;",
+          "value": "1000000000000000000"
+        }
+      ]
+    },
+    "greek-upper": {
+      "private": 0,
+      "rules": [
+        {
+          "rule": "−→→;",
+          "value": "-x"
+        },
+        {
+          "rule": "←←.→→→;",
+          "value": "x.x"
+        },
+        {
+          "rule": "=%%greek-numeral-majuscules=´;",
+          "value": "0"
+        }
+      ]
+    },
+    "hebrew": {
+      "private": 0,
+      "rules": [
+        {
+          "rule": "−→→;",
+          "value": "-x"
+        },
+        {
+          "rule": "=#,##0.00=;",
+          "value": "x.x"
+        },
+        {
+          "rule": "=%hebrew-item=׳;",
+          "value": "0"
+        },
+        {
+          "rule": "י״→%hebrew-item→;",
+          "value": "11"
+        },
+        {
+          "rule": "ט״ו;",
+          "value": "15"
+        },
+        {
+          "rule": "ט״ז;",
+          "value": "16"
+        },
+        {
+          "rule": "י״→%hebrew-item→;",
+          "value": "17"
+        },
+        {
+          "rule": "כ׳;",
+          "value": "20"
+        },
+        {
+          "rule": "כ״→%hebrew-item→;",
+          "value": "21"
+        },
+        {
+          "rule": "ל׳;",
+          "value": "30"
+        },
+        {
+          "rule": "ל״→%hebrew-item→;",
+          "value": "31"
+        },
+        {
+          "rule": "מ׳;",
+          "value": "40"
+        },
+        {
+          "rule": "מ״→%hebrew-item→;",
+          "value": "41"
+        },
+        {
+          "rule": "נ׳;",
+          "value": "50"
+        },
+        {
+          "rule": "נ״→%hebrew-item→;",
+          "value": "51"
+        },
+        {
+          "rule": "ס׳;",
+          "value": "60"
+        },
+        {
+          "rule": "ס״→%hebrew-item→;",
+          "value": "61"
+        },
+        {
+          "rule": "ע׳;",
+          "value": "70"
+        },
+        {
+          "rule": "ע״→%hebrew-item→;",
+          "value": "71"
+        },
+        {
+          "rule": "פ׳;",
+          "value": "80"
+        },
+        {
+          "rule": "פ״→%hebrew-item→;",
+          "value": "81"
+        },
+        {
+          "rule": "צ׳;",
+          "value": "90"
+        },
+        {
+          "rule": "צ״→%hebrew-item→;",
+          "value": "91"
+        },
+        {
+          "rule": "ק→%%hebrew-0-99→;",
+          "value": "100"
+        },
+        {
+          "rule": "ר→%%hebrew-0-99→;",
+          "value": "200"
+        },
+        {
+          "rule": "רח״צ;",
+          "value": "298"
+        },
+        {
+          "rule": "ר→%%hebrew-0-99→;",
+          "value": "299"
+        },
+        {
+          "rule": "ש→%%hebrew-0-99→;",
+          "value": "300"
+        },
+        {
+          "rule": "ד״ש;",
+          "value": "304"
+        },
+        {
+          "rule": "ש→%%hebrew-0-99→;",
+          "value": "305"
+        },
+        {
+          "rule": "שד״מ;",
+          "value": "344"
+        },
+        {
+          "rule": "ש→%%hebrew-0-99→;",
+          "value": "345"
+        },
+        {
+          "rule": "ת→%%hebrew-0-99→;",
+          "value": "400"
+        },
+        {
+          "rule": "ת״ק;",
+          "value": "500"
+        },
+        {
+          "rule": "תק→%%hebrew-0-99→;",
+          "value": "501"
+        },
+        {
+          "rule": "ת״ר;",
+          "value": "600"
+        },
+        {
+          "rule": "תר→%%hebrew-0-99→;",
+          "value": "601"
+        },
+        {
+          "rule": "תרח״צ;",
+          "value": "698"
+        },
+        {
+          "rule": "תר→%%hebrew-0-99→;",
+          "value": "699"
+        },
+        {
+          "rule": "ת״ש;",
+          "value": "700"
+        },
+        {
+          "rule": "תש→%%hebrew-0-99→;",
+          "value": "701"
+        },
+        {
+          "rule": "תשד״מ;",
+          "value": "744"
+        },
+        {
+          "rule": "תש→%%hebrew-0-99→;",
+          "value": "745"
+        },
+        {
+          "rule": "ת״ת;",
+          "value": "800"
+        },
+        {
+          "rule": "תת→%%hebrew-0-99→;",
+          "value": "801"
+        },
+        {
+          "rule": "תת״ק;",
+          "value": "900"
+        },
+        {
+          "rule": "תתק→%%hebrew-0-99→;",
+          "value": "901"
+        },
+        {
+          "rule": "אלף;",
+          "value": "1000"
+        },
+        {
+          "rule": "←%%hebrew-thousands←[→→];",
+          "value": "1001"
+        },
+        {
+          "rule": "אלפיים;",
+          "value": "2000"
+        },
+        {
+          "rule": "←%%hebrew-thousands←[→→];",
+          "value": "2001"
+        },
+        {
+          "rule": "←← אלפים;",
+          "value": "3000"
+        },
+        {
+          "rule": "←%%hebrew-thousands←[→→];",
+          "value": "3001"
+        },
+        {
+          "rule": "אלף אלפים;",
+          "value": "1000000"
+        },
+        {
+          "rule": "=#,##0=;",
+          "value": "1000001"
+        }
+      ]
+    },
+    "hebrew-0-99": {
+      "private": 1,
+      "rules": [
+        {
+          "rule": "׳;",
+          "value": "0"
+        },
+        {
+          "rule": "״=%hebrew-item=;",
+          "value": "1"
+        },
+        {
+          "rule": "י״→%hebrew-item→;",
+          "value": "11"
+        },
+        {
+          "rule": "ט״ו;",
+          "value": "15"
+        },
+        {
+          "rule": "ט״ז;",
+          "value": "16"
+        },
+        {
+          "rule": "י״→%hebrew-item→;",
+          "value": "17"
+        },
+        {
+          "rule": "״כ;",
+          "value": "20"
+        },
+        {
+          "rule": "כ״→%hebrew-item→;",
+          "value": "21"
+        },
+        {
+          "rule": "״ל;",
+          "value": "30"
+        },
+        {
+          "rule": "ל״→%hebrew-item→;",
+          "value": "31"
+        },
+        {
+          "rule": "״מ;",
+          "value": "40"
+        },
+        {
+          "rule": "מ״→%hebrew-item→;",
+          "value": "41"
+        },
+        {
+          "rule": "״נ;",
+          "value": "50"
+        },
+        {
+          "rule": "נ״→%hebrew-item→;",
+          "value": "51"
+        },
+        {
+          "rule": "״ס;",
+          "value": "60"
+        },
+        {
+          "rule": "ס״→%hebrew-item→;",
+          "value": "61"
+        },
+        {
+          "rule": "״ע;",
+          "value": "70"
+        },
+        {
+          "rule": "ע״→%hebrew-item→;",
+          "value": "71"
+        },
+        {
+          "rule": "״ף;",
+          "value": "80"
+        },
+        {
+          "rule": "פ״→%hebrew-item→;",
+          "value": "81"
+        },
+        {
+          "rule": "״צ;",
+          "value": "90"
+        },
+        {
+          "rule": "צ״→%hebrew-item→;",
+          "value": "91"
+        }
+      ]
+    },
+    "hebrew-item": {
+      "private": 0,
+      "rules": [
+        {
+          "rule": "−→→;",
+          "value": "-x"
+        },
+        {
+          "rule": "=#,##0.00=;",
+          "value": "x.x"
+        },
+        {
+          "rule": "״;",
+          "value": "0"
+        },
+        {
+          "rule": "א;",
+          "value": "1"
+        },
+        {
+          "rule": "ב;",
+          "value": "2"
+        },
+        {
+          "rule": "ג;",
+          "value": "3"
+        },
+        {
+          "rule": "ד;",
+          "value": "4"
+        },
+        {
+          "rule": "ה;",
+          "value": "5"
+        },
+        {
+          "rule": "ו;",
+          "value": "6"
+        },
+        {
+          "rule": "ז;",
+          "value": "7"
+        },
+        {
+          "rule": "ח;",
+          "value": "8"
+        },
+        {
+          "rule": "ט;",
+          "value": "9"
+        },
+        {
+          "rule": "י[→→];",
+          "value": "10"
+        },
+        {
+          "rule": "טו;",
+          "value": "15"
+        },
+        {
+          "rule": "טז;",
+          "value": "16"
+        },
+        {
+          "rule": "י→→;",
+          "value": "17"
+        },
+        {
+          "rule": "כ[→→];",
+          "value": "20"
+        },
+        {
+          "rule": "ל[→→];",
+          "value": "30"
+        },
+        {
+          "rule": "מ[→→];",
+          "value": "40"
+        },
+        {
+          "rule": "נ[→→];",
+          "value": "50"
+        },
+        {
+          "rule": "ס[→→];",
+          "value": "60"
+        },
+        {
+          "rule": "ע[→→];",
+          "value": "70"
+        },
+        {
+          "rule": "פ[→→];",
+          "value": "80"
+        },
+        {
+          "rule": "צ[→→];",
+          "value": "90"
+        },
+        {
+          "rule": "=%%hebrew-item-hundreds=;",
+          "value": "100"
+        }
+      ]
+    },
+    "hebrew-item-hundreds": {
+      "private": 1,
+      "rules": [
+        {
+          "rule": "−→→;",
+          "value": "-x"
+        },
+        {
+          "rule": "=#,##0.00=;",
+          "value": "x.x"
+        },
+        {
+          "rule": "״;",
+          "value": "0"
+        },
+        {
+          "rule": "א;",
+          "value": "1"
+        },
+        {
+          "rule": "ב;",
+          "value": "2"
+        },
+        {
+          "rule": "ג;",
+          "value": "3"
+        },
+        {
+          "rule": "ד;",
+          "value": "4"
+        },
+        {
+          "rule": "ה;",
+          "value": "5"
+        },
+        {
+          "rule": "ו;",
+          "value": "6"
+        },
+        {
+          "rule": "ז;",
+          "value": "7"
+        },
+        {
+          "rule": "ח;",
+          "value": "8"
+        },
+        {
+          "rule": "ט;",
+          "value": "9"
+        },
+        {
+          "rule": "י[→→];",
+          "value": "10"
+        },
+        {
+          "rule": "טו;",
+          "value": "15"
+        },
+        {
+          "rule": "טז;",
+          "value": "16"
+        },
+        {
+          "rule": "י→→;",
+          "value": "17"
+        },
+        {
+          "rule": "כ[→→];",
+          "value": "20"
+        },
+        {
+          "rule": "ל[→→];",
+          "value": "30"
+        },
+        {
+          "rule": "מ[→→];",
+          "value": "40"
+        },
+        {
+          "rule": "נ[→→];",
+          "value": "50"
+        },
+        {
+          "rule": "ס[→→];",
+          "value": "60"
+        },
+        {
+          "rule": "ע[→→];",
+          "value": "70"
+        },
+        {
+          "rule": "ף;",
+          "value": "80"
+        },
+        {
+          "rule": "פ[→→];",
+          "value": "81"
+        },
+        {
+          "rule": "צ[→→];",
+          "value": "90"
+        },
+        {
+          "rule": "ק[→→];",
+          "value": "100"
+        },
+        {
+          "rule": "ר[→→];",
+          "value": "200"
+        },
+        {
+          "rule": "רחצ;",
+          "value": "298"
+        },
+        {
+          "rule": "ר→→;",
+          "value": "299"
+        },
+        {
+          "rule": "ש[→→];",
+          "value": "300"
+        },
+        {
+          "rule": "דש;",
+          "value": "304"
+        },
+        {
+          "rule": "ש→→;",
+          "value": "305"
+        },
+        {
+          "rule": "שדמ;",
+          "value": "344"
+        },
+        {
+          "rule": "ש→→;",
+          "value": "345"
+        },
+        {
+          "rule": "ת[→→];",
+          "value": "400"
+        },
+        {
+          "rule": "תק[→→];",
+          "value": "500"
+        },
+        {
+          "rule": "תר[→→];",
+          "value": "600"
+        },
+        {
+          "rule": "תרחצ;",
+          "value": "698"
+        },
+        {
+          "rule": "תר→→;",
+          "value": "699"
+        },
+        {
+          "rule": "תש[→→];",
+          "value": "700"
+        },
+        {
+          "rule": "תשדמ;",
+          "value": "744"
+        },
+        {
+          "rule": "תש→→;",
+          "value": "745"
+        },
+        {
+          "rule": "תת[→→];",
+          "value": "800"
+        },
+        {
+          "rule": "תתק[→→];",
+          "value": "900"
+        },
+        {
+          "rule": "תתר[→→];",
+          "value": "1000/100"
+        },
+        {
+          "rule": "תתש[→→];",
+          "value": "1100/100"
+        },
+        {
+          "rule": "תתת[→→];",
+          "value": "1200/100"
+        },
+        {
+          "rule": "תתתק[→→];",
+          "value": "1300/100"
+        },
+        {
+          "rule": "תתתר[→→];",
+          "value": "1400/100"
+        },
+        {
+          "rule": "תתתש[→→];",
+          "value": "1500/100"
+        },
+        {
+          "rule": "תתתת[→→];",
+          "value": "1600/100"
+        },
+        {
+          "rule": "תתתתק[→→];",
+          "value": "1700/100"
+        },
+        {
+          "rule": "תתתתר[→→];",
+          "value": "1800/100"
+        },
+        {
+          "rule": "תתתתש[→→];",
+          "value": "1900/100"
+        },
+        {
+          "rule": "תתתתת[→→];",
+          "value": "2000/100"
+        },
+        {
+          "rule": "=#,##0=;",
+          "value": "2100"
+        }
+      ]
+    },
+    "hebrew-thousands": {
+      "private": 1,
+      "rules": [
+        {
+          "rule": "=%hebrew=;",
+          "value": "0"
+        },
+        {
+          "rule": "=%hebrew=[׳];",
+          "value": "10"
+        },
+        {
+          "rule": "=%hebrew=[׳];",
+          "value": "100"
+        },
+        {
+          "rule": "=%hebrew=׳;",
+          "value": "401"
+        }
+      ]
+    },
+    "roman-lower": {
+      "private": 0,
+      "rules": [
+        {
+          "rule": "−→→;",
+          "value": "-x"
+        },
+        {
+          "rule": "=#,##0.00=;",
+          "value": "x.x"
+        },
+        {
+          "rule": "n;",
+          "value": "0"
+        },
+        {
+          "rule": "i;",
+          "value": "1"
+        },
+        {
+          "rule": "ii;",
+          "value": "2"
+        },
+        {
+          "rule": "iii;",
+          "value": "3"
+        },
+        {
+          "rule": "iv;",
+          "value": "4"
+        },
+        {
+          "rule": "v;",
+          "value": "5"
+        },
+        {
+          "rule": "vi;",
+          "value": "6"
+        },
+        {
+          "rule": "vii;",
+          "value": "7"
+        },
+        {
+          "rule": "viii;",
+          "value": "8"
+        },
+        {
+          "rule": "ix;",
+          "value": "9"
+        },
+        {
+          "rule": "x[→→];",
+          "value": "10"
+        },
+        {
+          "rule": "xx[→→];",
+          "value": "20"
+        },
+        {
+          "rule": "xxx[→→];",
+          "value": "30"
+        },
+        {
+          "rule": "xl[→→];",
+          "value": "40"
+        },
+        {
+          "rule": "l[→→];",
+          "value": "50"
+        },
+        {
+          "rule": "lx[→→];",
+          "value": "60"
+        },
+        {
+          "rule": "lxx[→→];",
+          "value": "70"
+        },
+        {
+          "rule": "lxxx[→→];",
+          "value": "80"
+        },
+        {
+          "rule": "xc[→→];",
+          "value": "90"
+        },
+        {
+          "rule": "c[→→];",
+          "value": "100"
+        },
+        {
+          "rule": "cc[→→];",
+          "value": "200"
+        },
+        {
+          "rule": "ccc[→→];",
+          "value": "300"
+        },
+        {
+          "rule": "cd[→→];",
+          "value": "400"
+        },
+        {
+          "rule": "d[→→];",
+          "value": "500"
+        },
+        {
+          "rule": "dc[→→];",
+          "value": "600"
+        },
+        {
+          "rule": "dcc[→→];",
+          "value": "700"
+        },
+        {
+          "rule": "dccc[→→];",
+          "value": "800"
+        },
+        {
+          "rule": "cm[→→];",
+          "value": "900"
+        },
+        {
+          "rule": "m[→→];",
+          "value": "1000"
+        },
+        {
+          "rule": "mm[→→];",
+          "value": "2000"
+        },
+        {
+          "rule": "mmm[→→];",
+          "value": "3000"
+        },
+        {
+          "rule": "mmmm[→→];",
+          "value": "4000"
+        },
+        {
+          "rule": "=#,##0=;",
+          "value": "5000"
+        }
+      ]
+    },
+    "roman-upper": {
+      "private": 0,
+      "rules": [
+        {
+          "rule": "−→→;",
+          "value": "-x"
+        },
+        {
+          "rule": "=#,##0.00=;",
+          "value": "x.x"
+        },
+        {
+          "rule": "N;",
+          "value": "0"
+        },
+        {
+          "rule": "I;",
+          "value": "1"
+        },
+        {
+          "rule": "II;",
+          "value": "2"
+        },
+        {
+          "rule": "III;",
+          "value": "3"
+        },
+        {
+          "rule": "IV;",
+          "value": "4"
+        },
+        {
+          "rule": "V;",
+          "value": "5"
+        },
+        {
+          "rule": "VI;",
+          "value": "6"
+        },
+        {
+          "rule": "VII;",
+          "value": "7"
+        },
+        {
+          "rule": "VIII;",
+          "value": "8"
+        },
+        {
+          "rule": "IX;",
+          "value": "9"
+        },
+        {
+          "rule": "X[→→];",
+          "value": "10"
+        },
+        {
+          "rule": "XX[→→];",
+          "value": "20"
+        },
+        {
+          "rule": "XXX[→→];",
+          "value": "30"
+        },
+        {
+          "rule": "XL[→→];",
+          "value": "40"
+        },
+        {
+          "rule": "L[→→];",
+          "value": "50"
+        },
+        {
+          "rule": "LX[→→];",
+          "value": "60"
+        },
+        {
+          "rule": "LXX[→→];",
+          "value": "70"
+        },
+        {
+          "rule": "LXXX[→→];",
+          "value": "80"
+        },
+        {
+          "rule": "XC[→→];",
+          "value": "90"
+        },
+        {
+          "rule": "C[→→];",
+          "value": "100"
+        },
+        {
+          "rule": "CC[→→];",
+          "value": "200"
+        },
+        {
+          "rule": "CCC[→→];",
+          "value": "300"
+        },
+        {
+          "rule": "CD[→→];",
+          "value": "400"
+        },
+        {
+          "rule": "D[→→];",
+          "value": "500"
+        },
+        {
+          "rule": "DC[→→];",
+          "value": "600"
+        },
+        {
+          "rule": "DCC[→→];",
+          "value": "700"
+        },
+        {
+          "rule": "DCCC[→→];",
+          "value": "800"
+        },
+        {
+          "rule": "CM[→→];",
+          "value": "900"
+        },
+        {
+          "rule": "M[→→];",
+          "value": "1000"
+        },
+        {
+          "rule": "MM[→→];",
+          "value": "2000"
+        },
+        {
+          "rule": "MMM[→→];",
+          "value": "3000"
+        },
+        {
+          "rule": "Mↁ[→→];",
+          "value": "4000"
+        },
+        {
+          "rule": "ↁ[→→];",
+          "value": "5000"
+        },
+        {
+          "rule": "ↁM[→→];",
+          "value": "6000"
+        },
+        {
+          "rule": "ↁMM[→→];",
+          "value": "7000"
+        },
+        {
+          "rule": "ↁMMM[→→];",
+          "value": "8000"
+        },
+        {
+          "rule": "Mↂ[→→];",
+          "value": "9000"
+        },
+        {
+          "rule": "ↂ[→→];",
+          "value": "10000"
+        },
+        {
+          "rule": "ↂↂ[→→];",
+          "value": "20000"
+        },
+        {
+          "rule": "ↂↂↂ[→→];",
+          "value": "30000"
+        },
+        {
+          "rule": "ↂↇ[→→];",
+          "value": "40000"
+        },
+        {
+          "rule": "ↇ[→→];",
+          "value": "50000"
+        },
+        {
+          "rule": "ↇↂ[→→];",
+          "value": "60000"
+        },
+        {
+          "rule": "ↇↂↂ[→→];",
+          "value": "70000"
+        },
+        {
+          "rule": "ↇↂↂↂ[→→];",
+          "value": "80000"
+        },
+        {
+          "rule": "ↂↈ[→→];",
+          "value": "90000"
+        },
+        {
+          "rule": "ↈ[→→];",
+          "value": "100000"
+        },
+        {
+          "rule": "ↈↈ[→→];",
+          "value": "200000"
+        },
+        {
+          "rule": "ↈↈↈ[→→];",
+          "value": "300000"
+        },
+        {
+          "rule": "=#,##0=;",
+          "value": "400000"
+        }
+      ]
+    },
+    "tamil": {
+      "private": 0,
+      "rules": [
+        {
+          "rule": "−→→;",
+          "value": "-x"
+        },
+        {
+          "rule": "=#,##0.00=;",
+          "value": "x.x"
+        },
+        {
+          "rule": "௦;",
+          "value": "0"
+        },
+        {
+          "rule": "௧;",
+          "value": "1"
+        },
+        {
+          "rule": "௨;",
+          "value": "2"
+        },
+        {
+          "rule": "௩;",
+          "value": "3"
+        },
+        {
+          "rule": "௪;",
+          "value": "4"
+        },
+        {
+          "rule": "௫;",
+          "value": "5"
+        },
+        {
+          "rule": "௬;",
+          "value": "6"
+        },
+        {
+          "rule": "௭;",
+          "value": "7"
+        },
+        {
+          "rule": "௮;",
+          "value": "8"
+        },
+        {
+          "rule": "௯;",
+          "value": "9"
+        },
+        {
+          "rule": "௰[→→];",
+          "value": "10"
+        },
+        {
+          "rule": "←←௰[→→];",
+          "value": "20"
+        },
+        {
+          "rule": "௱[→→];",
+          "value": "100"
+        },
+        {
+          "rule": "←←௱[→→];",
+          "value": "200"
+        },
+        {
+          "rule": "௲[→→];",
+          "value": "1000"
+        },
+        {
+          "rule": "←←௲[→→];",
+          "value": "2000"
+        },
+        {
+          "rule": "←←௱௲[→%%tamil-thousands→];",
+          "value": "1000000/100000"
+        },
+        {
+          "rule": "=#,##,##0=;",
+          "value": "100000000"
+        }
+      ]
+    },
+    "tamil-thousands": {
+      "private": 1,
+      "rules": [
+        {
+          "rule": "=%tamil=;",
+          "value": "0"
+        },
+        {
+          "rule": "←←௲[→→];",
+          "value": "1000"
+        }
+      ]
+    },
+    "zz-default": {
+      "private": 0,
+      "rules": [
+        {
+          "rule": "=#,##0.##=;",
+          "value": "0"
+        }
+      ]
+    }
+  },
+  "OrdinalRules": {
+    "digits-ordinal": {
+      "private": 0,
+      "rules": [
+        {
+          "rule": "−→→;",
+          "value": "-x"
+        },
+        {
+          "rule": "=#,##0=.;",
+          "value": "0"
+        }
+      ]
+    }
+  },
+  "SpelloutRules": {
+    "spellout-cardinal": {
+      "private": 0,
+      "rules": [
+        {
+          "rule": "−→→;",
+          "value": "-x"
+        },
+        {
+          "rule": "=#,##0.#=;",
+          "value": "0"
+        }
+      ]
+    },
+    "spellout-numbering": {
+      "private": 0,
+      "rules": [
+        {
+          "rule": "−→→;",
+          "value": "-x"
+        },
+        {
+          "rule": "=#,##0.#=;",
+          "value": "0"
+        }
+      ]
+    },
+    "spellout-numbering-year": {
+      "private": 0,
+      "rules": [
+        {
+          "rule": "−→→;",
+          "value": "-x"
+        },
+        {
+          "rule": "=0.0=;",
+          "value": "x.x"
+        },
+        {
+          "rule": "=0=;",
+          "value": "0"
+        }
+      ]
+    },
+    "spellout-ordinal": {
+      "private": 0,
+      "rules": [
+        {
+          "rule": "−→→;",
+          "value": "-x"
+        },
+        {
+          "rule": "=#,##0.#=.;",
+          "value": "0"
+        }
+      ]
+    }
+  }
+}

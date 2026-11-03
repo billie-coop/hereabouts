@@ -1,0 +1,111 @@
+import * as fs from 'fs';
+import { join } from 'path';
+import type * as yargs from 'yargs';
+import { getAliases } from './aliases';
+import { getCalendarPrefs } from './calendar';
+import { getConfig } from './config';
+import { getContexts } from './contexts';
+import { getCurrencies } from './currencies';
+import { getDayPeriods } from './dayperiods';
+import { getDistance } from './distance';
+import { getIdentifiers } from './identifiers';
+import { getLocale } from './locale';
+import { getPartition } from './partition';
+import { getPluralRanges } from './pluralranges';
+import { getPlurals } from './plurals';
+import { getRBNF } from './rbnf';
+import { getSubtags } from './subtags';
+import { getSystems } from './systems';
+import { getTimeData } from './timedata';
+import { getUnits } from './units';
+import type { Code } from './util';
+import { getWeekData } from './weekdata';
+import { getZones } from './zones';
+
+const OUTPUTS: { [x: string]: (data: any) => Code[] } = {
+  aliases: getAliases,
+  calendar: getCalendarPrefs,
+  config: getConfig,
+  contexts: getContexts,
+  currencies: getCurrencies,
+  dayperiods: getDayPeriods,
+  distance: getDistance,
+  identifiers: getIdentifiers,
+  locale: getLocale,
+  partition: getPartition,
+  plurals: getPlurals,
+  pluralranges: getPluralRanges,
+  rbnf: getRBNF,
+  subtags: getSubtags,
+  systems: getSystems,
+  timedata: getTimeData,
+  units: getUnits,
+  weekdata: getWeekData,
+  zones: getZones,
+};
+
+// Names of pre-processed data files
+const DATA_FILES = [
+  'aliases',
+  'currencyinfo',
+  'matching',
+  'metazones',
+  'plurals',
+  'pluralranges',
+  'subtags',
+  'symbols',
+  'timedata',
+  'weekdata',
+];
+
+export const load = (): any => {
+  const root = join(__dirname, '..', '..', '..', '..', 'temp');
+  const data: any = {};
+  DATA_FILES.forEach((name) => {
+    const path = join(root, `${name}.json`);
+    console.warn(`Reading ${name}.json`);
+    const raw = fs.readFileSync(path, { encoding: 'utf-8' });
+    const tmp = JSON.parse(raw);
+    Object.keys(tmp).forEach((key) => {
+      data[key] = tmp[key];
+    });
+  });
+  return data;
+};
+
+interface CodeOptions {
+  which?: string[];
+}
+
+const run = (args: yargs.Arguments<CodeOptions>) => {
+  let keys = Object.keys(OUTPUTS).sort();
+
+  const { which } = args;
+  if (which) {
+    keys = which;
+  }
+
+  const data = load();
+
+  // Path to root of monorepo
+  const root = join(__dirname, '..', '..', '..', '..', '..', '..');
+  for (const key of keys) {
+    const impl = OUTPUTS[key];
+    for (const code of impl(data)) {
+      const path = join(root, ...code.path);
+      console.warn(`Writing ${path}`);
+      fs.writeFileSync(path, code.source, { encoding: 'utf-8' });
+    }
+  }
+};
+
+export const codeOptions = (argv: yargs.Argv) =>
+  argv.command(
+    'code',
+    'Generate code',
+    (y: yargs.Argv) =>
+      y
+        .option('w', { alias: 'which', type: 'array', description: 'Which files to generate' })
+        .choices('w', Object.keys(OUTPUTS)),
+    run,
+  );

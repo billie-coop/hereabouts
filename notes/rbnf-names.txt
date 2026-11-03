@@ -1,0 +1,1245 @@
+Global:
+   armenian-lower
+   armenian-upper
+   cyrillic-lower
+   ethiopic
+   georgian
+   greek-lower
+   greek-upper
+   hebrew
+   hebrew-item
+   roman-lower
+   roman-upper
+   tamil
+   zz-default
+
+af:
+   digits-ordinal
+   spellout-cardinal
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal
+
+ak:
+   digits-ordinal
+   spellout-cardinal
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal
+
+am:
+   digits-ordinal
+   spellout-cardinal
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal
+
+ar:
+   digits-ordinal
+   spellout-cardinal-feminine
+   spellout-cardinal-masculine
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal-feminine
+   spellout-ordinal-masculine
+
+as:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+az:
+   digits-ordinal
+   spellout-cardinal
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal
+
+ba:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+be:
+   digits-ordinal
+   spellout-cardinal-feminine
+   spellout-cardinal-masculine
+   spellout-cardinal-neuter
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal-feminine
+   spellout-ordinal-masculine
+   spellout-ordinal-neuter
+
+bg:
+   digits-ordinal
+   digits-ordinal-feminine
+   digits-ordinal-masculine
+   digits-ordinal-neuter
+   spellout-cardinal-feminine
+   spellout-cardinal-feminine-financial
+   spellout-cardinal-masculine
+   spellout-cardinal-masculine-financial
+   spellout-cardinal-masculine-personal
+   spellout-cardinal-masculine-personal-financial
+   spellout-cardinal-neuter
+   spellout-cardinal-neuter-financial
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal-feminine
+   spellout-ordinal-masculine
+   spellout-ordinal-neuter
+
+bn:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+bs:
+   digits-ordinal
+   spellout-cardinal-feminine
+   spellout-cardinal-masculine
+   spellout-cardinal-neuter
+   spellout-numbering
+   spellout-numbering-year
+
+ca:
+   digits-ordinal
+   digits-ordinal-feminine
+   digits-ordinal-feminine-plural
+   digits-ordinal-masculine
+   digits-ordinal-masculine-plural
+   spellout-cardinal-feminine
+   spellout-cardinal-masculine
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal-feminine
+   spellout-ordinal-feminine-plural
+   spellout-ordinal-masculine
+   spellout-ordinal-masculine-plural
+
+ccp:
+   digits-ordinal
+   spellout-cardinal
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal
+
+chr:
+   digits-ordinal
+   spellout-cardinal
+   spellout-numbering
+   spellout-numbering-year
+
+cs:
+   digits-ordinal
+   spellout-cardinal-feminine
+   spellout-cardinal-masculine
+   spellout-cardinal-neuter
+   spellout-numbering
+   spellout-numbering-year
+
+cv:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+cy:
+   digits-ordinal
+   spellout-cardinal-feminine
+   spellout-cardinal-feminine-before-consonant
+   spellout-cardinal-masculine
+   spellout-cardinal-masculine-before-consonant
+   spellout-numbering
+   spellout-numbering-year
+
+da:
+   digits-ordinal
+   spellout-cardinal-common
+   spellout-cardinal-neuter
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal-common
+   spellout-ordinal-neuter
+
+de:
+   digits-ordinal
+   spellout-cardinal-feminine
+   spellout-cardinal-m
+   spellout-cardinal-masculine
+   spellout-cardinal-n
+   spellout-cardinal-neuter
+   spellout-cardinal-r
+   spellout-cardinal-s
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-m
+   spellout-ordinal-n
+   spellout-ordinal-r
+   spellout-ordinal-s
+
+dsb:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+ee:
+   digits-ordinal
+   spellout-cardinal
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal
+
+el:
+   digits-ordinal
+   spellout-cardinal-feminine
+   spellout-cardinal-masculine
+   spellout-cardinal-neuter
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal-feminine
+   spellout-ordinal-masculine
+   spellout-ordinal-neuter
+
+en:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+eo:
+   digits-ordinal
+   spellout-cardinal
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal
+
+es:
+   digits-ordinal
+   digits-ordinal-feminine
+   digits-ordinal-feminine-plural
+   digits-ordinal-masculine
+   digits-ordinal-masculine-adjective
+   digits-ordinal-masculine-plural
+   spellout-cardinal-feminine
+   spellout-cardinal-masculine
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal-feminine
+   spellout-ordinal-feminine-plural
+   spellout-ordinal-masculine
+   spellout-ordinal-masculine-adjective
+   spellout-ordinal-masculine-plural
+
+et:
+   digits-ordinal
+   spellout-cardinal
+   spellout-numbering
+   spellout-numbering-year
+
+eu:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+fa:
+   digits-ordinal
+   spellout-cardinal
+   spellout-numbering
+   spellout-numbering-year
+
+ff:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-class-o
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal
+
+fi:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-ablative
+   spellout-cardinal-ablative-plural
+   spellout-cardinal-adessive
+   spellout-cardinal-adessive-plural
+   spellout-cardinal-allative
+   spellout-cardinal-allative-plural
+   spellout-cardinal-elative
+   spellout-cardinal-elative-plural
+   spellout-cardinal-essive
+   spellout-cardinal-essive-plural
+   spellout-cardinal-genitive
+   spellout-cardinal-genitive-plural
+   spellout-cardinal-illative
+   spellout-cardinal-illative-plural
+   spellout-cardinal-inessive
+   spellout-cardinal-inessive-plural
+   spellout-cardinal-partitive
+   spellout-cardinal-partitive-plural
+   spellout-cardinal-plural
+   spellout-cardinal-translative
+   spellout-cardinal-translative-plural
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-ablative
+   spellout-ordinal-ablative-plural
+   spellout-ordinal-adessive
+   spellout-ordinal-adessive-plural
+   spellout-ordinal-allative
+   spellout-ordinal-allative-plural
+   spellout-ordinal-elative
+   spellout-ordinal-elative-plural
+   spellout-ordinal-essive
+   spellout-ordinal-essive-plural
+   spellout-ordinal-genitive
+   spellout-ordinal-genitive-plural
+   spellout-ordinal-illative
+   spellout-ordinal-illative-plural
+   spellout-ordinal-inessive
+   spellout-ordinal-inessive-plural
+   spellout-ordinal-partitive
+   spellout-ordinal-partitive-plural
+   spellout-ordinal-plural
+   spellout-ordinal-translative
+   spellout-ordinal-translative-plural
+
+fil:
+   digits-ordinal
+   spellout-cardinal
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal
+
+fo:
+   digits-ordinal
+   spellout-cardinal-feminine
+   spellout-cardinal-masculine
+   spellout-cardinal-neuter
+   spellout-numbering
+   spellout-numbering-year
+
+fr:
+   digits-ordinal
+   digits-ordinal-feminine
+   digits-ordinal-feminine-plural
+   digits-ordinal-masculine
+   digits-ordinal-masculine-plural
+   spellout-cardinal-feminine
+   spellout-cardinal-masculine
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal-feminine
+   spellout-ordinal-feminine-plural
+   spellout-ordinal-masculine
+   spellout-ordinal-masculine-plural
+
+ga:
+   digits-ordinal
+   spellout-cardinal
+   spellout-numbering
+   spellout-numbering-year
+
+gd:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+gl:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+gu:
+   digits-ordinal
+   digits-ordinal-feminine
+   digits-ordinal-masculine
+   digits-ordinal-masculine-oblique
+   spellout-cardinal
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal-feminine
+   spellout-ordinal-masculine
+
+ha:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+he:
+   digits-ordinal
+   spellout-cardinal-feminine
+   spellout-cardinal-feminine-standalone
+   spellout-cardinal-masculine
+   spellout-cardinal-masculine-standalone
+   spellout-construct-feminine
+   spellout-construct-masculine
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal-feminine
+   spellout-ordinal-masculine
+
+hi:
+   digits-ordinal
+   digits-ordinal-feminine
+   digits-ordinal-masculine
+   digits-ordinal-masculine-oblique
+   spellout-cardinal
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal-feminine
+   spellout-ordinal-masculine
+   spellout-ordinal-masculine-oblique
+
+hr:
+   digits-ordinal
+   spellout-cardinal-feminine
+   spellout-cardinal-masculine
+   spellout-cardinal-neuter
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal-feminine
+   spellout-ordinal-masculine
+   spellout-ordinal-neuter
+
+hsb:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+ht:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+hu:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+hy:
+   digits-ordinal
+   spellout-cardinal
+   spellout-numbering
+   spellout-numbering-year
+
+id:
+   digits-ordinal
+   spellout-cardinal
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal
+
+ig:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+is:
+   digits-ordinal
+   spellout-cardinal-feminine
+   spellout-cardinal-masculine
+   spellout-cardinal-neuter
+   spellout-numbering
+   spellout-numbering-year
+
+it:
+   digits-ordinal
+   digits-ordinal-feminine
+   digits-ordinal-masculine
+   spellout-cardinal-feminine
+   spellout-cardinal-masculine
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal-feminine
+   spellout-ordinal-feminine-plural
+   spellout-ordinal-masculine
+   spellout-ordinal-masculine-plural
+
+ja:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-financial
+   spellout-numbering
+   spellout-numbering-year
+   spellout-numbering-year-latn
+   spellout-ordinal
+
+jv:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+ka:
+   digits-ordinal
+   spellout-cardinal
+   spellout-numbering
+   spellout-numbering-year
+
+kk:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+kl:
+   digits-ordinal
+   spellout-cardinal
+   spellout-numbering
+   spellout-numbering-year
+
+km:
+   digits-ordinal
+   spellout-cardinal
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal
+
+kn:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+ko:
+   digits-ordinal
+   spellout-cardinal-financial
+   spellout-cardinal-native
+   spellout-cardinal-native-attributive
+   spellout-cardinal-sinokorean
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal-native
+   spellout-ordinal-native-count
+   spellout-ordinal-sinokorean
+   spellout-ordinal-sinokorean-count
+
+kok:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+ky:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal
+
+lb:
+   digits-ordinal
+   spellout-cardinal-feminine
+   spellout-cardinal-masculine
+   spellout-cardinal-neuter
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal-feminine
+   spellout-ordinal-masculine
+   spellout-ordinal-neuter
+
+lo:
+   digits-ordinal
+   spellout-cardinal
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal
+
+lrc:
+   digits-ordinal
+   spellout-cardinal
+   spellout-numbering
+   spellout-numbering-year
+
+lt:
+   digits-ordinal
+   spellout-cardinal-feminine
+   spellout-cardinal-feminine-accusative
+   spellout-cardinal-feminine-dative
+   spellout-cardinal-feminine-genitive
+   spellout-cardinal-feminine-instrumental
+   spellout-cardinal-feminine-locative
+   spellout-cardinal-masculine
+   spellout-cardinal-masculine-accusative
+   spellout-cardinal-masculine-dative
+   spellout-cardinal-masculine-genitive
+   spellout-cardinal-masculine-instrumental
+   spellout-cardinal-masculine-locative
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal-feminine
+   spellout-ordinal-feminine-accusative
+   spellout-ordinal-feminine-dative
+   spellout-ordinal-feminine-genitive
+   spellout-ordinal-feminine-instrumental
+   spellout-ordinal-feminine-locative
+   spellout-ordinal-feminine-plural
+   spellout-ordinal-feminine-plural-accusative
+   spellout-ordinal-feminine-plural-dative
+   spellout-ordinal-feminine-plural-genitive
+   spellout-ordinal-feminine-plural-instrumental
+   spellout-ordinal-feminine-plural-locative
+   spellout-ordinal-masculine
+   spellout-ordinal-masculine-accusative
+   spellout-ordinal-masculine-dative
+   spellout-ordinal-masculine-genitive
+   spellout-ordinal-masculine-instrumental
+   spellout-ordinal-masculine-locative
+   spellout-ordinal-masculine-plural
+   spellout-ordinal-masculine-plural-accusative
+   spellout-ordinal-masculine-plural-dative
+   spellout-ordinal-masculine-plural-genitive
+   spellout-ordinal-masculine-plural-instrumental
+   spellout-ordinal-masculine-plural-locative
+   spellout-ordinal-neuter
+
+lv:
+   digits-ordinal
+   spellout-cardinal-feminine
+   spellout-cardinal-masculine
+   spellout-numbering
+   spellout-numbering-year
+
+mk:
+   digits-ordinal
+   spellout-cardinal-feminine
+   spellout-cardinal-masculine
+   spellout-cardinal-neuter
+   spellout-numbering
+   spellout-numbering-year
+
+ml:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+mn:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+mr:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+ms:
+   digits-ordinal
+   spellout-cardinal
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal
+
+mt:
+   digits-ordinal
+   spellout-cardinal-feminine
+   spellout-cardinal-masculine
+   spellout-numbering
+   spellout-numbering-year
+
+my:
+   digits-ordinal
+   spellout-cardinal
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal
+
+nb:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+ne:
+   digits-ordinal
+   spellout-cardinal
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal-feminine
+   spellout-ordinal-masculine
+
+nl:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-stressed
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal
+
+nn:
+   digits-ordinal
+   spellout-cardinal-feminine
+   spellout-cardinal-masculine
+   spellout-cardinal-neuter
+   spellout-cardinal-reale
+   spellout-numbering
+   spellout-numbering-year
+
+no:
+   digits-ordinal
+   spellout-cardinal-feminine
+   spellout-cardinal-masculine
+   spellout-cardinal-neuter
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal-feminine
+   spellout-ordinal-masculine
+   spellout-ordinal-neuter
+   spellout-ordinal-plural
+
+or:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+pa:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+pcm:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+pl:
+   digits-ordinal
+   spellout-cardinal-feminine
+   spellout-cardinal-feminine-accusative
+   spellout-cardinal-feminine-dative
+   spellout-cardinal-feminine-genitive
+   spellout-cardinal-feminine-instrumental
+   spellout-cardinal-feminine-locative
+   spellout-cardinal-masculine
+   spellout-cardinal-masculine-accusative
+   spellout-cardinal-masculine-accusative-animate
+   spellout-cardinal-masculine-accusative-personal
+   spellout-cardinal-masculine-dative
+   spellout-cardinal-masculine-genitive
+   spellout-cardinal-masculine-instrumental
+   spellout-cardinal-masculine-locative
+   spellout-cardinal-masculine-personal
+   spellout-cardinal-neuter
+   spellout-cardinal-neuter-accusative
+   spellout-cardinal-neuter-dative
+   spellout-cardinal-neuter-genitive
+   spellout-cardinal-neuter-instrumental
+   spellout-cardinal-neuter-locative
+   spellout-numbering
+   spellout-numbering-year
+
+ps:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+pt:
+   digits-ordinal
+   digits-ordinal-feminine
+   digits-ordinal-masculine
+   spellout-cardinal-feminine
+   spellout-cardinal-masculine
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal-feminine
+   spellout-ordinal-masculine
+
+qu:
+   digits-ordinal
+   spellout-cardinal
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal
+
+rm:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+ro:
+   digits-ordinal
+   spellout-cardinal-feminine
+   spellout-cardinal-masculine
+   spellout-cardinal-neuter
+   spellout-numbering
+   spellout-numbering-year
+
+ru:
+   digits-ordinal
+   digits-ordinal-feminine
+   digits-ordinal-feminine-ablative
+   digits-ordinal-feminine-accusative
+   digits-ordinal-feminine-dative
+   digits-ordinal-feminine-genitive
+   digits-ordinal-feminine-instrumental
+   digits-ordinal-feminine-locative
+   digits-ordinal-feminine-prepositional
+   digits-ordinal-masculine
+   digits-ordinal-masculine-ablative
+   digits-ordinal-masculine-accusative
+   digits-ordinal-masculine-dative
+   digits-ordinal-masculine-genitive
+   digits-ordinal-masculine-instrumental
+   digits-ordinal-masculine-locative
+   digits-ordinal-masculine-prepositional
+   digits-ordinal-neuter
+   digits-ordinal-neuter-ablative
+   digits-ordinal-neuter-accusative
+   digits-ordinal-neuter-dative
+   digits-ordinal-neuter-genitive
+   digits-ordinal-neuter-instrumental
+   digits-ordinal-neuter-locative
+   digits-ordinal-neuter-prepositional
+   digits-ordinal-plural
+   digits-ordinal-plural-ablative
+   digits-ordinal-plural-accusative
+   digits-ordinal-plural-dative
+   digits-ordinal-plural-genitive
+   digits-ordinal-plural-instrumental
+   digits-ordinal-plural-locative
+   digits-ordinal-plural-prepositional
+   spellout-cardinal-feminine
+   spellout-cardinal-feminine-ablative
+   spellout-cardinal-feminine-accusative
+   spellout-cardinal-feminine-dative
+   spellout-cardinal-feminine-genitive
+   spellout-cardinal-feminine-instrumental
+   spellout-cardinal-feminine-locative
+   spellout-cardinal-feminine-prepositional
+   spellout-cardinal-masculine
+   spellout-cardinal-masculine-ablative
+   spellout-cardinal-masculine-accusative
+   spellout-cardinal-masculine-dative
+   spellout-cardinal-masculine-genitive
+   spellout-cardinal-masculine-instrumental
+   spellout-cardinal-masculine-locative
+   spellout-cardinal-masculine-prepositional
+   spellout-cardinal-neuter
+   spellout-cardinal-neuter-ablative
+   spellout-cardinal-neuter-accusative
+   spellout-cardinal-neuter-dative
+   spellout-cardinal-neuter-genitive
+   spellout-cardinal-neuter-instrumental
+   spellout-cardinal-neuter-locative
+   spellout-cardinal-neuter-prepositional
+   spellout-cardinal-plural
+   spellout-cardinal-plural-ablative
+   spellout-cardinal-plural-accusative
+   spellout-cardinal-plural-dative
+   spellout-cardinal-plural-genitive
+   spellout-cardinal-plural-instrumental
+   spellout-cardinal-plural-locative
+   spellout-cardinal-plural-prepositional
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal-feminine
+   spellout-ordinal-feminine-ablative
+   spellout-ordinal-feminine-accusative
+   spellout-ordinal-feminine-dative
+   spellout-ordinal-feminine-genitive
+   spellout-ordinal-feminine-instrumental
+   spellout-ordinal-feminine-locative
+   spellout-ordinal-feminine-prepositional
+   spellout-ordinal-masculine
+   spellout-ordinal-masculine-ablative
+   spellout-ordinal-masculine-accusative
+   spellout-ordinal-masculine-dative
+   spellout-ordinal-masculine-genitive
+   spellout-ordinal-masculine-instrumental
+   spellout-ordinal-masculine-locative
+   spellout-ordinal-masculine-prepositional
+   spellout-ordinal-neuter
+   spellout-ordinal-neuter-ablative
+   spellout-ordinal-neuter-accusative
+   spellout-ordinal-neuter-dative
+   spellout-ordinal-neuter-genitive
+   spellout-ordinal-neuter-instrumental
+   spellout-ordinal-neuter-locative
+   spellout-ordinal-neuter-prepositional
+   spellout-ordinal-plural
+   spellout-ordinal-plural-ablative
+   spellout-ordinal-plural-accusative
+   spellout-ordinal-plural-dative
+   spellout-ordinal-plural-genitive
+   spellout-ordinal-plural-instrumental
+   spellout-ordinal-plural-locative
+   spellout-ordinal-plural-prepositional
+
+sd:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+se:
+   digits-ordinal
+   spellout-cardinal
+   spellout-numbering
+   spellout-numbering-year
+
+shn:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+si:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+sk:
+   digits-ordinal
+   spellout-cardinal-feminine
+   spellout-cardinal-masculine
+   spellout-cardinal-neuter
+   spellout-numbering
+   spellout-numbering-year
+
+sl:
+   digits-ordinal
+   spellout-cardinal-feminine
+   spellout-cardinal-masculine
+   spellout-cardinal-neuter
+   spellout-numbering
+   spellout-numbering-year
+
+so:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+sq:
+   digits-ordinal
+   spellout-cardinal-feminine
+   spellout-cardinal-masculine
+   spellout-numbering
+   spellout-numbering-year
+
+sr:
+   digits-ordinal
+   spellout-cardinal-feminine
+   spellout-cardinal-masculine
+   spellout-cardinal-neuter
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal
+
+su:
+   digits-ordinal
+   spellout-cardinal
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal
+
+sv:
+   digits-ordinal
+   digits-ordinal-feminine
+   digits-ordinal-masculine
+   digits-ordinal-neuter
+   digits-ordinal-reale
+   spellout-cardinal-feminine
+   spellout-cardinal-masculine
+   spellout-cardinal-neuter
+   spellout-cardinal-reale
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal-feminine
+   spellout-ordinal-masculine
+   spellout-ordinal-neuter
+   spellout-ordinal-reale
+
+sw:
+   digits-ordinal
+   spellout-cardinal
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal
+
+ta:
+   digits-ordinal
+   spellout-cardinal
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal
+
+te:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+th:
+   digits-ordinal
+   spellout-cardinal
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal
+
+ti:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+tk:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+tr:
+   digits-ordinal
+   spellout-cardinal
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal
+
+uk:
+   digits-ordinal
+   digits-ordinal-feminine
+   digits-ordinal-masculine
+   digits-ordinal-neuter
+   spellout-cardinal-feminine
+   spellout-cardinal-masculine
+   spellout-cardinal-neuter
+   spellout-numbering
+   spellout-numbering-year
+
+ur:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+uz:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+vec:
+   digits-ordinal
+   spellout-cardinal-feminine
+   spellout-cardinal-masculine
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal-feminine
+   spellout-ordinal-masculine
+
+vi:
+   digits-ordinal
+   spellout-cardinal
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal
+
+yo:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+
+yue:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-alternate2
+   spellout-cardinal-financial
+   spellout-numbering
+   spellout-numbering-year
+   spellout-ordinal
+
+zh:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-alternate2
+   spellout-cardinal-financial
+   spellout-numbering
+   spellout-numbering-days
+   spellout-numbering-year
+   spellout-ordinal
+
+zu:
+   digits-ordinal
+   spellout-cardinal
+   spellout-cardinal-verbose
+   spellout-numbering
+   spellout-numbering-verbose
+   spellout-numbering-year
+   spellout-ordinal
+   spellout-ordinal-verbose
+

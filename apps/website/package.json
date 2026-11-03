@@ -1,0 +1,27 @@
+{
+  "name": "website",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --clearScreen false",
+    "build": "vite build",
+    "build:lint": "tsc -p tsconfig.json --noEmit",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@phensley/cldr": "workspace:*",
+    "@phensley/unit-converter": "workspace:*",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "seaq": "2.0.0-rc.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "4.2.1",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "5.1.0",
+    "tailwindcss": "4.2.1",
+    "typescript": "~5.9.3",
+    "vite": "7.2.0"
+  }
+}
