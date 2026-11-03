@@ -1,7 +1,10 @@
 {
   "private": true,
   "name": "hereabouts-monorepo",
-  "author": "Patrick Hensley <pathensley@gmail.com>",
+  "author": "Billie Co-op",
+  "contributors": [
+    "Patrick Hensley <pathensley@gmail.com>"
+  ],
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

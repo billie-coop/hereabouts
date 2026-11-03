@@ -51,18 +51,25 @@ created. Nothing here is published yet; update this file as things are decided o
   don't contain tz data and are unchanged.
 - **CLDR is 48.2.0**, unchanged from 1.16.0.
 
-## Left over from cldr-engine, to change before publishing
+## Release and docs workflows
 
-- `release` / `prerelease` run `pnpm publish -r` (the repo uses Yarn 4 now) and publish every
-  package; replace with publishing the single package.
-- `CODEOWNERS` lists `@phensley`.
-- The `author` fields are Patrick Hensley's, and `@phensley/cldr`'s README is cldr-engine 1.x's.
-  Decide what the published package says (Patrick stays credited in README and NOTICE either
-  way).
-- The cldr-engine documentation site (`phensley.github.io/cldr-engine`, linked from package
-  READMEs) describes the 1.x API. hereabouts needs its own docs; a migration guide from
-  `@phensley/cldr` 1.x is a separate task.
-- `packages/cldr/etc/cldr.api.md` quotes an API Extractor warning with the absolute path of the
-  checkout, so it changes on every machine. Cause: the public `PackScript.cache` field's type
-  refers to the `@internal` `ExceptionIndex`. Fixing it changes a public type; 1.16.0 had no
-  such warning.
+- `.github/workflows/release.yml` publishes `packages/hereabouts` with npm trusted publishing
+  (OIDC, no token), modelled on seaq's. Manual only (`workflow_dispatch`), dry run by default,
+  must run from `main`, and refuses a version whose `v<version>` tag or npm version already
+  exists. Before the first real run: create the GitHub repo, the `@billie-coop/hereabouts`
+  package on npm, and the trusted publisher (owner billie-coop, repo hereabouts, workflow
+  `release.yml`).
+- `.github/workflows/docs.yml` builds `apps/website` with base `/hereabouts/` and deploys it to
+  GitHub Pages on pushes to `main` that touch the site or the library (or by hand). Pages must
+  be set to "GitHub Actions" in the repo settings.
+- The old `release` / `prerelease` scripts (`pnpm publish -r`, one package each) are removed.
+
+## Left over from cldr-engine
+
+- `CODEOWNERS` has a TODO: no `@billie-coop` team was visible, so there is no owner yet.
+- The cldr-engine documentation site (`phensley.github.io/cldr-engine`) describes the 1.x API.
+  hereabouts needs its own API docs; a migration guide from `@phensley/cldr` 1.x is a separate
+  task.
+- Done: `author` is "Billie Co-op" with Patrick Hensley under `contributors` in every manifest;
+  the API Extractor warning that put the checkout path in `cldr.api.md` is fixed
+  (`ExceptionIndex` is tagged `@public`).

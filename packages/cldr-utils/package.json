@@ -6,7 +6,10 @@
   "module": "lib-es/index.js",
   "types": "lib/index.d.ts",
   "sideEffects": false,
-  "author": "Patrick Hensley <pathensley@gmail.com>",
+  "author": "Billie Co-op",
+  "contributors": [
+    "Patrick Hensley <pathensley@gmail.com>"
+  ],
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
