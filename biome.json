@@ -9,6 +9,7 @@
       "!**/lib-es",
       "!**/temp",
       "!**/.scratch",
+      "!**/.custom-packs",
       "!**/node_modules",
       "!**/coverage",
       "!**/package.json",
