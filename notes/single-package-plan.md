@@ -237,5 +237,5 @@ Each step keeps `yarn build`, `yarn lint`, `yarn test` and `yarn api` passing, o
 - **Install size.** Everyone downloads the packs (16 MB unpacked), as with `@phensley/cldr`
   today; someone who only wants decimal math used to install `@phensley/decimal` alone. Bundle
   size is unaffected.
-- **Merging later fixes from cldr-engine** (the tzdb 2026f branch, anything from upstream) gets
-  harder once paths move. Bring tzdb 2026f over before step 2.
+- **Merging later fixes from cldr-engine** (anything from upstream) gets harder once paths
+  move. (tzdb 2026f was brought over first, before the move.)

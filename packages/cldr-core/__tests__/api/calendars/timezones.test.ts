@@ -99,3 +99,28 @@ test('iso8601 X/x offset formats (TR35)', () => {
   expect(url(tzid, 'xxxx')).toEqual('+0530');
   expect(url(tzid, 'xxxxx')).toEqual('+05:30');
 });
+
+test('british columbia and alberta permanent time (tzdb 2026b / 2026c)', () => {
+  // Both switches take effect in tzdb at 2026-11-01 02:00 local time.
+  // Only offsets are checked here: the zone *names* still come from the CLDR
+  // 48.2 metazones, which call post-switch Vancouver "Pacific Standard Time"
+  // and Edmonton "Mountain Standard Time" despite the new offsets.
+  const fmt = (zoneId: string, date: number): string =>
+    formatDateRaw(EN, { date, zoneId }, { pattern: 'yyyy-MM-dd HH:mm xxx' });
+
+  const VAN = 'America/Vancouver';
+  expect(fmt(VAN, Date.UTC(2025, 11, 15, 20))).toEqual('2025-12-15 12:00 -08:00');
+  expect(fmt(VAN, Date.UTC(2026, 6, 15, 20))).toEqual('2026-07-15 13:00 -07:00');
+  expect(fmt(VAN, Date.UTC(2026, 10, 1, 8, 59))).toEqual('2026-11-01 01:59 -07:00');
+  expect(fmt(VAN, Date.UTC(2026, 10, 1, 9, 0))).toEqual('2026-11-01 02:00 -07:00');
+  expect(fmt(VAN, Date.UTC(2026, 11, 15, 20))).toEqual('2026-12-15 13:00 -07:00');
+  expect(fmt(VAN, Date.UTC(2027, 6, 15, 20))).toEqual('2027-07-15 13:00 -07:00');
+
+  const EDM = 'America/Edmonton';
+  expect(fmt(EDM, Date.UTC(2025, 11, 15, 20))).toEqual('2025-12-15 13:00 -07:00');
+  expect(fmt(EDM, Date.UTC(2026, 6, 15, 20))).toEqual('2026-07-15 14:00 -06:00');
+  expect(fmt(EDM, Date.UTC(2026, 10, 1, 7, 59))).toEqual('2026-11-01 01:59 -06:00');
+  expect(fmt(EDM, Date.UTC(2026, 10, 1, 8, 0))).toEqual('2026-11-01 02:00 -06:00');
+  expect(fmt(EDM, Date.UTC(2026, 11, 15, 20))).toEqual('2026-12-15 14:00 -06:00');
+  expect(fmt(EDM, Date.UTC(2027, 6, 15, 20))).toEqual('2027-07-15 14:00 -06:00');
+});

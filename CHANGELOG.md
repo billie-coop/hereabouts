@@ -15,9 +15,9 @@ Patrick Hensley. Packages keep their `@phensley/*` names for now and are still a
 every deviation from 1.x, is [notes/functional-rewrite.md](notes/functional-rewrite.md). A
 migration guide from `@phensley/cldr` 1.x is still to be written.
 
-Unchanged: CLDR data (48.2.0), tz data (2025b), the resource pack format (packs are
-byte-identical to 1.16.0's) and formatting results (differential runs against 1.16.0 over all
-429 locales found no differences).
+Unchanged: CLDR data (48.2.0), the resource pack format (packs are byte-identical to
+1.16.0's) and formatting results with the same tz data (differential runs against 1.16.0 over
+all 429 locales found no differences).
 
 ### Added
 
@@ -43,6 +43,11 @@ byte-identical to 1.16.0's) and formatting results (differential runs against 1.
 
 ### Changed
 
+- Upgrade to [tzdb 2026f](https://www.iana.org/time-zones) (1.16.0 has 2025b). Includes British
+  Columbia moving to permanent -07 (`America/Vancouver`), Alberta to permanent -06
+  (`America/Edmonton`) and Manitoba to permanent -05 (`America/Winnipeg`), all effective
+  2026-11-01 in tzdb. `CST6CDT`, `EST5EDT`, `MST7MDT` and `PST8PDT` are zones again (no longer
+  links), so they format with GMT-offset names rather than the US metazone names.
 - Classes are now plain data and exported functions. Values are immutable plain objects
   (`decimal('1.5')`, `decimalAdd(a, b)`, `decimalToString(d)`; `languageTag(...)` and `tag*`;
   `gregorianDateFromUnixEpoch(...)` and `date*`). Engines are plain records made by functions

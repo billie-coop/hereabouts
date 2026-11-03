@@ -17,7 +17,7 @@ created. Nothing here is published yet; update this file as things are decided o
   manifests already point `homepage` there and `repository` / `bugs` at
   `github.com/billie-coop/hereabouts`, which doesn't exist yet.
 - **The fork `billie-coop/cldr-engine` stays** as a fallback. It is 1.16.0 plus fixes, and is
-  where the tzdb 2026f update was made (below).
+  where the tzdb 2026f update was first made.
 
 ## Planned, not decided
 
@@ -43,14 +43,13 @@ created. Nothing here is published yet; update this file as things are decided o
   - Long function names from the type-prefix rule (`decimalStripTrailingZeros`,
     `dateYearOfWeekOfYearISO`).
 
-## Data updates to bring over
+## Data versions
 
-- **tzdb 2026f** is done in `../cldr-engine`, branch `tzdb-2026f` (`4ab7940c`). It is
-  data-only: `packages/timezone/src/autogen.zonedata.ts`,
-  `packages/cldr-core/src/systems/calendars/autogen.zonedata.ts`, the version in
-  `packages/timezone/tztool/index.ts`, two tests and a CHANGELOG entry. The data files and their
-  format are unchanged in the rewrite, so they should apply cleanly; the timezone runtime moved
-  from `src/index.ts` to `src/tz.ts` and `src/database.ts`, which that branch doesn't touch.
+- **tzdb is 2026f** (was 2025b in cldr-engine 1.16.0), brought over 2026-11-03 from
+  `../cldr-engine` branch `tzdb-2026f` (`4ab7940c`): the two generated data files, the version in
+  the tz tool, and that branch's tests. No existing test's expected values changed. The packs
+  don't contain tz data and are unchanged.
+- **CLDR is 48.2.0**, unchanged from 1.16.0.
 
 ## Left over from cldr-engine, to change before publishing
 

@@ -7,7 +7,7 @@ import { TZif } from './tzif';
 import { parseZIC } from './zic';
 import { parseZoneTab } from './zonetab';
 
-const VERSION = '2025b';
+const VERSION = '2026f';
 
 interface JsonOptions {
   pretty: boolean;

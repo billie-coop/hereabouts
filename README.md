@@ -154,7 +154,8 @@ and [NOTICE](NOTICE) records the derivation.
 
 ### What didn't change
 
-- CLDR data (48.2.0) and the tz database version.
+- CLDR data (48.2.0). The tz database is newer: 2026f, from the fork's update (1.16.0 has
+  2025b).
 - The resource pack format: packs built here are byte-identical to 1.16.0's.
 - Formatting results: differential runs against 1.16.0 over all 429 locales (2.2 million locale
   API calls, plus the value types and engines) found no differences. The 1.x test suite runs
