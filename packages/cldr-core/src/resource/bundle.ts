@@ -11,7 +11,7 @@ import { getPluralRules, type PluralRules } from '@phensley/plurals';
 /**
  * Maps a string table offset to an index in the exceptions table.
  *
- * @internal
+ * @public
  */
 export type ExceptionIndex = { readonly [y: number]: number };
 

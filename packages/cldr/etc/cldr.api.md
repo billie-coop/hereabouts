@@ -1068,9 +1068,7 @@ export const EraWidthValues: EraWidthType[];
 // @public
 export const evaluateMessage: (plurals: PluralRules, converter: MessageArgConverter, formatters: MessageFormatFuncMap, code: MessageCode, positional: MessageArg[], named?: MessageNamedArgs) => string;
 
-// Warning: (ae-internal-missing-underscore) The name "ExceptionIndex" should be prefixed with an underscore because the declaration is marked as @internal
-//
-// @internal
+// @public
 export type ExceptionIndex = {
     readonly [y: number]: number;
 };
@@ -2876,10 +2874,6 @@ export interface ZoneInfo {
     offset: number;
     zoneid: string;
 }
-
-// Warnings were encountered during analysis:
-//
-// /Users/steve/Dev/github.com/billie-coop/hereabouts/packages/cldr-core/lib/resource/pack.d.ts:18:9 - (ae-incompatible-release-tags) The symbol "__index" is marked as @public, but its signature references "ExceptionIndex" which is marked as @internal
 
 // (No @packageDocumentation comment for this package)
 
