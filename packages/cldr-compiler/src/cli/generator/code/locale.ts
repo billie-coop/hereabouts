@@ -9,7 +9,7 @@ import {
   tagRegion,
   tagScript,
   tagVariant,
-} from '@phensley/cldr-core';
+} from '../../../../../hereabouts/src/core';
 import { availableLocales } from '../../../cldr';
 import { Code, HEADER, NOLINT_MAXLINE } from './util';
 

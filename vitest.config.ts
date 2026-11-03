@@ -6,15 +6,8 @@ export default defineConfig({
     reporters: ['verbose'],
     coverage: {
       reporter: ['text', 'html'],
-      include: ['packages/*/src/**/*.ts'],
-      exclude: [
-        'packages/cldr-compiler/**',
-        'packages/cldr-ext-rbnf/**',
-        'packages/cldr-types/**',
-        'packages/*/__benchmarks__/**',
-        'packages/*/tztool/**',
-        'packages/*/scripts/**',
-      ],
+      include: ['packages/hereabouts/src/**/*.ts'],
+      exclude: ['packages/hereabouts/src/types/**'],
       provider: 'istanbul',
     },
   },

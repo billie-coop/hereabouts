@@ -1,3 +1,6 @@
+import * as fs from 'fs';
+import { join } from 'path';
+import type * as yargs from 'yargs';
 import {
   buildOrigin,
   isDigitsArrow,
@@ -5,14 +8,11 @@ import {
   isScopeArrow,
   isVectorArrow,
   type Origin,
-} from '@phensley/cldr-core';
-import { buildSchema as buildSchemaTree } from '@phensley/cldr-core/lib/internals/schema';
-import { checksumIndices } from '@phensley/cldr-core/lib/resource/checksum';
-import { VERSION } from '@phensley/cldr-core/lib/utils/version';
-import type { Schema } from '@phensley/cldr-types';
-import * as fs from 'fs';
-import { join } from 'path';
-import type * as yargs from 'yargs';
+} from '../../../../hereabouts/src/core';
+import { buildSchema as buildSchemaTree } from '../../../../hereabouts/src/core/internals/schema';
+import { checksumIndices } from '../../../../hereabouts/src/core/resource/checksum';
+import { VERSION } from '../../../../hereabouts/src/core/utils/version';
+import type { Schema } from '../../../../hereabouts/src/types';
 import * as CONFIG from './config.json';
 
 export const loader = (lang: string) => {

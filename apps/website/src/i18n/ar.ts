@@ -43,8 +43,8 @@ export const ar: MessageCatalog<MessageKey> = {
   "The week starts on the locale's first day (`firstDayOfWeek(locale)` is {first}, 1 = Sunday). The grid is `dayRange` over `dayStartOfWeek` in steps of a week. Today in {zone}: {today}.":
     'يبدأ الأسبوع في أول يوم للغة (`firstDayOfWeek(locale)` هو {first}، و1 = الأحد). الشبكة هي `dayRange` بدءًا من `dayStartOfWeek` بخطوة أسبوع. اليوم في {zone}: {today}.',
   Units: 'الوحدات',
-  'Quantities in three lengths, and exact conversion with `@phensley/unit-converter`. This locale measures in the {system} system (`measurementSystem(locale)`).':
-    'كميات بثلاثة أطوال، وتحويل دقيق باستخدام `@phensley/unit-converter`. تقيس هذه اللغة بنظام {system} (`measurementSystem(locale)`).',
+  'Quantities in three lengths, and exact conversion with `@billie-coop/hereabouts/unit-converter`. This locale measures in the {system} system (`measurementSystem(locale)`).':
+    'كميات بثلاثة أطوال، وتحويل دقيق باستخدام `@billie-coop/hereabouts/unit-converter`. تقيس هذه اللغة بنظام {system} (`measurementSystem(locale)`).',
   Value: 'القيمة',
   Unit: 'الوحدة',
   'no conversion': 'لا تحويل',

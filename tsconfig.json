@@ -19,9 +19,6 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "baseUrl": ".",
-    "types": ["vitest/globals", "node"],
-    "paths": {
-      "@phensley/*": ["./packages/*/"]
-    }
+    "types": ["vitest/globals", "node"]
   }
 }

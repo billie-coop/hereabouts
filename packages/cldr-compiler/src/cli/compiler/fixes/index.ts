@@ -1,4 +1,4 @@
-import { type Locale, tagLanguage } from '@phensley/cldr-core';
+import { type Locale, tagLanguage } from '../../../../../hereabouts/src/core';
 import { fixJapaneseUnits } from './japanese';
 
 /**

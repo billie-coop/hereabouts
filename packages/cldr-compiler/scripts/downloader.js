@@ -1,2 +1,3 @@
-var { main } = require('../lib/cli/downloader');
+require('tsx/cjs');
+const { main } = require('../src/cli/downloader');
 main();

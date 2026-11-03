@@ -1,1 +1,1 @@
-export * from '@phensley/cldr-core';
+export * from './core';

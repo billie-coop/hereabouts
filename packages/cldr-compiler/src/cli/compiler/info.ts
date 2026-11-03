@@ -1,5 +1,5 @@
-import { availableLocales } from '@phensley/cldr-core';
 import type yargs from 'yargs';
+import { availableLocales } from '../../../../hereabouts/src/core';
 import { getProjectInfo } from './util';
 
 // biome-ignore lint/suspicious/noEmptyInterface: the info command takes no arguments

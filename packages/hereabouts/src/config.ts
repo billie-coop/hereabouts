@@ -3,7 +3,7 @@
 //
 
 /* eslint-disable max-len */
-import type { SchemaConfig } from '@phensley/cldr-core';
+import type { SchemaConfig } from './core';
 
 /**
  * Schema config used to build the resource packs shipped with this package.

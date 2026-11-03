@@ -43,8 +43,8 @@ export const ja: MessageCatalog<MessageKey> = {
   "The week starts on the locale's first day (`firstDayOfWeek(locale)` is {first}, 1 = Sunday). The grid is `dayRange` over `dayStartOfWeek` in steps of a week. Today in {zone}: {today}.":
     '週はロケールの最初の曜日から始まります(`firstDayOfWeek(locale)` は {first}、1 = 日曜日)。グリッドは `dayStartOfWeek` から 1 週間ずつ進める `dayRange` です。{zone} の今日: {today}。',
   Units: '単位',
-  'Quantities in three lengths, and exact conversion with `@phensley/unit-converter`. This locale measures in the {system} system (`measurementSystem(locale)`).':
-    '3 種類の長さで表す数量と、`@phensley/unit-converter` による正確な換算。このロケールは {system} 系で計測します(`measurementSystem(locale)`)。',
+  'Quantities in three lengths, and exact conversion with `@billie-coop/hereabouts/unit-converter`. This locale measures in the {system} system (`measurementSystem(locale)`).':
+    '3 種類の長さで表す数量と、`@billie-coop/hereabouts/unit-converter` による正確な換算。このロケールは {system} 系で計測します(`measurementSystem(locale)`)。',
   Value: '値',
   Unit: '単位',
   'no conversion': '換算なし',

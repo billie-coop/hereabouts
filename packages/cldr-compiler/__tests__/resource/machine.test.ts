@@ -9,7 +9,7 @@ import {
   scope,
   scopemap,
   vector,
-} from '@phensley/cldr-core';
+} from '../../../hereabouts/src/core';
 
 import { type Encoder, EncoderMachine } from '../../src/resource/machine';
 import { ResourcePack } from '../../src/resource/pack';

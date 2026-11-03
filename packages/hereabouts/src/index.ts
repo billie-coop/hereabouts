@@ -1,13 +1,13 @@
 export * from './exports';
 
+import { config } from './config';
 import {
   type CLDRFramework,
   type CLDROptions,
   cldrFramework as coreCLDRFramework,
   createFramework as coreCreateFramework,
   type Framework,
-} from '@phensley/cldr-core';
-import { config } from './config';
+} from './core';
 
 // The resource packs shipped with this package are built with `config`, so it is the default
 // schema config here. (1.x set it globally with CLDRFramework.setDefaultConfig on import.)

@@ -2,15 +2,11 @@
   "name": "@billie-coop/hereabouts",
   "version": "1.16.0",
   "description": "Internationalization for JavaScript and TypeScript, built on Unicode CLDR: numbers, decimal math, currencies, dates and time zones, units, plurals, messages and translations",
-  "main": "lib/index.js",
-  "module": "lib-es/index.js",
-  "types": "lib/index.d.ts",
-  "sideEffects": false,
+  "license": "Apache-2.0",
   "author": "Billie Co-op",
   "contributors": [
     "Patrick Hensley <pathensley@gmail.com>"
   ],
-  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/billie-coop/hereabouts.git",
@@ -37,44 +33,132 @@
     "timezone",
     "date"
   ],
+  "sideEffects": false,
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "module": "./dist/esm/index.js",
+      "default": "./dist/cjs/index.js"
+    },
+    "./decimal": {
+      "types": "./dist/types/decimal/index.d.ts",
+      "module": "./dist/esm/decimal/index.js",
+      "default": "./dist/cjs/decimal.js"
+    },
+    "./datetime": {
+      "types": "./dist/types/datetime/index.d.ts",
+      "module": "./dist/esm/datetime/index.js",
+      "default": "./dist/cjs/datetime.js"
+    },
+    "./timezone": {
+      "types": "./dist/types/timezone/index.d.ts",
+      "module": "./dist/esm/timezone/index.js",
+      "default": "./dist/cjs/timezone.js"
+    },
+    "./plurals": {
+      "types": "./dist/types/plurals/index.d.ts",
+      "module": "./dist/esm/plurals/index.js",
+      "default": "./dist/cjs/plurals.js"
+    },
+    "./messageformat": {
+      "types": "./dist/types/messageformat/index.d.ts",
+      "module": "./dist/esm/messageformat/index.js",
+      "default": "./dist/cjs/messageformat.js"
+    },
+    "./language-tag": {
+      "types": "./dist/types/language-tag/index.d.ts",
+      "module": "./dist/esm/language-tag/index.js",
+      "default": "./dist/cjs/language-tag.js"
+    },
+    "./locale": {
+      "types": "./dist/types/locale/index.d.ts",
+      "module": "./dist/esm/locale/index.js",
+      "default": "./dist/cjs/locale.js"
+    },
+    "./locale-matcher": {
+      "types": "./dist/types/locale-matcher/index.d.ts",
+      "module": "./dist/esm/locale-matcher/index.js",
+      "default": "./dist/cjs/locale-matcher.js"
+    },
+    "./unit-converter": {
+      "types": "./dist/types/unit-converter/index.d.ts",
+      "module": "./dist/esm/unit-converter/index.js",
+      "default": "./dist/cjs/unit-converter.js"
+    },
+    "./packs/*": "./packs/*",
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "decimal": [
+        "./dist/types/decimal/index.d.ts"
+      ],
+      "datetime": [
+        "./dist/types/datetime/index.d.ts"
+      ],
+      "timezone": [
+        "./dist/types/timezone/index.d.ts"
+      ],
+      "plurals": [
+        "./dist/types/plurals/index.d.ts"
+      ],
+      "messageformat": [
+        "./dist/types/messageformat/index.d.ts"
+      ],
+      "language-tag": [
+        "./dist/types/language-tag/index.d.ts"
+      ],
+      "locale": [
+        "./dist/types/locale/index.d.ts"
+      ],
+      "locale-matcher": [
+        "./dist/types/locale-matcher/index.d.ts"
+      ],
+      "unit-converter": [
+        "./dist/types/unit-converter/index.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "dist/",
+    "packs/*.json",
+    "packs/sha*.txt",
+    "packs/resource.json"
+  ],
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "api": "api-extractor run -c ./etc/api-extractor.json --local --verbose",
-    "api:local": "yarn run api -l",
-    "build": "yarn run build:cj && yarn run build:es && yarn run build:cjs-bundle && yarn run build:packs",
-    "build:cj": "tsc -p ./tsconfig.json",
-    "build:es": "tsc -p ./tsconfig.json --module esnext --outDir lib-es",
-    "build:cjs-bundle": "rollup -c ../../rollup.cjs.config.mjs",
+    "api": "node ./scripts/api.mjs",
+    "api:local": "node ./scripts/api.mjs --local",
+    "bench": "ts-node -P tsconfig.lint.json __benchmarks__/core/ && ts-node -P tsconfig.lint.json __benchmarks__/utils/ && ts-node -P tsconfig.lint.json __benchmarks__/timezone/",
+    "build": "yarn run build:ts && yarn run build:cjs && yarn run build:packs",
+    "build:ts": "rimraf ./dist && tsc -p ./tsconfig.json",
+    "build:cjs": "rollup -c ./rollup.config.mjs",
     "build:lint": "tsc -p ./tsconfig.lint.json",
     "build:packs": "cldr-compiler pack -o ./packs",
     "build:watch": "tsc -p ./tsconfig.json -w --preserveWatchOutput",
-    "clean": "rimraf ./lib ./lib-es ./packs",
-    "clean:full": "yarn run clean && rimraf ./node_modules",
+    "clean": "rimraf ./dist ./packs ./.scratch ./.custom-packs ./temp",
+    "clean:full": "yarn run clean && rimraf ./node_modules ./.tztemp",
     "coverage": "vitest run --coverage",
-    "off-install": "node ./scripts/extract.js",
-    "prepublish": "yarn run build",
+    "generate-factors": "jiti ./scripts/unit-converter-factors.ts",
+    "generate-zones": "./scripts/tztool generate -o ./src/timezone/autogen.zonedata.ts",
     "stress": "ts-node ./__stress__",
     "test": "vitest --run",
     "test:watch": "vitest"
   },
-  "files": [
-    "lib/",
-    "lib-es/",
-    "packs/*.json",
-    "packs/sha*.txt",
-    "packs/resource.json",
-    "scripts/"
-  ],
   "dependencies": {
-    "@phensley/cldr-core": "workspace:~1.16.0",
-    "@phensley/cldr-utils": "workspace:~1.16.0",
-    "@phensley/messageformat": "workspace:~1.16.0",
     "tslib": "^2.8.1"
   },
   "devDependencies": {
-    "@phensley/cldr-compiler": "workspace:~1.16.0",
-    "@types/node": "^24.10.1"
+    "@js-temporal/polyfill": "0.5.1",
+    "@types/node": "^24.10.1",
+    "@types/yargs": "^17.0.35",
+    "cldr-compiler": "workspace:*",
+    "ts-node": "^10.9.2",
+    "yargs": "^17.7.2"
   }
 }

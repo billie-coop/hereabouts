@@ -43,8 +43,8 @@ export const zh: MessageCatalog<MessageKey> = {
   "The week starts on the locale's first day (`firstDayOfWeek(locale)` is {first}, 1 = Sunday). The grid is `dayRange` over `dayStartOfWeek` in steps of a week. Today in {zone}: {today}.":
     '一周从该语言区域的第一天开始(`firstDayOfWeek(locale)` 为 {first},1 = 星期日)。网格是从 `dayStartOfWeek` 开始、以一周为步长的 `dayRange`。{zone} 的今天:{today}。',
   Units: '单位',
-  'Quantities in three lengths, and exact conversion with `@phensley/unit-converter`. This locale measures in the {system} system (`measurementSystem(locale)`).':
-    '三种长度的数量,以及使用 `@phensley/unit-converter` 的精确换算。此语言区域使用 {system} 度量制(`measurementSystem(locale)`)。',
+  'Quantities in three lengths, and exact conversion with `@billie-coop/hereabouts/unit-converter`. This locale measures in the {system} system (`measurementSystem(locale)`).':
+    '三种长度的数量,以及使用 `@billie-coop/hereabouts/unit-converter` 的精确换算。此语言区域使用 {system} 度量制(`measurementSystem(locale)`)。',
   Value: '值',
   Unit: '单位',
   'no conversion': '无换算',

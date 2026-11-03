@@ -25,31 +25,31 @@ export class Code {
   ) {}
 
   static core(path: string[], source: string): Code {
-    return new Code(['packages', 'cldr-core', 'src', ...path], source);
+    return new Code(['packages', 'hereabouts', 'src', 'core', ...path], source);
   }
 
   static languagetag(path: string[], source: string): Code {
-    return new Code(['packages', 'language-tag', 'src', ...path], source);
+    return new Code(['packages', 'hereabouts', 'src', 'language-tag', ...path], source);
   }
 
   static locale(path: string[], source: string): Code {
-    return new Code(['packages', 'locale', 'src', ...path], source);
+    return new Code(['packages', 'hereabouts', 'src', 'locale', ...path], source);
   }
 
   static localematcher(path: string[], source: string): Code {
-    return new Code(['packages', 'locale-matcher', 'src', ...path], source);
+    return new Code(['packages', 'hereabouts', 'src', 'locale-matcher', ...path], source);
   }
 
   static plurals(path: string[], source: string): Code {
-    return new Code(['packages', 'plurals', 'src', ...path], source);
+    return new Code(['packages', 'hereabouts', 'src', 'plurals', ...path], source);
   }
 
   static rbnf(path: string[], source: string): Code {
-    return new Code(['packages', 'cldr-ext-rbnf', 'src', ...path], source);
+    return new Code(['packages', 'cldr-compiler', 'src', 'ext-rbnf', ...path], source);
   }
 
   static types(path: string[], source: string): Code {
-    return new Code(['packages', 'cldr-types', 'src', ...path], source);
+    return new Code(['packages', 'hereabouts', 'src', 'types', ...path], source);
   }
 
   static top(path: string[], source: string): Code {

@@ -3,9 +3,10 @@
 //
 //   node examples/tree-shaking/measure.mjs [--v1 <path to a built 1.x checkout>]
 //
-// The @phensley/* packages are resolved to `<root>/packages/<name>`, using each package's
-// `module` (ES module) build and honouring its `sideEffects` flag, as a bundler resolving them
-// from node_modules would. Build the packages first (`yarn build`).
+// `@billie-coop/hereabouts` and its subpaths are resolved through the export map's `module`
+// condition (the ES module build in packages/hereabouts/dist/esm), honouring the package's
+// `sideEffects` flag, as a bundler resolving it from node_modules would. A 1.x checkout's
+// @phensley/* packages are resolved to `<root>/packages/<name>`. Build first (`yarn build`).
 
 import { execFileSync } from 'child_process';
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'fs';
@@ -40,10 +41,11 @@ const phensley = (root) => {
   return {
     name: 'phensley-resolve',
     resolveId(source, importer) {
-      const h = /^@billie-coop\/hereabouts(\/.*)?$/.exec(source);
+      // @billie-coop/hereabouts and its subpaths: the `module` condition of the export map
+      const h = /^@billie-coop\/hereabouts(\/[^/]+)?$/.exec(source);
       if (h) {
         const { dir, json } = pkgFor('hereabouts');
-        return h[1] ? join(dir, h[1]) + '.js' : join(dir, json.module);
+        return join(dir, json.exports[h[1] ? `.${h[1]}` : '.'].module);
       }
       const m = /^@phensley\/([^/]+)(\/.*)?$/.exec(source);
       if (m) {

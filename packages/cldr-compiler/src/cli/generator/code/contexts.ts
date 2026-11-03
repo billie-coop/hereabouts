@@ -15,7 +15,7 @@ export const getContexts = (data: any): Code[] => {
   result.push(Code.types(['autogen.context.ts'], code));
 
   code = NOLINT_MAXLINE + HEADER;
-  code += "import { ContextTransformFieldType } from '@phensley/cldr-types';\n\n";
+  code += "import { ContextTransformFieldType } from '../../../../../hereabouts/src/types';\n\n";
 
   code += '/** @public */\n';
   code += `export const ContextTransformFieldValues: ContextTransformFieldType[] = ('`;

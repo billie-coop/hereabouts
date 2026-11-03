@@ -23,7 +23,7 @@ export interface AlgorithmicNumberSystem {
 // Warning: (ae-forgotten-export) The symbol "KeyIndex" needs to be exported by the entry point index.d.ts
 //
 // @public (undocumented)
-export const AltIndex: KeyIndex<"short" | "long" | "narrow" | "none" | "variant" | "stand-alone" | "menu">;
+export const AltIndex: KeyIndex<"none" | "narrow" | "short" | "long" | "variant" | "stand-alone" | "menu">;
 
 // @public
 export type ApostropheMode = 'double-optional' | 'double-required';

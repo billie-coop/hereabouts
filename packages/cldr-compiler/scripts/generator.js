@@ -1,1 +1,2 @@
-require('../lib/cli/generator').main();
+require('tsx/cjs');
+require('../src/cli/generator').main();

@@ -1,4 +1,4 @@
-import { resolveLanguageTag, tagCompact } from '@phensley/cldr-core';
+import { resolveLanguageTag, tagCompact } from '../../../../../hereabouts/src/core';
 import { buildPartitions, type MapSet } from './partition';
 import { Code, HEADER, NOLINT_MAXLINE, pad } from './util';
 

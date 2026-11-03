@@ -1,5 +1,5 @@
-import { tzResolveId, tzZoneIds } from '@phensley/timezone';
 import chalk from 'chalk';
+import { tzResolveId, tzZoneIds } from '../../../../../hereabouts/src/timezone';
 import { Code, HEADER, lineWrap, NOLINT_MAXLINE } from './util';
 
 class IdArray {
@@ -214,7 +214,7 @@ export const getZones = (data: any): Code[] => {
   // const timeZoneType = lineWrap(60, ' | ', data.timeZoneIds.map((k: string) => `'${k}'`));
   // code += `export type TimeZoneType = (\n${timeZoneType});\n\n`;
 
-  code += "import { MetaZoneType } from '@phensley/cldr-types';\n\n";
+  code += "import { MetaZoneType } from '../../../../../hereabouts/src/types';\n\n";
 
   code += '/** @public */\n';
   code += `export const TimeZoneStableIds: string[] = ('`;

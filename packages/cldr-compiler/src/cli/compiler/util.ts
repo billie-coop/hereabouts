@@ -1,6 +1,7 @@
-import { type Locale, resolveLanguageTag, tagLanguage } from '@phensley/cldr-core';
 import * as fs from 'fs';
 import { join } from 'path';
+import { type Locale, resolveLanguageTag, tagLanguage } from '../../../../hereabouts/src/core';
+import { VERSION } from '../../../../hereabouts/src/core/utils/version';
 import { availableLocales } from '../../cldr';
 
 /**
@@ -24,11 +25,15 @@ export interface ProjectInfo {
   cldrVersion: string;
 }
 
+/**
+ * The library version (packs carry it, and their checksum covers its major.minor) and the
+ * CLDR version the compiler downloads (this package's `cldrversion`).
+ */
 export const getProjectInfo = (): ProjectInfo => {
   const path = join(__dirname, '..', '..', '..', 'package.json');
   const raw = fs.readFileSync(path, { encoding: 'utf-8' });
   const pkg = JSON.parse(raw);
-  return { version: pkg.version, cldrVersion: pkg.cldrversion };
+  return { version: VERSION, cldrVersion: pkg.cldrversion };
 };
 
 /**

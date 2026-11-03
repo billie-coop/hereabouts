@@ -79,7 +79,7 @@
         "examples/**",
         "packages/cldr-compiler/**",
         "packages/*/scripts/**",
-        "packages/timezone/tztool/**"
+        "packages/hereabouts/tztool/**"
       ],
       "linter": {
         "rules": {

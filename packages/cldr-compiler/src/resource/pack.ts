@@ -11,7 +11,7 @@ import {
   tagScript,
   tagToString,
   tagVariant,
-} from '@phensley/cldr-core';
+} from '../../../hereabouts/src/core';
 import { getOther } from '../cldr';
 import type { RBNFCollector } from '../rbnf';
 import { RBNFPacker } from './rbnf';

@@ -43,8 +43,8 @@ export const fr: MessageCatalog<MessageKey> = {
   "The week starts on the locale's first day (`firstDayOfWeek(locale)` is {first}, 1 = Sunday). The grid is `dayRange` over `dayStartOfWeek` in steps of a week. Today in {zone}: {today}.":
     'La semaine commence le premier jour de la langue (`firstDayOfWeek(locale)` vaut {first}, 1 = dimanche). La grille est `dayRange` sur `dayStartOfWeek` par pas d’une semaine. Aujourd’hui à {zone} : {today}.',
   Units: 'Unités',
-  'Quantities in three lengths, and exact conversion with `@phensley/unit-converter`. This locale measures in the {system} system (`measurementSystem(locale)`).':
-    'Des quantités en trois longueurs, et une conversion exacte avec `@phensley/unit-converter`. Cette langue utilise le système {system} (`measurementSystem(locale)`).',
+  'Quantities in three lengths, and exact conversion with `@billie-coop/hereabouts/unit-converter`. This locale measures in the {system} system (`measurementSystem(locale)`).':
+    'Des quantités en trois longueurs, et une conversion exacte avec `@billie-coop/hereabouts/unit-converter`. Cette langue utilise le système {system} (`measurementSystem(locale)`).',
   Value: 'Valeur',
   Unit: 'Unité',
   'no conversion': 'pas de conversion',

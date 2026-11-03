@@ -12,7 +12,7 @@ import {
   LENGTH,
   MASS,
   unitFactors,
-} from '@phensley/unit-converter';
+} from '@billie-coop/hereabouts/unit-converter';
 import { useState } from 'react';
 import { rich, type T } from '../i18n';
 import { attempt, Example, Field, q, Section, Select } from '../ui';
@@ -74,7 +74,7 @@ export const Units = ({ cldr, t }: { cldr: LocaleData; t: T }) => {
       title={t('Units')}
       intro={rich(
         t(
-          'Quantities in three lengths, and exact conversion with `@phensley/unit-converter`. This locale measures in the {system} system (`measurementSystem(locale)`).',
+          'Quantities in three lengths, and exact conversion with `@billie-coop/hereabouts/unit-converter`. This locale measures in the {system} system (`measurementSystem(locale)`).',
           { system: measurementSystem(cldr) },
         ),
       )}

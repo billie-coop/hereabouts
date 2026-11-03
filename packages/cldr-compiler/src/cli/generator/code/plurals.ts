@@ -6,7 +6,7 @@ import {
   decimalMovePoint,
   decimalScale,
   decimalToString,
-} from '@phensley/decimal';
+} from '../../../../../hereabouts/src/decimal';
 import { Code, formatSource, HEADER } from './util';
 
 const generate = (sample: string): string[] => {
@@ -62,7 +62,7 @@ export const getPlurals = (data: any): Code[] => {
     });
   });
 
-  result.push(Code.plurals(['..', '__tests__', 'samples.txt'], code));
+  result.push(Code.top(['packages', 'hereabouts', '__tests__', 'plurals', 'samples.txt'], code));
 
   return result;
 };

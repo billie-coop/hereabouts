@@ -4,7 +4,7 @@ import {
   tagHasRegion,
   tagLanguage,
   tagRegion,
-} from '@phensley/cldr-core';
+} from '../../../../../hereabouts/src/core';
 import { Code, escapeString, HEADER, NOLINT } from './util';
 
 export const getTimeData = (data: any): Code[] => {

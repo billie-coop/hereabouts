@@ -1,3 +1,6 @@
+import * as fs from 'fs';
+import { join } from 'path';
+import * as zlib from 'zlib';
 import {
   parseLanguageTag,
   tagExtlangs,
@@ -7,11 +10,8 @@ import {
   tagRegion,
   tagScript,
   tagVariant,
-} from '@phensley/cldr-core';
-import { tzResolveId, tzZoneIds } from '@phensley/timezone';
-import * as fs from 'fs';
-import { join } from 'path';
-import * as zlib from 'zlib';
+} from '../../../../../hereabouts/src/core';
+import { tzResolveId, tzZoneIds } from '../../../../../hereabouts/src/timezone';
 import { getSupplemental } from '../../../cldr';
 import { Code, HEADER, NOLINT_MAXLINE, objectToString } from './util';
 

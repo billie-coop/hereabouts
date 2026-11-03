@@ -1,8 +1,0 @@
-{
-  "extends": "../../tsconfig.json",
-  "compilerOptions": {
-    "target": "ESNext",
-    "outDir": ".scratch"
-  },
-  "include": ["src/**/*", "__benchmarks__/**/*", "__tests__/**/*"]
-}

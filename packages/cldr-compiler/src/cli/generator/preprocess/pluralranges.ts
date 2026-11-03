@@ -1,4 +1,4 @@
-import type { PluralType } from '@phensley/cldr-types';
+import type { PluralType } from '../../../../../hereabouts/src/types';
 import { getExtensions } from '../../../cldr';
 
 const categories: any = {

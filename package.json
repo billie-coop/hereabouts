@@ -38,7 +38,7 @@
     "stress": "yarn workspaces foreach -At --exclude hereabouts-monorepo run stress",
     "test": "vitest --run --coverage",
     "test:watch": "vitest",
-    "ts-check": "yarn workspaces foreach -Apt --exclude hereabouts-monorepo --include '@phensley/*' exec tsc -p tsconfig.json --emitDeclarationOnly && yarn workspaces foreach -Ap --exclude hereabouts-monorepo run build:lint",
+    "ts-check": "yarn workspace @billie-coop/hereabouts exec tsc -p tsconfig.json --emitDeclarationOnly && yarn workspaces foreach -Ap --exclude hereabouts-monorepo run build:lint",
     "website": "yarn workspace website dev",
     "website:build": "yarn workspace website build"
   },

@@ -1,9 +1,9 @@
-import { tagRegion } from '@phensley/cldr-core';
 import * as fs from 'fs';
 import { join } from 'path';
 import type * as yargs from 'yargs';
+import { tagRegion } from '../../../../hereabouts/src/core';
 import { getMain } from '../../cldr';
-import { buildLocaleMap, checkLanguages, writeJSON } from '../compiler/util';
+import { buildLocaleMap, checkLanguages, writeJSON } from './util';
 
 export interface SchemaArgs {
   out: string;

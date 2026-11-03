@@ -277,12 +277,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@billie-coop/hereabouts@workspace:packages/hereabouts"
   dependencies:
-    "@phensley/cldr-compiler": "workspace:~1.16.0"
-    "@phensley/cldr-core": "workspace:~1.16.0"
-    "@phensley/cldr-utils": "workspace:~1.16.0"
-    "@phensley/messageformat": "workspace:~1.16.0"
+    "@js-temporal/polyfill": "npm:0.5.1"
     "@types/node": "npm:^24.10.1"
+    "@types/yargs": "npm:^17.0.35"
+    cldr-compiler: "workspace:*"
+    ts-node: "npm:^10.9.2"
     tslib: "npm:^2.8.1"
+    yargs: "npm:^17.7.2"
   languageName: unknown
   linkType: soft
 
@@ -1181,171 +1182,6 @@ __metadata:
   checksum: 10c0/7f101d33e967179c10d38708c71c8c602ad862843a788603d6b8c2accebf2fce420ca95a26d74d90bc35db36daa0a8285c3af1589c38ae20e46e47153549313f
   languageName: node
   linkType: hard
-
-"@phensley/cldr-compiler@workspace:packages/cldr-compiler, @phensley/cldr-compiler@workspace:~1.16.0":
-  version: 0.0.0-use.local
-  resolution: "@phensley/cldr-compiler@workspace:packages/cldr-compiler"
-  dependencies:
-    "@phensley/cldr-core": "workspace:~1.16.0"
-    "@phensley/cldr-ext-rbnf": "workspace:~1.16.0"
-    "@phensley/cldr-types": "workspace:~1.16.0"
-    "@phensley/cldr-utils": "workspace:~1.16.0"
-    "@phensley/decimal": "workspace:~1.16.0"
-    "@phensley/timezone": "workspace:~1.16.0"
-    "@prettier/sync": "npm:^0.6.1"
-    "@types/node-fetch": "npm:^2.6.2"
-    "@types/yargs": "npm:^17.0.35"
-    chalk: "npm:^4.1.2"
-    fast-json-patch: "npm:^3.1.1"
-    minimatch: "npm:^7.4.6"
-    node-fetch: "npm:^2.6.7"
-    partial.lenses: "npm:^14.17.0"
-    prettier: "npm:^3.8.3"
-    tar: "npm:^7.5.13"
-    tslib: "npm:^2.8.1"
-    yaml: "npm:^2.8.3"
-    yargs: "npm:^17.7.2"
-  bin:
-    cldr-compiler: ./bin/compiler.js
-  languageName: unknown
-  linkType: soft
-
-"@phensley/cldr-core@workspace:packages/cldr-core, @phensley/cldr-core@workspace:~1.16.0":
-  version: 0.0.0-use.local
-  resolution: "@phensley/cldr-core@workspace:packages/cldr-core"
-  dependencies:
-    "@js-temporal/polyfill": "npm:0.5.1"
-    "@phensley/cldr-types": "workspace:~1.16.0"
-    "@phensley/cldr-utils": "workspace:~1.16.0"
-    "@phensley/datetime": "workspace:~1.16.0"
-    "@phensley/decimal": "workspace:~1.16.0"
-    "@phensley/language-tag": "workspace:~1.16.0"
-    "@phensley/locale": "workspace:~1.16.0"
-    "@phensley/locale-matcher": "workspace:~1.16.0"
-    "@phensley/messageformat": "workspace:~1.16.0"
-    "@phensley/plurals": "workspace:~1.16.0"
-    "@phensley/timezone": "workspace:~1.16.0"
-    "@types/node": "npm:^24.10.1"
-    tslib: "npm:^2.8.1"
-  languageName: unknown
-  linkType: soft
-
-"@phensley/cldr-ext-rbnf@workspace:packages/cldr-ext-rbnf, @phensley/cldr-ext-rbnf@workspace:~1.16.0":
-  version: 0.0.0-use.local
-  resolution: "@phensley/cldr-ext-rbnf@workspace:packages/cldr-ext-rbnf"
-  dependencies:
-    "@phensley/cldr-types": "workspace:~1.16.0"
-    "@phensley/decimal": "workspace:~1.16.0"
-    "@phensley/plurals": "workspace:~1.16.0"
-    tslib: "npm:^2.8.1"
-  languageName: unknown
-  linkType: soft
-
-"@phensley/cldr-types@workspace:packages/cldr-types, @phensley/cldr-types@workspace:~1.16.0":
-  version: 0.0.0-use.local
-  resolution: "@phensley/cldr-types@workspace:packages/cldr-types"
-  dependencies:
-    tslib: "npm:^2.8.1"
-  languageName: unknown
-  linkType: soft
-
-"@phensley/cldr-utils@workspace:packages/cldr-utils, @phensley/cldr-utils@workspace:~1.16.0":
-  version: 0.0.0-use.local
-  resolution: "@phensley/cldr-utils@workspace:packages/cldr-utils"
-  dependencies:
-    "@types/node": "npm:^24.10.1"
-    tslib: "npm:^2.8.1"
-  languageName: unknown
-  linkType: soft
-
-"@phensley/datetime@workspace:packages/datetime, @phensley/datetime@workspace:~1.16.0":
-  version: 0.0.0-use.local
-  resolution: "@phensley/datetime@workspace:packages/datetime"
-  dependencies:
-    "@phensley/timezone": "workspace:~1.16.0"
-    tslib: "npm:^2.8.1"
-  languageName: unknown
-  linkType: soft
-
-"@phensley/decimal@workspace:packages/decimal, @phensley/decimal@workspace:~1.16.0":
-  version: 0.0.0-use.local
-  resolution: "@phensley/decimal@workspace:packages/decimal"
-  dependencies:
-    tslib: "npm:^2.8.1"
-  languageName: unknown
-  linkType: soft
-
-"@phensley/language-tag@workspace:packages/language-tag, @phensley/language-tag@workspace:~1.16.0":
-  version: 0.0.0-use.local
-  resolution: "@phensley/language-tag@workspace:packages/language-tag"
-  dependencies:
-    tslib: "npm:^2.8.1"
-  languageName: unknown
-  linkType: soft
-
-"@phensley/locale-matcher@workspace:packages/locale-matcher, @phensley/locale-matcher@workspace:~1.16.0":
-  version: 0.0.0-use.local
-  resolution: "@phensley/locale-matcher@workspace:packages/locale-matcher"
-  dependencies:
-    "@phensley/language-tag": "workspace:~1.16.0"
-    "@phensley/locale": "workspace:~1.16.0"
-    "@types/node": "npm:^24.10.1"
-    tslib: "npm:^2.8.1"
-  languageName: unknown
-  linkType: soft
-
-"@phensley/locale@workspace:packages/locale, @phensley/locale@workspace:~1.16.0":
-  version: 0.0.0-use.local
-  resolution: "@phensley/locale@workspace:packages/locale"
-  dependencies:
-    "@phensley/language-tag": "workspace:~1.16.0"
-    tslib: "npm:^2.8.1"
-  languageName: unknown
-  linkType: soft
-
-"@phensley/messageformat@workspace:packages/messageformat, @phensley/messageformat@workspace:~1.16.0":
-  version: 0.0.0-use.local
-  resolution: "@phensley/messageformat@workspace:packages/messageformat"
-  dependencies:
-    "@phensley/cldr-utils": "workspace:~1.16.0"
-    "@phensley/decimal": "workspace:~1.16.0"
-    "@phensley/plurals": "workspace:~1.16.0"
-    tslib: "npm:^2.8.1"
-  languageName: unknown
-  linkType: soft
-
-"@phensley/plurals@workspace:packages/plurals, @phensley/plurals@workspace:~1.16.0":
-  version: 0.0.0-use.local
-  resolution: "@phensley/plurals@workspace:packages/plurals"
-  dependencies:
-    "@phensley/decimal": "workspace:~1.16.0"
-    "@types/node": "npm:^24.10.1"
-    tslib: "npm:^2.8.1"
-  languageName: unknown
-  linkType: soft
-
-"@phensley/timezone@workspace:packages/timezone, @phensley/timezone@workspace:~1.16.0":
-  version: 0.0.0-use.local
-  resolution: "@phensley/timezone@workspace:packages/timezone"
-  dependencies:
-    "@phensley/cldr-utils": "workspace:~1.16.0"
-    "@types/yargs": "npm:^17.0.35"
-    ts-node: "npm:^10.9.2"
-    tslib: "npm:^2.8.1"
-    yargs: "npm:^17.7.2"
-  languageName: unknown
-  linkType: soft
-
-"@phensley/unit-converter@workspace:*, @phensley/unit-converter@workspace:packages/unit-converter":
-  version: 0.0.0-use.local
-  resolution: "@phensley/unit-converter@workspace:packages/unit-converter"
-  dependencies:
-    "@phensley/cldr-types": "workspace:~1.16.0"
-    "@phensley/cldr-utils": "workspace:~1.16.0"
-    "@phensley/decimal": "workspace:~1.16.0"
-    tslib: "npm:^2.8.1"
-  languageName: unknown
-  linkType: soft
 
 "@pkgjs/parseargs@npm:^0.11.0":
   version: 0.11.0
@@ -3129,6 +2965,29 @@ __metadata:
   checksum: 10c0/43925b87700f7e3893296c8e9c56cc58f926411cce3a6e5898136daaf08f08b9a8eb76d37d3267e707d0dcc17aed2e2ebdf5848c0c3ce95cf910a919935c1b10
   languageName: node
   linkType: hard
+
+"cldr-compiler@workspace:*, cldr-compiler@workspace:packages/cldr-compiler":
+  version: 0.0.0-use.local
+  resolution: "cldr-compiler@workspace:packages/cldr-compiler"
+  dependencies:
+    "@prettier/sync": "npm:^0.6.1"
+    "@types/node-fetch": "npm:^2.6.2"
+    "@types/yargs": "npm:^17.0.35"
+    chalk: "npm:^4.1.2"
+    fast-json-patch: "npm:^3.1.1"
+    minimatch: "npm:^7.4.6"
+    node-fetch: "npm:^2.6.7"
+    partial.lenses: "npm:^14.17.0"
+    prettier: "npm:^3.8.3"
+    tar: "npm:^7.5.13"
+    tslib: "npm:^2.8.1"
+    tsx: "npm:^4.21.0"
+    yaml: "npm:^2.8.3"
+    yargs: "npm:^17.7.2"
+  bin:
+    cldr-compiler: ./bin/compiler.js
+  languageName: unknown
+  linkType: soft
 
 "clean-stack@npm:^2.0.0":
   version: 2.2.0
@@ -7371,7 +7230,6 @@ __metadata:
   resolution: "website@workspace:apps/website"
   dependencies:
     "@billie-coop/hereabouts": "workspace:*"
-    "@phensley/unit-converter": "workspace:*"
     "@tailwindcss/vite": "npm:4.2.1"
     "@types/react": "npm:^19.2.0"
     "@types/react-dom": "npm:^19.2.0"

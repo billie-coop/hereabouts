@@ -1,13 +1,13 @@
+import * as fs from 'fs';
+import { join } from 'path';
+import { inspect } from 'util';
+import * as zlib from 'zlib';
 import {
   type LanguageTag,
   parseLanguageTag,
   tagHasLanguage,
   tagLanguage,
-} from '@phensley/cldr-core';
-import * as fs from 'fs';
-import { join } from 'path';
-import { inspect } from 'util';
-import * as zlib from 'zlib';
+} from '../../../../../hereabouts/src/core';
 import { availableLocales, getSupplemental } from '../../../cldr';
 import { Code, HEADER, NOLINT_MAXLINE, objectToString } from './util';
 

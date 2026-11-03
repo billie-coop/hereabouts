@@ -1,4 +1,4 @@
-import { Opcode, RuleType } from '@phensley/cldr-ext-rbnf/lib/rbnftypes';
+import { Opcode, RuleType } from '../ext-rbnf/rbnftypes';
 
 import { parseRBNF, type RBNFNode } from '../parsing/parser.rbnf';
 import type { FrequencySet } from '../utils';

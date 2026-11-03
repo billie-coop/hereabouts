@@ -1,5 +1,4 @@
-import { DateTimePatternFieldValues } from '@phensley/cldr-core/lib/schema';
-import { getCLDR } from '../__tests__/_helpers';
+import { getCLDR } from '../__tests__/root/_helpers';
 import {
   availableLocales,
   type DateFormatOptions,
@@ -7,6 +6,7 @@ import {
   type FormatWidthType,
   type ZonedDateTime,
 } from '../src';
+import { DateTimePatternFieldValues } from '../src/core/schema';
 import { Timer } from './timer';
 
 const ZONES = ['America/New_York', 'Europe/London', 'Africa/Timbuktu'];

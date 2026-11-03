@@ -1,3 +1,5 @@
+import * as fs from 'fs';
+import * as path from 'path';
 import {
   availableLocales,
   parseLanguageTag,
@@ -6,9 +8,7 @@ import {
   tagLanguage,
   tagRegion,
   tagScript,
-} from '@phensley/cldr-core';
-import * as fs from 'fs';
-import * as path from 'path';
+} from '../../../hereabouts/src/core';
 import { getSupplemental } from '../cldr';
 import type { JSONRoot, JSONRootKey } from './json';
 

@@ -97,7 +97,7 @@ export const getConfig = (data: any): Code[] => {
   };
 
   let code = HEADER + NOLINT_MAXLINE;
-  code += `import { SchemaConfig } from '@phensley/cldr-core';\n\n`;
+  code += `import { SchemaConfig } from '../../../../../hereabouts/src/core';\n\n`;
   code += `export const config: SchemaConfig = ${objectToCode(obj)};\n`;
 
   const json = JSON.stringify(obj);

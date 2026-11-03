@@ -42,7 +42,7 @@ export const getUnits = (data: any): Code[] => {
 
   // Unit category values and mapping to units
   // code = `${HEADER}${NOLINT_MAXLINE}\n`;
-  // code += `import { UnitCategory } from '@phensley/cldr-types';\n\n`;
+  // code += `import { UnitCategory } from '../../../../../hereabouts/src/types';\n\n`;
   // code += `export const unitCategories: UnitCategory[] = [${categories.join(', ')}];\n\n`;
 
   // const vals = (nums: number[]) => nums.map(n => n === undefined ? '' : `${n}`).join(', ');

@@ -1,14 +1,14 @@
 /**
  * A replacement for an app's date helper module (`@billie-coop/date-utils`) that used date-fns,
- * built on `@phensley/datetime` instead. The `DateUtils` object keeps the same names, arguments
+ * built on `@billie-coop/hereabouts/datetime` instead. The `DateUtils` object keeps the same names, arguments
  * and results, so code that calls `DateUtils.*` doesn't change. Under the hood every date string
  * is a `Day` (no time, no zone) and "today" is asked for in the device's zone.
  *
  * Not a whole-module drop-in: the old module also re-exported date-fns functions (`format`,
- * `addDays`, `startOfWeek`, ...). Code that imports those has to move to `@phensley/datetime`
+ * `addDays`, `startOfWeek`, ...). Code that imports those has to move to `@billie-coop/hereabouts/datetime`
  * in the same change; see the table in README.md.
  *
- * New code should use `@phensley/datetime` directly (`Day`, `dayToday(zone)`, `dayAtTime`, ...):
+ * New code should use `@billie-coop/hereabouts/datetime` directly (`Day`, `dayToday(zone)`, `dayAtTime`, ...):
  * it never goes through a JavaScript `Date`, so it can't shift by a day.
  *
  * Differences from the date-fns version:
@@ -21,7 +21,7 @@
  *   whole 24-hour periods) and `isThisWeek` includes all of Saturday (date-fns stopped at
  *   Saturday 00:00).
  */
-import type { Day } from '@phensley/datetime';
+import type { Day } from '@billie-coop/hereabouts/datetime';
 import {
   day,
   dayAdd,
@@ -35,7 +35,7 @@ import {
   instantParse,
   systemTimeZone,
   timeOfDayFromInstant,
-} from '@phensley/datetime';
+} from '@billie-coop/hereabouts/datetime';
 
 /**
  * The device's time zone, or undefined if the platform doesn't report an IANA zone the time

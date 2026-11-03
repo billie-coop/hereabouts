@@ -1,9 +1,9 @@
-import { buildOrigin, checksumIndices, tagRegion } from '@phensley/cldr-core';
 import { createHash } from 'crypto';
 import * as fs from 'fs';
 import { join } from 'path';
 import type * as yargs from 'yargs';
 import * as zlib from 'zlib';
+import { buildOrigin, checksumIndices, tagRegion } from '../../../../hereabouts/src/core';
 import { getMain } from '../../cldr';
 import { RBNFCollector } from '../../rbnf';
 import { type Encoder, EncoderMachine } from '../../resource/machine';

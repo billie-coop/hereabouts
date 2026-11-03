@@ -1,4 +1,4 @@
-import { getCLDR } from '../__tests__/_helpers';
+import { getCLDR } from '../__tests__/root/_helpers';
 import {
   availableLocales,
   type CurrencyFormatOptions,

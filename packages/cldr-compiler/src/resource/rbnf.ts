@@ -1,4 +1,4 @@
-import { parseLanguageTag, tagLanguage } from '@phensley/cldr-core';
+import { parseLanguageTag, tagLanguage } from '../../../hereabouts/src/core';
 import { type JSONRoot, type RBNFCollector, RBNFEncoder, RBNFSymbolExtractor } from '../rbnf';
 import { FrequencySet } from '../utils';
 

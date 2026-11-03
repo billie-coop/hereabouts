@@ -1,4 +1,4 @@
-import { resolveLanguageTag, tagLanguage, tagScript } from '@phensley/cldr-core';
+import { resolveLanguageTag, tagLanguage, tagScript } from '../../../../../hereabouts/src/core';
 import { getSupplemental } from '../../../cldr';
 import { Code, HEADER, NOLINT_MAXLINE } from './util';
 

@@ -1,4 +1,4 @@
-import type { SchemaConfig } from '@phensley/cldr-core';
+import type { SchemaConfig } from '../../../../hereabouts/src/core';
 import DEFAULT_CONFIG from './config.json';
 
 const LIM = 10;
