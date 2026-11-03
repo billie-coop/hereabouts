@@ -1,60 +1,65 @@
-# cldr-engine
+# hereabouts
 
-Internationalization in Typescript with Unicode CLDR, batteries included.
+Internationalization for JavaScript and TypeScript, built on Unicode CLDR data: numbers, exact
+decimal math, currencies, dates and time zones, units, plurals, messages, app translations and
+locale matching, for 429 locales.
 
-[![build](https://github.com/phensley/cldr-engine/workflows/Build%20and%20Test/badge.svg)](https://github.com/phensley/cldr-engine/actions)
-[![npm version](https://badge.fury.io/js/%40phensley%2Fcldr.svg)](https://www.npmjs.com/package/@phensley/cldr)
+Everything is plain data and plain functions. Locale data is a plain object you pass to the
+functions you import, and bundlers drop the rest: formatting numbers for one locale is about
+42 KB min+gzip, decimal math alone about 3 KB.
 
-- [cldr-engine](#cldr-engine)
-  - [Links](#links)
-  - [Install](#install)
-  - [Versioning](#versioning)
-  - [Features](#features)
-  - [Package Naming](#package-naming)
-  - [Goals](#goals)
-  - [License](#license)
-  - [Affiliation](#affiliation)
+hereabouts is a port of [cldr-engine](https://github.com/phensley/cldr-engine) by Patrick
+Hensley. See [A port of cldr-engine](#a-port-of-cldr-engine).
 
-## Links
+**Status:** not published yet. The packages in this repo still have their cldr-engine names
+(`@phensley/cldr`, `@phensley/decimal`, ...), so the examples import from those. They will be
+consolidated into one package, `@billie-coop/hereabouts`, with subpath exports
+(`@billie-coop/hereabouts/decimal`, ...); see [notes/publishing.md](notes/publishing.md) and
+[notes/single-package-plan.md](notes/single-package-plan.md).
 
-- [Documentation](https://phensley.github.io/cldr-engine/) on the library API and usage.
-- [CodeSandbox example](https://codesandbox.io/s/qqr1rl40r6) can be used to experiment, report bugs, etc.
-- [Demonstration app](https://phensley.github.io/cldr-engine-react-demo/) provides an example using React and Redux. ([source code](https://github.com/phensley/cldr-engine-react-demo))
+Live examples: [billie-coop.github.io/hereabouts](https://billie-coop.github.io/hereabouts/)
+(source in [apps/website](apps/website)).
 
-## Install
-
-Install the [NPM package](https://www.npmjs.com/package/@phensley/cldr):
-
-```bash
-npm install --save @phensley/cldr
-```
-
-Using Yarn:
-
-```bash
-yarn add @phensley/cldr
-```
-
-## Usage (2.x, functional API)
-
-> The `functional-rewrite` branch replaces the 1.x classes with plain data and functions, so
-> bundlers can drop what you don't use. See [notes/functional-rewrite.md](notes/functional-rewrite.md).
+## Example
 
 ```typescript
-import { createFramework, loadLocale, formatDecimal, formatDate, decimal, decimalAdd } from '@phensley/cldr';
+import {
+  createFramework, loadLocale, formatDecimal, formatCurrency,
+  dayFromString, dayAdd, formatDay, formatInstant,
+  decimal, decimalAdd, decimalToString, localeFlag,
+} from '@phensley/cldr';
 
-// Load locale data (a plain object) from a resource pack.
-const framework = createFramework({ loader: (language) => fetchPack(language) });
-const en = loadLocale(framework, 'en-US');
+// Locale data comes from resource packs, one per language, loaded however you like.
+const framework = createFramework({ loader: (language) => readPack(language) });
+const de = loadLocale(framework, 'de-DE');
 
-formatDecimal(en, '1234.567', { maximumFractionDigits: 2 }); // "1,234.57"
-formatDate(en, { date: Date.now(), zoneId: 'America/New_York' }, { datetime: 'long' });
+formatDecimal(de, '1234.567', { maximumFractionDigits: 2 }); // '1.234,57'
+formatCurrency(de, '1234.5', 'EUR');                           // '1.234,50 €'
 
-// Value types are immutable plain data with functions.
-decimalAdd(decimal('0.1'), '0.2'); // { data: [3], sign: 1, exp: -1, flag: 0 }
+// Days have no time and no zone; instants are epoch ms, read in an explicit zone.
+const due = dayFromString('2026-01-31');
+formatDay(de, dayAdd(due, { months: 1 }));                     // '28.02.2026'
+formatInstant(de, Date.UTC(2026, 2, 29, 12), 'Europe/Berlin', { datetime: 'short' });
+                                                               // '29.03.26, 14:00'
+
+decimalToString(decimalAdd(decimal('0.1'), '0.2'));           // '0.3'
+localeFlag('de-AT');                                           // '🇦🇹'
 ```
 
-The 1.x-style object is still available as a convenience layer (it includes everything):
+App translations, with keys and placeholders checked by TypeScript:
+
+```typescript
+import { createTranslator, translate } from '@phensley/messageformat';
+
+const en = { '{count} invoices': '{count, plural, one {# invoice} other {# invoices}}' };
+const de = { '{count} invoices': '{count, plural, one {# Rechnung} other {# Rechnungen}}' };
+const translator = createTranslator({ source: en, catalogs: { de } });
+
+translate(translator, 'de-AT', '{count} invoices', { count: 3 }); // '3 Rechnungen'
+```
+
+The cldr-engine 1.x object is still available as a convenience layer. It includes everything,
+so it doesn't tree-shake:
 
 ```typescript
 import { cldrFramework } from '@phensley/cldr';
@@ -63,81 +68,101 @@ const cldr = cldrFramework({ loader }).get('en-US');
 cldr.Numbers.formatDecimal('1234.567');
 ```
 
-## Versioning
+More in the package READMEs: [datetime](packages/datetime/README.md),
+[messageformat](packages/messageformat/README.md) ("Translating an app"),
+[locale](packages/locale/README.md) (flags), [decimal](packages/decimal/README.md),
+[timezone](packages/timezone/README.md), [plurals](packages/plurals/README.md),
+[locale-matcher](packages/locale-matcher/README.md),
+[unit-converter](packages/unit-converter/README.md), and
+[examples/date-fns-migration](examples/date-fns-migration) for moving off date-fns.
 
-This project follows [semantic versioning](https://semver.org/):
+## What's in it
 
-**PATCH**
+- Number, currency, percent, compact and unit formatting, as strings or parts.
+- Arbitrary precision decimal and rational math (`decimal`, `decimalAdd`, `decimalDivide`, ...).
+- `Day`, `TimeOfDay` and instants with explicit IANA time zones, and date, interval and relative
+  time formatting. Gregorian, ISO-8601, Japanese, Persian and Buddhist calendars.
+- The IANA time zone database, with aliases and deprecated ids resolved.
+- Cardinal, ordinal and range plural rules.
+- ICU message formatting, and a translator for an app's own text.
+- Display names for languages, scripts, regions, currencies, units and calendar fields; list
+  formatting; measurement system and text direction.
+- Language tag parsing, likely-subtag resolution and distance-based locale matching.
+- Emoji flags for regions and locales.
+- Unit conversion between CLDR units.
 
-- Bug fixes
-- Backwards-compatible
-- Resource pack compatibility maintained (packs from `1.0.0` are guaranteed to work for all `1.0.*` versions)
+CLDR 48.2.0, 429 locales. Each language's data is one resource pack that covers all its scripts
+and regions (English: 260 KB, 47 KB gzipped). Packs are built by `yarn build` into
+`packages/cldr/packs` and loaded at runtime; a pack must come from the same `major.minor`
+version as the library.
 
-**MINOR**
+## Packages
 
-- New features
-- Backwards-compatible
-- Internal schema breaking changes (applications must load resource packs from the same `major.minor` version)
-- CLDR data upgrades which maintain backwards-compatibility
+| package | contents |
+|---|---|
+| `@phensley/cldr` | cldr-core, datetime, decimal, messageformat, plurals, language-tag, locale and locale-matcher re-exported; the convenience layer; the locale packs |
+| `@phensley/cldr-core` | locale data and the locale functions (formatting, display names, calendars) |
+| `@phensley/datetime` | `Day`, `TimeOfDay`, instants, zones |
+| `@phensley/decimal` | arbitrary precision decimals and rationals |
+| `@phensley/messageformat` | ICU message formatting and the translator |
+| `@phensley/plurals` | plural rules |
+| `@phensley/timezone` | the IANA time zone database |
+| `@phensley/language-tag` | BCP 47 language tag parsing |
+| `@phensley/locale` | locale resolution and emoji flags |
+| `@phensley/locale-matcher` | locale matching |
+| `@phensley/unit-converter` | unit conversion |
+| `@phensley/cldr-ext-rbnf` | rule-based number formatting (spelled-out numbers) |
+| `@phensley/cldr-types`, `@phensley/cldr-utils` | shared types and helpers |
+| `@phensley/cldr-compiler` | build-time CLI that turns CLDR JSON into resource packs |
 
-**MAJOR**
+## A port of cldr-engine
 
-- Public API breaking changes
-- CLDR data upgrades which change break API compatibility (unit deprecation / renaming, etc)
+hereabouts is derived from [cldr-engine](https://github.com/phensley/cldr-engine)
+(`@phensley/cldr` 1.16.0), written by Patrick Hensley and licensed under Apache-2.0. Nearly
+all of the hard work is his: the resource pack design that fits a language's CLDR data into one
+compact file, the decimal math, the time zone encoding, the date skeleton matcher, the
+message formatter, the locale matcher, and the test suite that made this port checkable. Thank
+you, Patrick.
 
-## Features
+The port was started in a fork (`billie-coop/cldr-engine`) and changed enough to become its own
+library. The files here are modified from cldr-engine's; the original copyright notices are kept,
+and [NOTICE](NOTICE) records the derivation.
 
-- Implementation folows the [CLDR specification](https://www.unicode.org/reports/tr35/tr35-general.html) supporting [CLDR version 48.0.0](https://cldr.unicode.org/index/downloads/cldr-48)
-- [429 locales](https://phensley.github.io/cldr-engine/docs/en/api-cldrframework#availablelocales)
-- [Compact resource packs](https://phensley.github.io/cldr-engine/docs/en/doc-design-bundles) containing [all scripts and regions for a given language](https://unpkg.com/@phensley/cldr/packs/)
-- [Language tag parsing](https://phensley.github.io/cldr-engine/docs/en/api-cldrframework#parselanguagetag), [locale resolution](https://phensley.github.io/cldr-engine/docs/en/api-cldrframework#resolvelocale), and distance-based [enhanced language matching](https://phensley.github.io/cldr-engine/docs/en/api-localematcher) for improved locale fallback
-- [Fast, compact, and extensible ICU message formatting](packages/messageformat/README.md)
-- Both string and [parts formatting](https://phensley.github.io/cldr-engine/docs/en/api-cldr-numbers#formatdecimaltoparts) for flexible markup styling
-- [Date time](https://phensley.github.io/cldr-engine/docs/en/api-cldr-calendars#formatdate), [date interval](https://phensley.github.io/cldr-engine/docs/en/api-cldr-calendars#formatdateinterval), and [relative time](https://phensley.github.io/cldr-engine/docs/en/api-cldr-calendars#formatrelativetime) formatting
-- Full IANA and CLDR [timezone support](https://phensley.github.io/cldr-engine/docs/en/api-cldr-calendars#resolvetimezoneid) covering the full range of IANA timezone untils, automatic handling of deprecated timezone identifiers and aliases
-- [Gregorian](https://phensley.github.io/cldr-engine/docs/en/api-gregoriandate), [ISO-8601](https://phensley.github.io/cldr-engine/docs/en/api-iso8601date), [Japanese](https://phensley.github.io/cldr-engine/docs/en/api-japanesedate), [Persian](https://phensley.github.io/cldr-engine/docs/en/api-persiandate) and [Buddhist](https://phensley.github.io/cldr-engine/docs/en/api-buddhistdate) calendars.
-- Date formatting using [flexible skeleton-based pattern matching](https://phensley.github.io/cldr-engine/docs/en/api-dateskeleton)
-- [Date addition](https://phensley.github.io/cldr-engine/docs/en/api-calendardate#add), [date subtraction](https://phensley.github.io/cldr-engine/docs/en/api-calendardate#subtract), [date differencing](https://phensley.github.io/cldr-engine/docs/en/api-calendardate#difference) and ["field of visual difference"](https://phensley.github.io/cldr-engine/docs/en/api-calendardate#fieldofvisualdifference) calculation
-- [Cardinal and ordinal pluralization](https://phensley.github.io/cldr-engine/docs/en/api-cldr-numbers#getpluralcardinal) rules
-- [Decimal numbers](https://phensley.github.io/cldr-engine/docs/en/api-cldr-numbers#formatdecimal), [currencies](https://phensley.github.io/cldr-engine/docs/en/api-cldr-numbers#formatcurrency), [units](https://phensley.github.io/cldr-engine/docs/en/api-cldr-units#formatquantity), and [unit sequence](https://phensley.github.io/cldr-engine/docs/en/api-cldr-units#formatquantitysequence) formatting, with [184 different units](https://phensley.github.io/cldr-engine/docs/en/api-unittype)
-- [Arbitrary precision decimal math](https://phensley.github.io/cldr-engine/docs/en/doc-math)
-- Display names for [languages](https://phensley.github.io/cldr-engine/docs/en/api-cldr-general#getlanguagedisplayname), [scripts](https://phensley.github.io/cldr-engine/docs/en/api-cldr-general#getscriptdisplayname), [regions](https://phensley.github.io/cldr-engine/docs/en/api-cldr-general#getregiondisplayname), [currencies](https://phensley.github.io/cldr-engine/docs/en/api-cldr-numbers#getcurrencydisplayname), [units](https://phensley.github.io/cldr-engine/docs/en/api-cldr-units#getunitdisplayname), [calendar fields](https://phensley.github.io/cldr-engine/docs/en/api-cldr-calendars#months), etc
-- [List formatting](https://phensley.github.io/cldr-engine/docs/en/api-cldr-general#formatlist), [measurement system](https://phensley.github.io/cldr-engine/docs/en/api-cldr-general#measurementsystem), [character order](https://phensley.github.io/cldr-engine/docs/en/api-cldr-general#characterorder), and [line order](https://phensley.github.io/cldr-engine/docs/en/api-cldr-general#lineorder) information
-- Optional [Unit conversion package](packages/unit-converter) to convert quantities between CLDR units
+### What changed
 
-## Package Naming
+- **Plain data and functions instead of classes.** Values (`Decimal`, dates, language tags,
+  ...) are immutable plain objects; engines (plural rules, message formatter, locale matcher,
+  unit converter) are plain records made by `create*`/`get*` functions. A locale is a plain
+  `LocaleData` object passed to functions such as `formatDecimal(locale, n)`, which keep their
+  1.x method names. Every package is `sideEffects: false`, so bundlers drop what isn't used:
+  numbers for one locale went from 111.5 KB to 41.8 KB min+gzip, decimal math alone from 5.9 KB
+  to 2.7 KB ([examples/tree-shaking](examples/tree-shaking)).
+- **`@phensley/datetime`** (new): `Day`, `TimeOfDay`, epoch-ms instants and explicit IANA zones,
+  with Temporal-style disambiguation around clock changes, and locale formatters (`formatDay`,
+  `formatInstant`, ...). Meant to replace date-fns
+  ([examples/date-fns-migration](examples/date-fns-migration)).
+- **App translations** (new): `createTranslator`, `translate` and `checkCatalogs` in
+  `@phensley/messageformat`, with type-checked keys and placeholders, catalog fallback, and ICU's
+  apostrophe rules.
+- **Caching:** loaded locale data, bound convenience objects and default message formatters are
+  cached, where 1.x rebuilt them on every call.
+- **Emoji flags** (new): `regionFlag`, `localeFlag`, `subdivisionFlag`, `flagRegion` in
+  `@phensley/locale`.
+- **Repo:** Yarn 4 workspaces (`packages/*`, `apps/*`) and Biome instead of pnpm, ESLint and
+  Prettier; CommonJS entry points are rollup bundles; a live example site in `apps/website`
+  (Vite, React, Tailwind).
 
-Packages with the `cldr-*` prefix represent pieces of the larger library and are designed to work together. The [`@phensley/cldr`](https://www.npmjs.com/package/@phensley/cldr) package pulls in the full functionality of the library.
+### What didn't change
 
-Packages without the `cldr-*` prefix can be used in an application individually without pulling in the larger core library.
+- CLDR data (48.2.0) and the tz database version.
+- The resource pack format: packs built here are byte-identical to 1.16.0's.
+- Formatting results: differential runs against 1.16.0 over all 429 locales (2.2 million locale
+  API calls, plus the value types and engines) found no differences. The 1.x test suite runs
+  with its assertions unchanged.
 
-You can use any of the packages independent of the rest of the library:
-
-| package                                                                              | size                                                                                                                                       | dependencies                                                  |
-| ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------- |
-| [`@phensley/cldr-utils`](https://www.npmjs.com/package/@phensley/cldr-utils)         | [![min+gzip](https://badgen.net/bundlephobia/minzip/@phensley/cldr-utils)](https://bundlephobia.com/result?p=@phensley/cldr-utils)         |                                                               |
-| [`@phensley/decimal`](https://www.npmjs.com/package/@phensley/decimal)               | [![min+gzip](https://badgen.net/bundlephobia/minzip/@phensley/decimal)](https://bundlephobia.com/result?p=@phensley/decimal)               |                                                               |
-| [`@phensley/language-tag`](https://www.npmjs.com/package/@phensley/language-tag)     | [![min+gzip](https://badgen.net/bundlephobia/minzip/@phensley/language-tag)](https://bundlephobia.com/result?p=@phensley/language-tag)     |                                                               |
-| [`@phensley/locale`](https://www.npmjs.com/package/@phensley/locale)                 | [![min+gzip](https://badgen.net/bundlephobia/minzip/@phensley/locale)](https://bundlephobia.com/result?p=@phensley/locale)                 | size includes `language-tag` package                          |
-| [`@phensley/locale-matcher`](https://www.npmjs.com/package/@phensley/locale-matcher) | [![min+gzip](https://badgen.net/bundlephobia/minzip/@phensley/locale-matcher)](https://bundlephobia.com/result?p=@phensley/locale-matcher) | size includes `locale` and `language-tag` packages            |
-| [`@phensley/messageformat`](https://www.npmjs.com/package/@phensley/messageformat)   | [![min+gzip](https://badgen.net/bundlephobia/minzip/@phensley/messageformat)](https://bundlephobia.com/result?p=@phensley/messageformat)   | size includes `cldr-utils`, `decimal`, and `plurals` packages |
-| [`@phensley/plurals`](https://www.npmjs.com/package/@phensley/plurals)               | [![min+gzip](https://badgen.net/bundlephobia/minzip/@phensley/plurals)](https://bundlephobia.com/result?p=@phensley/plurals)               | size includes `decimal` package                               |
-| [`@phensley/timezone`](https://www.npmjs.com/package/@phensley/timezone)             | [![min+gzip](https://badgen.net/bundlephobia/minzip/@phensley/timezone)](https://bundlephobia.com/result?p=@phensley/timezone)             | size includes `cldr-utils` package                            |
-| [`@phensley/unit-converter`](https://www.npmjs.com/package/@phensley/unit-converter) | [![min+gzip](https://badgen.net/bundlephobia/minzip/@phensley/unit-converter)](https://bundlephobia.com/result?p=@phensley/unit-converter) | size includes `cldr-utils` and `decimal` packages             |
-
-## Goals
-
-- Support a broad set of CLDR features in the browser "out of the box".
-- Support all scripts and regions for a language in a single compact resource pack.
-- Resolve the CLDR data size and dimensionality problems.
-  - In the case of English: ~49MB of JSON for 106 locales is compressed to a 227KB resource pack (42KB gzip), a factor of approx. 220:1 uncompressed, 1200:1 with gzip compression.
-- No additional library dependencies required.
-- No custom extraction of CLDR data or precompilation of formatters required.
-- Correctness and consistency across browsers, Node.js, and other Javascript ES5 runtime environments.
-- Provide type-safety, reducing programming errors.
-- No familiarity with CLDR structure is required for developers to use this library.
-- High performance.
-- Arbitrary precision decimal math, to achieve the same accuracy in the browser as on the server.
+The full working log, with the design rules, measurements, deviations from 1.x and open
+questions, is [notes/functional-rewrite.md](notes/functional-rewrite.md). A migration guide
+from `@phensley/cldr` 1.x is still to be written.
 
 ## Development
 
@@ -148,6 +173,7 @@ yarn install
 yarn build      # every package, then the locale packs
 yarn test       # vitest
 yarn lint       # TypeScript checks + Biome
+yarn api        # API Extractor reports (packages/*/etc)
 yarn website    # live examples (apps/website)
 ```
 
@@ -180,20 +206,12 @@ CommonJS `lib/` with Node's own `require`, as a server would, to cover that. The
 
 ## License
 
-    Copyright 2018-present Patrick Hensley
+Apache-2.0 ([LICENSE](LICENSE)). See [NOTICE](NOTICE) for the copyright notices.
 
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-        http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    Copyright 2018-present Patrick Hensley (cldr-engine)
+    Copyright 2026 Billie Co-op (hereabouts, modifications)
 
 ## Affiliation
 
-This project is not affiliated with the [Unicode Inc.](https://unicode.org) or the [Unicode CLDR](http://cldr.unicode.org/) project.
+This project is not affiliated with [Unicode Inc.](https://unicode.org) or the
+[Unicode CLDR](https://cldr.unicode.org/) project.

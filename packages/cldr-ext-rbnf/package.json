@@ -8,10 +8,14 @@
   "sideEffects": false,
   "author": "Patrick Hensley <pathensley@gmail.com>",
   "license": "Apache-2.0",
-  "homepage": "https://github.com/phensley/cldr-engine/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/phensley/cldr-engine"
+    "url": "git+https://github.com/billie-coop/hereabouts.git",
+    "directory": "packages/cldr-ext-rbnf"
+  },
+  "homepage": "https://billie-coop.github.io/hereabouts/",
+  "bugs": {
+    "url": "https://github.com/billie-coop/hereabouts/issues"
   },
   "publishConfig": {
     "access": "public"

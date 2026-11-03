@@ -3130,43 +3130,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cldr-engine-monorepo@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "cldr-engine-monorepo@workspace:."
-  dependencies:
-    "@biomejs/biome": "npm:2.5.9"
-    "@microsoft/api-documenter": "npm:^7.30.5"
-    "@microsoft/api-extractor": "npm:~7.58.7"
-    "@rollup/plugin-commonjs": "npm:^29.0.2"
-    "@rollup/plugin-json": "npm:^6.1.0"
-    "@rollup/plugin-node-resolve": "npm:^16.0.3"
-    "@rollup/plugin-terser": "npm:^1.0.0"
-    "@types/node": "npm:^24.12.0"
-    "@vitest/coverage-istanbul": "npm:^4.1.5"
-    beautify-benchmark: "npm:^0.2.4"
-    benchmark: "npm:^2.1.4"
-    chalk: "npm:^4.1.2"
-    dependency-cruiser: "npm:^17.3.10"
-    dts-bundle-generator: "npm:^9.5.1"
-    jsdom: "npm:^29.1.1"
-    npm-check-updates: "npm:^22.0.1"
-    rimraf: "npm:^6.1.3"
-    rollup: "npm:^4.60.2"
-    rollup-plugin-dts: "npm:^6.4.1"
-    rollup-plugin-filesize: "npm:^10.0.0"
-    rollup-plugin-sourcemaps: "npm:^0.6.3"
-    rollup-plugin-typescript2: "npm:^0.37.0"
-    source-map-explorer: "npm:^2.5.3"
-    terser: "npm:^5.46.2"
-    ts-node: "npm:^10.9.2"
-    tslib: "npm:^2.8.1"
-    tsx: "npm:^4.21.0"
-    typedoc: "npm:^0.28.19"
-    typescript: "npm:~5.9.3"
-    vitest: "npm:^4.1.5"
-  languageName: unknown
-  linkType: soft
-
 "clean-stack@npm:^2.0.0":
   version: 2.2.0
   resolution: "clean-stack@npm:2.2.0"
@@ -4201,6 +4164,43 @@ __metadata:
   checksum: 10c0/2d8de939e270b70618f8cebb69746620db10617dbb495bc66ddad326955ea24d3ca4af133aff3eb7c1853e0218f867bc2b050ec26fe02e3aea58f880ffc5e506
   languageName: node
   linkType: hard
+
+"hereabouts-monorepo@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "hereabouts-monorepo@workspace:."
+  dependencies:
+    "@biomejs/biome": "npm:2.5.9"
+    "@microsoft/api-documenter": "npm:^7.30.5"
+    "@microsoft/api-extractor": "npm:~7.58.7"
+    "@rollup/plugin-commonjs": "npm:^29.0.2"
+    "@rollup/plugin-json": "npm:^6.1.0"
+    "@rollup/plugin-node-resolve": "npm:^16.0.3"
+    "@rollup/plugin-terser": "npm:^1.0.0"
+    "@types/node": "npm:^24.12.0"
+    "@vitest/coverage-istanbul": "npm:^4.1.5"
+    beautify-benchmark: "npm:^0.2.4"
+    benchmark: "npm:^2.1.4"
+    chalk: "npm:^4.1.2"
+    dependency-cruiser: "npm:^17.3.10"
+    dts-bundle-generator: "npm:^9.5.1"
+    jsdom: "npm:^29.1.1"
+    npm-check-updates: "npm:^22.0.1"
+    rimraf: "npm:^6.1.3"
+    rollup: "npm:^4.60.2"
+    rollup-plugin-dts: "npm:^6.4.1"
+    rollup-plugin-filesize: "npm:^10.0.0"
+    rollup-plugin-sourcemaps: "npm:^0.6.3"
+    rollup-plugin-typescript2: "npm:^0.37.0"
+    source-map-explorer: "npm:^2.5.3"
+    terser: "npm:^5.46.2"
+    ts-node: "npm:^10.9.2"
+    tslib: "npm:^2.8.1"
+    tsx: "npm:^4.21.0"
+    typedoc: "npm:^0.28.19"
+    typescript: "npm:~5.9.3"
+    vitest: "npm:^4.1.5"
+  languageName: unknown
+  linkType: soft
 
 "hosted-git-info@npm:^6.0.0":
   version: 6.1.3

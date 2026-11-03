@@ -1,2 +1,9 @@
 cldr-engine
 Copyright 2018-present Patrick Hensley
+
+hereabouts
+Copyright 2026 Billie Co-op
+
+hereabouts is derived from cldr-engine (https://github.com/phensley/cldr-engine,
+version 1.16.0) and modifies it: its files were changed from the cldr-engine
+originals, and new files were added. See README.md and CHANGELOG.md.

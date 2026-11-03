@@ -2,7 +2,84 @@
 
 All notable changes to this project will be documented in this file.
 
-This project uses a **modified semantic versioning** scheme. See [README](README.md#versioning) for more details.
+The first entry describes hereabouts relative to cldr-engine 1.16.0. The entries after it are
+cldr-engine's (`@phensley/cldr`), kept as history; they used a modified semantic versioning
+scheme in which packs must come from the same `major.minor` version as the library.
+
+## [Unreleased] hereabouts
+
+hereabouts is a port of [cldr-engine](https://github.com/phensley/cldr-engine) 1.16.0 by
+Patrick Hensley. Packages keep their `@phensley/*` names for now and are still at version
+1.16.0; they will be published as one package, `@billie-coop/hereabouts`
+([notes/publishing.md](notes/publishing.md)). The full log of the port, with measurements and
+every deviation from 1.x, is [notes/functional-rewrite.md](notes/functional-rewrite.md). A
+migration guide from `@phensley/cldr` 1.x is still to be written.
+
+Unchanged: CLDR data (48.2.0), tz data (2025b), the resource pack format (packs are
+byte-identical to 1.16.0's) and formatting results (differential runs against 1.16.0 over all
+429 locales found no differences).
+
+### Added
+
+- `@phensley/datetime`: `Day` (`{ year, month, day }`), `TimeOfDay`, instants as epoch
+  milliseconds, and explicit IANA zones. Day math never touches a zone; `dayAtTime` resolves
+  clock changes with Temporal's `disambiguation` option. Locale formatters in `@phensley/cldr`:
+  `formatDay`, `formatDayInterval`, `formatDayRelative`, `formatTimeOfDay`, `formatInstant`,
+  `formatInstantRelative` (and `*ToParts`). A date-fns migration table and drop-in helper are in
+  `examples/date-fns-migration`.
+- App translations in `@phensley/messageformat`: `createTranslator`, `translate`,
+  `checkCatalogs`, `resolveMessage`, `messageArgNames`, `isMessageKey`, and the `MessageCatalog`
+  type. Keys and placeholders are type-checked; catalogs fall back from `pt-PT` to `pt` to the
+  source; plural rules follow the catalog the text came from.
+- `ApostropheMode` `'double-optional'` (ICU's default), used by the translator.
+- Emoji flags in `@phensley/locale`: `regionFlag`, `localeFlag`, `subdivisionFlag`,
+  `flagRegion`.
+- `setTimeZoneData` in `@phensley/timezone`, to replace the bundled tz data at runtime.
+- `isDecimal`, `isCalendarDate`, `isLanguageTag` and other shape checks, in place of
+  `instanceof`.
+- `apps/website`: live examples (Vite, React, Tailwind), translated into 8 languages.
+- `examples/tree-shaking`: bundle size measurements against 1.x.
+- Vitest bench suites (`yarn bench`).
+
+### Changed
+
+- Classes are now plain data and exported functions. Values are immutable plain objects
+  (`decimal('1.5')`, `decimalAdd(a, b)`, `decimalToString(d)`; `languageTag(...)` and `tag*`;
+  `gregorianDateFromUnixEpoch(...)` and `date*`). Engines are plain records made by functions
+  (`getPluralRules`, `createMessageFormatter`, `createLocaleMatcher`, `createUnitConverter`).
+  1.x static methods are plain functions (`LanguageResolver.resolve` is
+  `resolveLanguageTag`).
+- Locale data is a plain `LocaleData` object from `loadLocale(framework, id)` /
+  `loadLocaleAsync`, passed first to the locale functions, which keep their 1.x method names
+  (`formatDecimal(locale, n, options)`, `formatDate(locale, date, options)`, ...).
+- `cldrFramework(options).get(id)` still returns the 1.x-shaped object (`.Numbers`,
+  `.Calendars`, `.General`, `.Units`, `.Schema`), built from the functions, with a `data` field
+  holding the `LocaleData`.
+- Every package is `sideEffects: false` and nothing runs on import, so bundlers drop unused
+  code: number formatting for one locale is 41.8 KB min+gzip (111.5 KB in 1.16.0), decimal math
+  alone 2.7 KB (5.9 KB).
+- Loaded locale data (up to `localeCacheSize`, default 64), `cldrFramework().get()` objects and
+  `messageFormatter(locale)` without options are cached.
+- `@phensley/cldr` no longer sets a global default config on import; `createFramework` and
+  `cldrFramework` default to its config instead.
+- `@phensley/cldr` re-exports `@phensley/cldr-core` wholesale.
+- `decimalProperties` returns a copy of the coefficient, typed `readonly number[]`.
+- Parsed patterns, plural rules and date zone info are readonly in the types.
+- `unitConverterAdd` returns a new converter (1.x `add` changed it in place).
+- The brace matcher in message parsing honours `disableEscapes`.
+- CommonJS entry points (`lib/index.js`) are rollup bundles.
+- Yarn 4 workspaces (`packages/*`, `apps/*`) and Biome replace pnpm, ESLint and Prettier.
+
+### Removed
+
+- The classes themselves (`Decimal`, `Rational`, `LanguageTag`, `GregorianDate` and the other
+  calendar classes, `CLDRFramework`, ...). Their types remain as plain data types.
+- `Internals` on the convenience object.
+- Internal helpers that were reachable from the package indexes: `parseDatePattern`,
+  `getNumberPattern`, `parseWrapper`, `renderDecimal`, `gregorianDaysInYear`, `negatePeriod`
+  and others (full list in the notes). They returned shared cached objects that callers could
+  change.
+- The `patternCacheSize` option no longer does anything (caches are shared and fixed-size).
 
 ## [1.14.0]
 

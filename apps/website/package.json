@@ -23,5 +23,13 @@
     "tailwindcss": "4.2.1",
     "typescript": "~5.9.3",
     "vite": "7.2.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/billie-coop/hereabouts.git"
+  },
+  "homepage": "https://billie-coop.github.io/hereabouts/",
+  "bugs": {
+    "url": "https://github.com/billie-coop/hereabouts/issues"
   }
 }

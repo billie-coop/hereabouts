@@ -90,7 +90,7 @@ export const App = () => {
       <header className="top-0 z-10 sm:sticky border-b border-zinc-200 bg-zinc-50/90 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/90">
         <div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 py-3">
           <div>
-            <h1 className="text-xl font-semibold tracking-tight">cldr-engine 2</h1>
+            <h1 className="text-xl font-semibold tracking-tight">hereabouts</h1>
             <p className="text-xs text-zinc-500">
               {t(
                 'v{version} · CLDR {cldr} · plain functions over plain data · every example runs live',

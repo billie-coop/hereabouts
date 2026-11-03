@@ -1,5 +1,9 @@
 # Functional rewrite (2.x) — working log
 
+> Written in `billie-coop/cldr-engine-2` (branch `functional-rewrite`, up to `efd22363`) before
+> the code moved to this repo as hereabouts. Kept as history: names like "2.x" and `pnpm`
+> commands refer to that time.
+
 Branch: `functional-rewrite`. Started 2026-11-01 from `main` @ `3f51c5a4` (v1.16.0).
 
 ## Summary

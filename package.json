@@ -1,8 +1,16 @@
 {
   "private": true,
-  "name": "cldr-engine-monorepo",
+  "name": "hereabouts-monorepo",
   "author": "Patrick Hensley <pathensley@gmail.com>",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/billie-coop/hereabouts.git"
+  },
+  "homepage": "https://billie-coop.github.io/hereabouts/",
+  "bugs": {
+    "url": "https://github.com/billie-coop/hereabouts/issues"
+  },
   "packageManager": "yarn@4.18.0",
   "workspaces": [
     "packages/*",
@@ -12,22 +20,22 @@
     "node": ">=22"
   },
   "scripts": {
-    "api": "yarn workspaces foreach -Apt --exclude cldr-engine-monorepo run api",
-    "api:local": "yarn workspaces foreach -Apt --exclude cldr-engine-monorepo run api:local",
+    "api": "yarn workspaces foreach -Apt --exclude hereabouts-monorepo run api",
+    "api:local": "yarn workspaces foreach -Apt --exclude hereabouts-monorepo run api:local",
     "bench": "vitest bench --run",
-    "bench:legacy": "yarn workspaces foreach -At --exclude cldr-engine-monorepo run bench",
-    "build": "yarn workspaces foreach -Apt --exclude cldr-engine-monorepo run build",
-    "build:watch": "yarn workspaces foreach -Api --exclude cldr-engine-monorepo run build:watch",
+    "bench:legacy": "yarn workspaces foreach -At --exclude hereabouts-monorepo run bench",
+    "build": "yarn workspaces foreach -Apt --exclude hereabouts-monorepo run build",
+    "build:watch": "yarn workspaces foreach -Api --exclude hereabouts-monorepo run build:watch",
     "check": "biome check .",
     "check:fix": "biome check --write .",
-    "clean": "yarn workspaces foreach -Ap --exclude cldr-engine-monorepo run clean && rimraf ./coverage",
-    "clean:full": "yarn workspaces foreach -Ap --exclude cldr-engine-monorepo run clean:full && rimraf ./node_modules",
+    "clean": "yarn workspaces foreach -Ap --exclude hereabouts-monorepo run clean && rimraf ./coverage",
+    "clean:full": "yarn workspaces foreach -Ap --exclude hereabouts-monorepo run clean:full && rimraf ./node_modules",
     "depgraph": "depcruise --no-config -T dot -x tslib packages/cldr/src | dot -T pdf > depgraph.pdf",
     "lint": "yarn ts-check && yarn check",
-    "stress": "yarn workspaces foreach -At --exclude cldr-engine-monorepo run stress",
+    "stress": "yarn workspaces foreach -At --exclude hereabouts-monorepo run stress",
     "test": "vitest --run --coverage",
     "test:watch": "vitest",
-    "ts-check": "yarn workspaces foreach -Apt --exclude cldr-engine-monorepo --include '@phensley/*' exec tsc -p tsconfig.json --emitDeclarationOnly && yarn workspaces foreach -Ap --exclude cldr-engine-monorepo run build:lint",
+    "ts-check": "yarn workspaces foreach -Apt --exclude hereabouts-monorepo --include '@phensley/*' exec tsc -p tsconfig.json --emitDeclarationOnly && yarn workspaces foreach -Ap --exclude hereabouts-monorepo run build:lint",
     "website": "yarn workspace website dev",
     "website:build": "yarn workspace website build"
   },
