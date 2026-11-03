@@ -1,4 +1,4 @@
-import { checkCatalogs } from '@phensley/cldr';
+import { checkCatalogs } from '@billie-coop/hereabouts';
 import { describe, expect, test } from 'vitest';
 import { translator, translatorFor } from '.';
 

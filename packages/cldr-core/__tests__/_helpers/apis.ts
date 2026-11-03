@@ -1,4 +1,4 @@
-import { config as defaultconfig } from '../../../cldr/src/config';
+import { config as defaultconfig } from '../../../hereabouts/src/config';
 import type { LocaleData, SchemaConfig } from '../../src';
 import { VERSION as _VERSION } from '../../src/utils/version';
 import { languageBundle } from './bundle';

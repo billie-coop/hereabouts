@@ -273,6 +273,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@billie-coop/hereabouts@workspace:*, @billie-coop/hereabouts@workspace:packages/hereabouts":
+  version: 0.0.0-use.local
+  resolution: "@billie-coop/hereabouts@workspace:packages/hereabouts"
+  dependencies:
+    "@phensley/cldr-compiler": "workspace:~1.16.0"
+    "@phensley/cldr-core": "workspace:~1.16.0"
+    "@phensley/cldr-utils": "workspace:~1.16.0"
+    "@phensley/messageformat": "workspace:~1.16.0"
+    "@types/node": "npm:^24.10.1"
+    tslib: "npm:^2.8.1"
+  languageName: unknown
+  linkType: soft
+
 "@biomejs/biome@npm:2.5.9":
   version: 2.5.9
   resolution: "@biomejs/biome@npm:2.5.9"
@@ -1240,19 +1253,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@phensley/cldr-utils@workspace:packages/cldr-utils"
   dependencies:
-    "@types/node": "npm:^24.10.1"
-    tslib: "npm:^2.8.1"
-  languageName: unknown
-  linkType: soft
-
-"@phensley/cldr@workspace:*, @phensley/cldr@workspace:packages/cldr":
-  version: 0.0.0-use.local
-  resolution: "@phensley/cldr@workspace:packages/cldr"
-  dependencies:
-    "@phensley/cldr-compiler": "workspace:~1.16.0"
-    "@phensley/cldr-core": "workspace:~1.16.0"
-    "@phensley/cldr-utils": "workspace:~1.16.0"
-    "@phensley/messageformat": "workspace:~1.16.0"
     "@types/node": "npm:^24.10.1"
     tslib: "npm:^2.8.1"
   languageName: unknown
@@ -7370,7 +7370,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "website@workspace:apps/website"
   dependencies:
-    "@phensley/cldr": "workspace:*"
+    "@billie-coop/hereabouts": "workspace:*"
     "@phensley/unit-converter": "workspace:*"
     "@tailwindcss/vite": "npm:4.2.1"
     "@types/react": "npm:^19.2.0"

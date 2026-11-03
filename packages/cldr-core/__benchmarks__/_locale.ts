@@ -1,12 +1,12 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
-import { config } from '../../cldr/src/config';
+import { config } from '../../hereabouts/src/config';
 import { createFramework, type LocaleData, loadLocale } from '../src';
 
 // Locale data loaded from the resource packs, as an app would load it.
 const loader = (id: string): string =>
-  readFileSync(join(__dirname, '..', '..', 'cldr', 'packs', `${id}.json`), 'utf-8');
+  readFileSync(join(__dirname, '..', '..', 'hereabouts', 'packs', `${id}.json`), 'utf-8');
 
 const framework = createFramework({ loader, config });
 

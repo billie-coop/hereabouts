@@ -1,5 +1,10 @@
 // 2.x: number formatting only, using the functions directly.
-import { createFramework, formatCurrency, formatDecimal, loadLocale } from '@phensley/cldr';
+import {
+  createFramework,
+  formatCurrency,
+  formatDecimal,
+  loadLocale,
+} from '@billie-coop/hereabouts';
 
 const framework = createFramework({ loader: (language) => globalThis.loadPack(language) });
 const en = loadLocale(framework, 'en');

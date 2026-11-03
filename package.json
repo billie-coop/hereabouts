@@ -33,7 +33,7 @@
     "check:fix": "biome check --write .",
     "clean": "yarn workspaces foreach -Ap --exclude hereabouts-monorepo run clean && rimraf ./coverage",
     "clean:full": "yarn workspaces foreach -Ap --exclude hereabouts-monorepo run clean:full && rimraf ./node_modules",
-    "depgraph": "depcruise --no-config -T dot -x tslib packages/cldr/src | dot -T pdf > depgraph.pdf",
+    "depgraph": "depcruise --no-config -T dot -x tslib packages/hereabouts/src | dot -T pdf > depgraph.pdf",
     "lint": "yarn ts-check && yarn check",
     "stress": "yarn workspaces foreach -At --exclude hereabouts-monorepo run stress",
     "test": "vitest --run --coverage",

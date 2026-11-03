@@ -1,4 +1,4 @@
-import type { MessageCatalog } from '@phensley/cldr';
+import type { MessageCatalog } from '@billie-coop/hereabouts';
 import type { MessageKey } from './en';
 
 export const fr: MessageCatalog<MessageKey> = {

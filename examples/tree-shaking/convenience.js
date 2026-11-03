@@ -1,5 +1,5 @@
 // 2.x: the "batteries included" convenience object (pulls in everything, like 1.x).
-import { cldrFramework } from '@phensley/cldr';
+import { cldrFramework } from '@billie-coop/hereabouts';
 
 const cldr = cldrFramework({ loader: (language) => globalThis.loadPack(language) }).get('en');
 

@@ -8,7 +8,7 @@ import {
   getPluralCardinal,
   getPluralOrdinal,
   type LocaleData,
-} from '@phensley/cldr';
+} from '@billie-coop/hereabouts';
 import { useState } from 'react';
 import { rich, type T } from '../i18n';
 import { attempt, Example, Field, q, Section, Select } from '../ui';

@@ -16,7 +16,7 @@ import type * as yargs from 'yargs';
 import * as CONFIG from './config.json';
 
 export const loader = (lang: string) => {
-  const path = join(__dirname, `../../../../cldr/packs/${lang}.json`);
+  const path = join(__dirname, `../../../../hereabouts/packs/${lang}.json`);
   return fs.readFileSync(path).toString('utf-8');
 };
 

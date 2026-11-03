@@ -40,6 +40,11 @@ const phensley = (root) => {
   return {
     name: 'phensley-resolve',
     resolveId(source, importer) {
+      const h = /^@billie-coop\/hereabouts(\/.*)?$/.exec(source);
+      if (h) {
+        const { dir, json } = pkgFor('hereabouts');
+        return h[1] ? join(dir, h[1]) + '.js' : join(dir, json.module);
+      }
       const m = /^@phensley\/([^/]+)(\/.*)?$/.exec(source);
       if (m) {
         const { dir, json } = pkgFor(m[1]);
@@ -97,7 +102,7 @@ const measure = async (entry, root, label) => {
 
 // Run a bundle with a pack loader that reads the packs of the given checkout.
 const run = (file, root) => {
-  const packs = join(root, 'packages', 'cldr', 'packs');
+  const packs = join(root, 'packages', root === repo ? 'hereabouts' : 'cldr', 'packs');
   const prelude = `globalThis.loadPack = (l) => require('fs').readFileSync(${JSON.stringify(packs)} + '/' + l + '.json', 'utf8');`;
   const runner = join(here, 'dist', 'run.cjs');
   const code = readFileSync(file, 'utf8');

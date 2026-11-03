@@ -11,7 +11,7 @@ yarn website:build   # static site in apps/website/dist (relative paths, works u
 ```
 
 Locale packs are loaded on demand, one chunk per language, straight from
-`packages/cldr/packs`. The app imports the built packages (`lib-es`), so rebuild a package
+`packages/hereabouts/packs`. The app imports the built packages (`lib-es`), so rebuild a package
 after changing it.
 
 The page's own text is translated with the library's translator (`src/i18n`): an English source

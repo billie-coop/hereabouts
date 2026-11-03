@@ -5,12 +5,12 @@ import {
   type LocaleData,
   loadLocaleAsync,
   matchLocale,
-} from '@phensley/cldr';
+} from '@billie-coop/hereabouts';
 
 // Each language's resource pack is its own chunk, fetched the first time a locale of that
 // language is chosen. The packs come from the @phensley/cldr build (`yarn build`).
-const PACKS = '../../../packages/cldr/packs/';
-const packs = import.meta.glob<string>('../../../packages/cldr/packs/*.json', {
+const PACKS = '../../../packages/hereabouts/packs/';
+const packs = import.meta.glob<string>('../../../packages/hereabouts/packs/*.json', {
   query: '?raw',
   import: 'default',
 });

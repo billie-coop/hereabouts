@@ -12,7 +12,7 @@ import {
   tagExpanded,
   timeZoneInfo,
   timeZoneOffset,
-} from '@phensley/cldr';
+} from '@billie-coop/hereabouts';
 import type { SearchItem } from './SearchSelect';
 
 /** 'Serbian (Latin)': the language, and its script when the id names one. */

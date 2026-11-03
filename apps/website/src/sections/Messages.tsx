@@ -5,7 +5,7 @@ import {
   type LocaleData,
   type MessageNamedArgs,
   messageFormatter,
-} from '@phensley/cldr';
+} from '@billie-coop/hereabouts';
 import { useMemo, useState } from 'react';
 import type { T } from '../i18n';
 import { attempt, Example, Field, q, Section } from '../ui';

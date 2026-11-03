@@ -1,11 +1,11 @@
 import * as fs from 'fs';
 import { join } from 'path';
 
-import { config as defaultconfig } from '../../../cldr/src/config';
+import { config as defaultconfig } from '../../../hereabouts/src/config';
 import { type CLDRFramework, type CLDROptions, cldrFramework } from '../../src';
 
 const packPath = (language: string) =>
-  join(__dirname, '..', '..', '..', 'cldr', 'packs', `${language}.json`);
+  join(__dirname, '..', '..', '..', 'hereabouts', 'packs', `${language}.json`);
 
 export const loader = (language: string): any =>
   fs.readFileSync(packPath(language)).toString('utf-8');

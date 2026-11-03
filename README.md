@@ -93,7 +93,7 @@ More in the package READMEs: [datetime](packages/datetime/README.md),
 
 CLDR 48.2.0, 429 locales. Each language's data is one resource pack that covers all its scripts
 and regions (English: 260 KB, 47 KB gzipped). Packs are built by `yarn build` into
-`packages/cldr/packs` and loaded at runtime; a pack must come from the same `major.minor`
+`packages/hereabouts/packs` and loaded at runtime; a pack must come from the same `major.minor`
 version as the library.
 
 ## Packages
@@ -201,7 +201,7 @@ usually noise.
 
 Vitest runs the TypeScript sources through its own module loader, which adds a cost to every
 cross-module call, so absolute numbers are lower than in a Node app and costs specific to the
-published builds don't show. `packages/cldr/__benchmarks__/cjs.bench.ts` loads the built
+published builds don't show. `packages/hereabouts/__benchmarks__/cjs.bench.ts` loads the built
 CommonJS `lib/` with Node's own `require`, as a server would, to cover that. The older
 `benchmark.js` suites are still available as `yarn bench:legacy`.
 

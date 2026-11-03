@@ -24,7 +24,7 @@ import {
   timeOfDay,
   timeOfDayParse,
   timeZoneOffset,
-} from '@phensley/cldr';
+} from '@billie-coop/hereabouts';
 import { useState } from 'react';
 import { rich, type T } from '../i18n';
 import { attempt, Example, Field, q, Section } from '../ui';

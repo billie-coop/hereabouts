@@ -1,3 +1,3 @@
-import { cldrVersion } from '@phensley/cldr';
+import { cldrVersion } from '@billie-coop/hereabouts';
 
 console.log(cldrVersion());

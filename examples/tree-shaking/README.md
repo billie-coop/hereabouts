@@ -10,7 +10,7 @@ node examples/tree-shaking/measure.mjs --v1 <path>  # <path>: a built 1.x checko
 
 `@phensley/*` imports are resolved to `<root>/packages/<name>` using each package's `module`
 build and its `sideEffects` flag, the way a bundler resolves them from `node_modules`. Each
-bundle is then run (with a pack loader reading `packages/cldr/packs`) to check it works; the
+bundle is then run (with a pack loader reading `packages/hereabouts/packs`) to check it works; the
 outputs are in the last column. Resource packs are loaded at runtime and are not part of any
 bundle.
 

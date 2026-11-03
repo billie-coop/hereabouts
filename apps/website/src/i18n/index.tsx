@@ -1,4 +1,9 @@
-import { createTranslator, resolveMessage, type TranslateArgs, translate } from '@phensley/cldr';
+import {
+  createTranslator,
+  resolveMessage,
+  type TranslateArgs,
+  translate,
+} from '@billie-coop/hereabouts';
 import type { ReactNode } from 'react';
 import { ar } from './ar';
 import { de } from './de';

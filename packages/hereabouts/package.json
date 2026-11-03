@@ -1,7 +1,7 @@
 {
-  "name": "@phensley/cldr",
+  "name": "@billie-coop/hereabouts",
   "version": "1.16.0",
-  "description": "Internationalization in Typescript with Unicode CLDR, batteries included",
+  "description": "Internationalization for JavaScript and TypeScript, built on Unicode CLDR: numbers, decimal math, currencies, dates and time zones, units, plurals, messages and translations",
   "main": "lib/index.js",
   "module": "lib-es/index.js",
   "types": "lib/index.d.ts",
@@ -14,7 +14,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/billie-coop/hereabouts.git",
-    "directory": "packages/cldr"
+    "directory": "packages/hereabouts"
   },
   "homepage": "https://billie-coop.github.io/hereabouts/",
   "bugs": {
@@ -26,12 +26,16 @@
     "i18n",
     "intl",
     "internationalization",
+    "l10n",
     "locale",
-    "math",
-    "arbitrary-precision",
+    "translation",
+    "messageformat",
     "pluralization",
     "decimal",
-    "globalize"
+    "arbitrary-precision",
+    "currency",
+    "timezone",
+    "date"
   ],
   "publishConfig": {
     "access": "public"
@@ -39,18 +43,14 @@
   "scripts": {
     "api": "api-extractor run -c ./etc/api-extractor.json --local --verbose",
     "api:local": "yarn run api -l",
-    "build": "yarn run build:cj && yarn run build:es && yarn run build:cjs-bundle && yarn run build:packs && yarn run build:rollup",
+    "build": "yarn run build:cj && yarn run build:es && yarn run build:cjs-bundle && yarn run build:packs",
     "build:cj": "tsc -p ./tsconfig.json",
     "build:es": "tsc -p ./tsconfig.json --module esnext --outDir lib-es",
     "build:cjs-bundle": "rollup -c ../../rollup.cjs.config.mjs",
     "build:lint": "tsc -p ./tsconfig.lint.json",
     "build:packs": "cldr-compiler pack -o ./packs",
     "build:watch": "tsc -p ./tsconfig.json -w --preserveWatchOutput",
-    "x_build:rollup": "NODE_ENV=production rollup --bundleConfigAsCjs -c && yarn run build:rollup-dts && rimraf dist/src && yarn run build:rollup-report",
-    "build:rollup": "NODE_ENV=production rollup --bundleConfigAsCjs -c && rimraf dist/src && yarn run build:rollup-report",
-    "build:rollup-report": "source-map-explorer --no-border-checks --html -m dist/cldrengine.umd.js dist/cldrengine.umd.js.map >dist/report.html",
-    "build:rollup-dts": "dts-bundle-generator -o ./dist/cldrengine.umd.d.ts src/index.ts",
-    "clean": "rimraf ./lib ./lib-es ./packs ./dist",
+    "clean": "rimraf ./lib ./lib-es ./packs",
     "clean:full": "yarn run clean && rimraf ./node_modules",
     "coverage": "vitest run --coverage",
     "off-install": "node ./scripts/extract.js",
@@ -60,7 +60,6 @@
     "test:watch": "vitest"
   },
   "files": [
-    "dist/",
     "lib/",
     "lib-es/",
     "packs/*.json",

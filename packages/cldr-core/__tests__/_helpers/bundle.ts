@@ -5,7 +5,7 @@ import * as subprocess from 'child_process';
 import { createHash } from 'crypto';
 import * as fs from 'fs';
 import { join } from 'path';
-import { config as defaultconfig } from '../../../cldr/src/config';
+import { config as defaultconfig } from '../../../hereabouts/src/config';
 import {
   buildOrigin,
   type CLDRFramework,
@@ -99,7 +99,7 @@ const buildPack = (lang: string, spec: PackSpec): string => {
 export const loadPack = (language: string, spec?: PackSpec): Pack => {
   let path: string;
   if (spec === undefined) {
-    path = join(__dirname, '..', '..', '..', 'cldr', 'packs', `${language}.json`);
+    path = join(__dirname, '..', '..', '..', 'hereabouts', 'packs', `${language}.json`);
   } else {
     path = buildPack(language, spec);
   }

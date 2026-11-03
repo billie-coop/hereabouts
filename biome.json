@@ -16,7 +16,7 @@
       "!**/.claude",
       "!**/.vscode",
       "!packages/*/etc",
-      "!packages/cldr/packs",
+      "!packages/hereabouts/packs",
       "!packages/cldr-compiler/.cldr",
       "!packages/timezone/src/autogen.zonedata.ts",
       "!**/autogen.*.ts",

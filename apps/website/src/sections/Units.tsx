@@ -5,7 +5,7 @@ import {
   type LocaleData,
   measurementSystem,
   type UnitType,
-} from '@phensley/cldr';
+} from '@billie-coop/hereabouts';
 import {
   convertUnits,
   createUnitConverter,

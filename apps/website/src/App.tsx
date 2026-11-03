@@ -1,4 +1,4 @@
-import { cldrVersion, type LocaleData, systemTimeZone, timeZoneIds } from '@phensley/cldr';
+import { cldrVersion, type LocaleData, systemTimeZone, timeZoneIds } from '@billie-coop/hereabouts';
 import { useEffect, useMemo, useState } from 'react';
 import { pageLanguage, rich, translatorFor } from './i18n';
 import { cldrDataVersion, initialLocale, LOCALES, loadLocale } from './locale';

@@ -3,7 +3,7 @@ import {
   getLanguageDisplayName,
   type LocaleData,
   resolveMessage,
-} from '@phensley/cldr';
+} from '@billie-coop/hereabouts';
 import { rich, type T, translator } from '../i18n';
 import { Example, q, Section } from '../ui';
 
