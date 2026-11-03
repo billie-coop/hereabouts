@@ -7,8 +7,9 @@ created. Nothing here is published yet; update this file as things are decided o
 
 - **One npm package: `@billie-coop/hereabouts`**, with subpath exports
   (`@billie-coop/hereabouts/decimal`, `@billie-coop/hereabouts/datetime`, ...) instead of the ~15
-  separate `@phensley/*` packages this repo still builds. Stephen has claimed the `@billie-coop`
-  npm org. How to get there: [single-package-plan.md](single-package-plan.md).
+  separate `@phensley/*` packages. Stephen has claimed the `@billie-coop` npm org. Done
+  2026-11-03 in `packages/hereabouts`; decisions and results in
+  [single-package-plan.md](single-package-plan.md) ("Outcome"). Not published yet.
 - **Placeholder packages for the bare names.** `hereabouts` (and likewise `seaq` and
   `serenity-now`) get a placeholder package whose README says the maintained package is the
   scoped one, so nobody squats the name.
@@ -24,9 +25,9 @@ created. Nothing here is published yet; update this file as things are decided o
 - **`oss.billie.coop`**: a site listing the co-op's open source packages, with aliases such as
   `oss.billie.coop/hereabouts`. Where it's managed is undecided (maybe Linear, or the billie-coop
   monorepo).
-- **Versioning.** Undecided. The packages are all still at 1.16.0. The resource pack checksum is
+- **Versioning.** Undecided. `packages/hereabouts` is still at 1.16.0. The resource pack checksum is
   derived from the version's `major.minor` (`checksumIndices` in
-  `packages/cldr-core/src/resource/checksum.ts`), so a major or minor bump changes it and the
+  `packages/hereabouts/src/core/resource/checksum.ts`), so a major or minor bump changes it and the
   packs are rebuilt; `yarn build` does that. A patch bump keeps packs compatible. Apps must load packs
   built for the same `major.minor`.
 - **Open API decisions before 1.0** (details in [functional-rewrite.md](functional-rewrite.md),
@@ -63,6 +64,16 @@ created. Nothing here is published yet; update this file as things are decided o
   GitHub Pages on pushes to `main` that touch the site or the library (or by hand). Pages must
   be set to "GitHub Actions" in the repo settings.
 - The old `release` / `prerelease` scripts (`pnpm publish -r`, one package each) are removed.
+
+## Found along the way, not fixed
+
+- **Translator argument check with a one-key catalog.** `translate(t, locale, key)` without
+  arguments is a compile error when the message has placeholders, except when the source
+  catalog has exactly one key: `KeyArgs` in `src/messageformat/translator.ts` treats "the key
+  is every key of the catalog" as its unknown-key fallback, which is also true then, so the
+  arguments become optional. Real catalogs have more keys; a fix is a small type change.
+- **`LanguageTagField` is a getter in the CommonJS build** (compiled enums reassign their
+  variable, so rollup keeps a live binding). Harmless; noted in the export test.
 
 ## Left over from cldr-engine
 

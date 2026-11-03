@@ -1,7 +1,48 @@
 # Plan: one package, `@billie-coop/hereabouts`
 
-Status: plan only, nothing implemented. Written 2026-11-03 against commit `5bcc706`. The
-decisions in the first section need Stephen's approval before work starts.
+Written 2026-11-03 against commit `5bcc706`; **implemented the same day** (commits `c9cc2c7`
+rename, `cd1b7a9` merge, `e3ee6e6` checks, then docs). The plan below is kept as written; this
+section records the outcome.
+
+## Outcome
+
+Stephen's decisions: (1) merge the sources into `packages/hereabouts`; (2) keep the current
+package names as subpaths; (3) root = what `@phensley/cldr` exported; (4) `cldr-compiler`
+stays a private workspace tool and takes cldr-ext-rbnf; (5) packs ship in the package; (6) drop
+the UMD bundle; (7) CommonJS for Node plus the `module` condition for bundlers, no `import`
+condition yet.
+
+Where the implementation differs from the plan:
+
+- Output folders are `dist/esm`, `dist/types` and `dist/cjs` (`dist/` was already ignored by
+  git and Biome; top-level `types/` would have clashed with `src/types` in ignore patterns).
+- The compiler runs from its TypeScript sources with tsx (`bin/compiler.js` registers
+  `tsx/cjs`) and imports the library by relative path, instead of tsconfig paths plus a
+  bundling step. It no longer has a build of its own. It stamps packs with the library's
+  `VERSION` instead of its own package.json version, so the two can't drift.
+- Tests import sources by relative path (as the per-package tests did), so no vitest alias was
+  needed; they need the build only for the packs and the built-package checks.
+- API Extractor runs through `packages/hereabouts/scripts/api.mjs`, which derives one config
+  per export-map entry, instead of one config file per subpath. The forgotten-export warnings
+  the plan expected were already present in the old per-package reports; every subpath report
+  came out identical to its package's old report, and the root differs only in the print order
+  of one string-literal union. So no type re-exports were added.
+- In the CommonJS build, the `LanguageTagField` enum is exported through a getter (rollup keeps
+  a live binding because compiled enums reassign their variable). Functions are plain values.
+- The package READMEs were merged into the root README, which `prepack` copies into the
+  package together with LICENSE and NOTICE.
+
+Checks (2026-11-03):
+
+- Runtime export names: root = `@phensley/cldr`'s 400 names, each subpath = its old package's.
+- CommonJS root vs subpaths: 150 shared names, all `===`; `timeZoneIds() === tzZoneIds()`
+  (one tz database). In-repo test: `packages/hereabouts/__tests__/package/exports.test.ts`.
+- Packs byte-identical (sha256sums.txt). Tree-shaking unchanged: numbers 41.7 KB, dates
+  85.9 KB, convenience 102.4 KB, decimal 2.7 KB min+gzip; side-effects probe ~0.
+- Packed tarball (`packages/hereabouts/smoke/run.sh`): Node `require` and `import` work;
+  Vite 7, webpack 5 and esbuild all pick `dist/esm` and tree-shake (decimal only 2.1-3.2 KB
+  gzip); TypeScript 5.9 resolves types with `node`, `node16` (CJS and ESM files) and
+  `bundler`. Tarball 4.0 MB, 22 MB unpacked (packs 16 MB).
 
 ## Decisions needed
 

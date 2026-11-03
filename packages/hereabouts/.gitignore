@@ -1,2 +1,6 @@
 /.custom-packs
 /.tztemp
+# copied from the repo root by prepack
+/README.md
+/LICENSE
+/NOTICE

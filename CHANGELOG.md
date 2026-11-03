@@ -9,9 +9,8 @@ scheme in which packs must come from the same `major.minor` version as the libra
 ## [Unreleased] hereabouts
 
 hereabouts is a port of [cldr-engine](https://github.com/phensley/cldr-engine) 1.16.0 by
-Patrick Hensley. Packages keep their `@phensley/*` names for now and are still at version
-1.16.0; they will be published as one package, `@billie-coop/hereabouts`
-([notes/publishing.md](notes/publishing.md)). The full log of the port, with measurements and
+Patrick Hensley, published as one package, `@billie-coop/hereabouts` (the version is decided at
+release; the sources are still at 1.16.0). The full log of the port, with measurements and
 every deviation from 1.x, is [notes/functional-rewrite.md](notes/functional-rewrite.md). A
 migration guide from `@phensley/cldr` 1.x is still to be written.
 
@@ -21,20 +20,40 @@ all 429 locales found no differences).
 
 ### Added
 
-- `@phensley/datetime`: `Day` (`{ year, month, day }`), `TimeOfDay`, instants as epoch
+- One package, `@billie-coop/hereabouts`, in place of the `@phensley/*` packages. The root
+  exports what `@phensley/cldr` exported; subpaths replace the standalone packages:
+
+  | cldr-engine 1.x | hereabouts |
+  |---|---|
+  | `@phensley/cldr`, `@phensley/cldr-core` | `@billie-coop/hereabouts` |
+  | `@phensley/decimal` | `@billie-coop/hereabouts/decimal` |
+  | `@phensley/timezone` | `@billie-coop/hereabouts/timezone` |
+  | `@phensley/plurals` | `@billie-coop/hereabouts/plurals` |
+  | `@phensley/messageformat` | `@billie-coop/hereabouts/messageformat` |
+  | `@phensley/language-tag` | `@billie-coop/hereabouts/language-tag` |
+  | `@phensley/locale` | `@billie-coop/hereabouts/locale` |
+  | `@phensley/locale-matcher` | `@billie-coop/hereabouts/locale-matcher` |
+  | `@phensley/unit-converter` | `@billie-coop/hereabouts/unit-converter` |
+  | (new) | `@billie-coop/hereabouts/datetime` |
+  | `@phensley/cldr/packs/*.json` | `@billie-coop/hereabouts/packs/*.json` |
+
+  Each subpath exports exactly what its package exported. The export map gives Node CommonJS
+  and bundlers ES modules (`module` condition); `typesVersions` covers TypeScript's `node`
+  resolution.
+- `/datetime` (new): `Day` (`{ year, month, day }`), `TimeOfDay`, instants as epoch
   milliseconds, and explicit IANA zones. Day math never touches a zone; `dayAtTime` resolves
-  clock changes with Temporal's `disambiguation` option. Locale formatters in `@phensley/cldr`:
+  clock changes with Temporal's `disambiguation` option. Locale formatters in the root:
   `formatDay`, `formatDayInterval`, `formatDayRelative`, `formatTimeOfDay`, `formatInstant`,
   `formatInstantRelative` (and `*ToParts`). A date-fns migration table and drop-in helper are in
   `examples/date-fns-migration`.
-- App translations in `@phensley/messageformat`: `createTranslator`, `translate`,
+- App translations in `/messageformat`: `createTranslator`, `translate`,
   `checkCatalogs`, `resolveMessage`, `messageArgNames`, `isMessageKey`, and the `MessageCatalog`
   type. Keys and placeholders are type-checked; catalogs fall back from `pt-PT` to `pt` to the
   source; plural rules follow the catalog the text came from.
 - `ApostropheMode` `'double-optional'` (ICU's default), used by the translator.
-- Emoji flags in `@phensley/locale`: `regionFlag`, `localeFlag`, `subdivisionFlag`,
+- Emoji flags in `/locale`: `regionFlag`, `localeFlag`, `subdivisionFlag`,
   `flagRegion`.
-- `setTimeZoneData` in `@phensley/timezone`, to replace the bundled tz data at runtime.
+- `setTimeZoneData` in `/timezone`, to replace the bundled tz data at runtime.
 - `isDecimal`, `isCalendarDate`, `isLanguageTag` and other shape checks, in place of
   `instanceof`.
 - `apps/website`: live examples (Vite, React, Tailwind), translated into 8 languages.
@@ -65,14 +84,15 @@ all 429 locales found no differences).
   alone 2.7 KB (5.9 KB).
 - Loaded locale data (up to `localeCacheSize`, default 64), `cldrFramework().get()` objects and
   `messageFormatter(locale)` without options are cached.
-- `@phensley/cldr` no longer sets a global default config on import; `createFramework` and
-  `cldrFramework` default to its config instead.
-- `@phensley/cldr` re-exports `@phensley/cldr-core` wholesale.
+- The root no longer sets a global default config on import (1.x did, in `@phensley/cldr`);
+  `createFramework` and `cldrFramework` default to the packs' config instead.
+- The root re-exports all of cldr-core's exports (1.x `@phensley/cldr` listed them).
 - `decimalProperties` returns a copy of the coefficient, typed `readonly number[]`.
 - Parsed patterns, plural rules and date zone info are readonly in the types.
 - `unitConverterAdd` returns a new converter (1.x `add` changed it in place).
 - The brace matcher in message parsing honours `disableEscapes`.
-- CommonJS entry points (`lib/index.js`) are rollup bundles.
+- Build output is `dist/esm` (ES modules, one file per module), `dist/types` and `dist/cjs`
+  (CommonJS, one rollup bundle per entry with shared chunks, so each module exists once).
 - Yarn 4 workspaces (`packages/*`, `apps/*`) and Biome replace pnpm, ESLint and Prettier.
 
 ### Removed
@@ -85,6 +105,14 @@ all 429 locales found no differences).
   and others (full list in the notes). They returned shared cached objects that callers could
   change.
 - The `patternCacheSize` option no longer does anything (caches are shared and fixed-size).
+- The separate `@phensley/*` packages (see Added). `@phensley/cldr-types` and
+  `@phensley/cldr-utils` are internal now; `@phensley/cldr-ext-rbnf` (whose public index
+  exported only `binarySearch`) moved into the compiler.
+- `@phensley/cldr-compiler` is no longer published: it is a private build tool in this repo,
+  and the package ships prebuilt packs. Building custom packs is not a supported use for now.
+- The UMD bundle (`dist/cldrengine.umd.js`, global `cldrengine`).
+- Deep imports into the build (`@phensley/cldr-core/lib/...`): the export map allows only the
+  entry points.
 
 ## [1.14.0]
 

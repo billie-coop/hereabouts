@@ -126,7 +126,8 @@
     "dist/",
     "packs/*.json",
     "packs/sha*.txt",
-    "packs/resource.json"
+    "packs/resource.json",
+    "NOTICE"
   ],
   "publishConfig": {
     "access": "public"
@@ -136,16 +137,18 @@
     "api:local": "node ./scripts/api.mjs --local",
     "bench": "ts-node -P tsconfig.lint.json __benchmarks__/core/ && ts-node -P tsconfig.lint.json __benchmarks__/utils/ && ts-node -P tsconfig.lint.json __benchmarks__/timezone/",
     "build": "yarn run build:ts && yarn run build:cjs && yarn run build:packs",
-    "build:ts": "rimraf ./dist && tsc -p ./tsconfig.json",
     "build:cjs": "rollup -c ./rollup.config.mjs",
     "build:lint": "tsc -p ./tsconfig.lint.json",
     "build:packs": "cldr-compiler pack -o ./packs",
+    "build:ts": "rimraf ./dist && tsc -p ./tsconfig.json",
     "build:watch": "tsc -p ./tsconfig.json -w --preserveWatchOutput",
     "clean": "rimraf ./dist ./packs ./.scratch ./.custom-packs ./temp",
     "clean:full": "yarn run clean && rimraf ./node_modules ./.tztemp",
     "coverage": "vitest run --coverage",
     "generate-factors": "jiti ./scripts/unit-converter-factors.ts",
     "generate-zones": "./scripts/tztool generate -o ./src/timezone/autogen.zonedata.ts",
+    "postpack": "rm -f README.md LICENSE NOTICE",
+    "prepack": "cp ../../README.md ../../LICENSE ../../NOTICE .",
     "stress": "ts-node ./__stress__",
     "test": "vitest --run",
     "test:watch": "vitest"

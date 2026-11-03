@@ -1,9 +1,9 @@
-# Moving from date-fns to `@phensley/datetime`
+# Moving from date-fns to `@billie-coop/hereabouts/datetime`
 
 date-fns works on JavaScript `Date`, which is always an instant read in the device's time zone.
 A due date stored as `2026-01-31` becomes "midnight on the 31st *here*", which is a different
-moment on another device and the wrong day on a server running in UTC. `@phensley/datetime`
-keeps the kinds of value apart, so that can't happen:
+moment on another device and the wrong day on a server running in UTC.
+`@billie-coop/hereabouts/datetime` keeps the kinds of value apart, so that can't happen:
 
 | Value | Type | Stored as | For |
 |---|---|---|---|
@@ -16,17 +16,17 @@ Only a few functions take a zone: `dayToday`, `dayFromInstant`, `timeOfDayFromIn
 `dayAtTime`, `dayStartInstant`, `instantParse`/`instantToString` (optional), and the
 `formatInstant*` formatters. Everything else is exact integer math and never shifts.
 
-`@phensley/datetime` depends only on `@phensley/timezone`. Measured with rollup + terser
+`@billie-coop/hereabouts/datetime` uses only the time zone data. Measured with rollup + terser
 (min+gzip): day math alone is 1.3 KB; using the zone functions adds the tz database, 32 KB in
 all; `formatDay` with a loaded locale is 89 KB (most of it the shared date formatter). Locale-aware
 formatting (`formatDay`, `formatTimeOfDay`, `formatDayInterval`, `formatDayRelative`,
-`formatInstant`, `formatInstantRelative`) lives in `@phensley/cldr-core` / `@phensley/cldr`.
+`formatInstant`, `formatInstantRelative`) is in the root, `@billie-coop/hereabouts`.
 
 ## Function by function
 
-Day math (date-fns on `Date` → `@phensley/datetime` on `Day`):
+Day math (date-fns on `Date` → `/datetime` on `Day`):
 
-| date-fns | `@phensley/datetime` | Notes |
+| date-fns | `/datetime` | Notes |
 |---|---|---|
 | `parseISO('2026-01-31')` | `dayParse('2026-01-31')` / `dayFromString` | undefined / throws for `2026-02-30` instead of rolling over |
 | `format(d, 'yyyy-MM-dd')` | `dayToString(d)` | |
@@ -50,7 +50,7 @@ Day math (date-fns on `Date` → `@phensley/datetime` on `Day`):
 
 Zones, "today" and scheduled times:
 
-| date-fns / Date | `@phensley/datetime` |
+| date-fns / Date | `/datetime` |
 |---|---|
 | `startOfDay(new Date())` | `dayToday(zone)` |
 | `isToday(d)`, `isTomorrow(d)` | `dayUntil(dayToday(zone), d) === 0` / `=== 1` |
@@ -60,9 +60,9 @@ Zones, "today" and scheduled times:
 | `new Date(ms).toISOString()` | `instantToString(ms)` / `instantToString(ms, zone)` |
 | `Intl.DateTimeFormat().resolvedOptions().timeZone` | `systemTimeZone()` |
 
-Formatting (in `@phensley/cldr`, locale-aware instead of English-only patterns):
+Formatting (in `@billie-coop/hereabouts`, locale-aware instead of English-only patterns):
 
-| date-fns | `@phensley/cldr` |
+| date-fns | `@billie-coop/hereabouts` |
 |---|---|
 | `format(d, 'MMM d, yyyy')` | `formatDay(locale, d)` → "Jan 31, 2026" / "31.01.2026" |
 | `format(d, 'MMMM yyyy')` | `formatDay(locale, d, { skeleton: 'yMMMM' })` |
@@ -90,7 +90,7 @@ based `DateUtils` object (string dates in `YYYY-MM-DD`, "today" in the device's 
 `DateUtils` object keeps the same functions and results, so code that calls `DateUtils.*`
 doesn't change, and there is no date-fns dependency. It is not a whole-module drop-in: if the
 old module also re-exported date-fns functions (`format`, `addDays`, `startOfWeek`, ...), the
-code importing those moves to `@phensley/datetime` (tables above) in the same change.
+code importing those moves to `@billie-coop/hereabouts/datetime` (tables above) in the same change.
 
 When the platform doesn't report a time zone the data knows (Node with a POSIX `TZ=UTC+8`),
 it falls back to the host's local clock as the date-fns version did, not to UTC. Fractional
