@@ -21,3 +21,16 @@ the files change only when behavior or inputs change.
 | file | covers |
 |---|---|
 | `decimal.json` | decimal and rational math, parsing, formatting |
+| `plurals.json` | plural rules: cardinal, ordinal, ranges, operands (every CLDR sample) |
+| `messageformat.json` | ICU message parsing and formatting, the translator |
+| `language-tag.json` | language tag parsing, canonical forms, aliases |
+| `locale.json` | likely subtags, locale resolution, flags |
+| `locale-matcher.json` | locale distance and matching |
+| `unit-converter.json` | unit conversion over exact factors |
+| `timezone.json` | the tz database: UTC and wall time lookups, every transition |
+| `datetime.json` | days, times of day, instants and zones |
+| `core-numbers.json` | resource packs, schema, number and currency formatting |
+| `core-units.json` | unit formatting |
+| `core-calendars.json` | calendar systems: fields, math, differences, week rules, metazones |
+| `core-dates.json` | date, time, interval and relative time formatting |
+| `core-general.json` | lists, display names, context transforms, the convenience object |

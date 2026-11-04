@@ -39,6 +39,13 @@ pub fn build(b: *std.Build) void {
 
     const test_all = b.step("test", "Run every test suite");
 
+    // Inline tests in src/: the suites below import the package as a dependency, so its own
+    // test blocks only run here.
+    const unit = b.addTest(.{ .name = "unit", .root_module = mod });
+    const run_unit = b.addRunArtifact(unit);
+    b.step("test-unit", "Run the inline tests in src/").dependOn(&run_unit.step);
+    test_all.dependOn(&run_unit.step);
+
     // Packs for the core suites, embedded in a generated module.
     const pack_files = b.addWriteFiles();
     var packs_src: std.ArrayList(u8) = .empty;
