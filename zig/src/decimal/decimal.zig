@@ -153,6 +153,7 @@ pub const ParseError = error{
     ExponentNotProvided,
     BareSign,
     DuplicateSign,
+    MisplacedSign,
     ExtraRadixPoint,
     UnexpectedCharacter,
     NoDigits,
@@ -222,6 +223,8 @@ fn parseImpl(a: Allocator, str: []const u8) (ParseError || Allocator.Error)!Deci
             '-', '+' => {
                 if (dig == 0) return error.BareSign;
                 if (has_sign) return error.DuplicateSign;
+                // A sign belongs at the start of the number or of the exponent: "1-2" is invalid.
+                if (i > 0 and str[i - 1] != 'e' and str[i - 1] != 'E') return error.MisplacedSign;
                 sign = if (c == '-') -1 else 1;
                 has_sign = true;
             },

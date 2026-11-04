@@ -1498,6 +1498,13 @@ const parseString = (str: string): Decimal | string => {
         if (flags & ParseFlags.SIGN) {
           return `Duplicate sign character at ${i}`;
         }
+        // A sign belongs at the start of the number or of the exponent: "1-2" is invalid.
+        if (i > 0) {
+          const prev = str.charCodeAt(i - 1);
+          if (prev !== Chars.ELOWER && prev !== Chars.EUPPER) {
+            return `Misplaced sign character at ${i}`;
+          }
+        }
         sign = code === Chars.MINUS ? -1 : 1;
         flags |= ParseFlags.SIGN;
         break;

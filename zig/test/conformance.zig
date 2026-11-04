@@ -131,6 +131,7 @@ fn errorPrefix(err: anyerror) []const u8 {
         error.ExponentNotProvided => "Exponent not provided",
         error.BareSign => "Found a bare sign symbol",
         error.DuplicateSign => "Duplicate sign character",
+        error.MisplacedSign => "Misplaced sign character",
         error.ExtraRadixPoint => "Extra radix point",
         error.UnexpectedCharacter => "Unexpected character",
         error.NoDigits => "Number must include at least 1 digit",
