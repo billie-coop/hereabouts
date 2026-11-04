@@ -84,7 +84,12 @@ version is published from Stephen's machine; every later one goes through the re
    npm deprecate @billie-coop/hereabouts@0.0.0-stage "npm staging placeholder; use 0.1.0 or later"
    npm deprecate hereabouts@0.0.0-stage "npm staging placeholder; see @billie-coop/hereabouts"
    ```
-5. Later releases: bump `packages/hereabouts/package.json` on `main`, run the Release workflow
+5. Done 2026-11-03: 0.1.1 went through the Release workflow (run 41757410175): published
+   with provenance (SLSA v1 attestation, logged in sigstore), with GitHub release and tag
+   `v0.1.1`. That publish also validates the trusted publisher. npm expires a new trusted
+   publisher setup that hasn't published within 48 hours ("Pending validation" on the access
+   page), so a new one must be used for a real publish within two days.
+   Later releases: bump `packages/hereabouts/package.json` on `main`, run the Release workflow
    once as a dry run, then again with `dry-run` unticked. It publishes with provenance and
    creates the GitHub release and tag.
 
