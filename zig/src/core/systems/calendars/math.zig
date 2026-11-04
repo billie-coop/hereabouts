@@ -1,5 +1,6 @@
 //! Calendar math shared by the calendars (`math.ts`).
 
+const tzdb = @import("../../../timezone/timezone.zig");
 const std = @import("std");
 const C = @import("constants.zig");
 const fields_ = @import("fields.zig");
@@ -103,9 +104,9 @@ pub fn jdFromUnixEpoch(ms: f64) struct { f64, f64 } {
 }
 
 /// Set the fields common to all calendars from a UTC epoch in a zone; returns the zone info.
-pub fn initBaseFromUnixEpoch(f: *Fields, ms: f64, zoneIdArg: []const u8) DateZoneInfo {
+pub fn initBaseFromUnixEpoch(db: *const tzdb.Database, f: *Fields, ms: f64, zoneIdArg: []const u8) DateZoneInfo {
     const zoneId = timezone.substituteZoneAlias(zoneIdArg);
-    const zoneInfo = timezone.zoneInfoFromUTC(zoneId, ms);
+    const zoneInfo = timezone.zoneInfoFromUTC(db, zoneId, ms);
     fieldsFromUnixEpoch(ms + @as(f64, @floatFromInt(zoneInfo.offset)), f);
     computeBaseFields(f);
     return zoneInfo;

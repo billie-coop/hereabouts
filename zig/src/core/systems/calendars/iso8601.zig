@@ -1,5 +1,6 @@
 //! The ISO-8601 calendar (`iso8601.ts`).
 
+const tzdb = @import("../../../timezone/timezone.zig");
 const C = @import("constants.zig");
 const core = @import("core.zig");
 const DayOfWeek = @import("fields.zig").DayOfWeek;
@@ -33,17 +34,17 @@ pub const iso8601Calendar: CalendarSystem = .{
 };
 
 /// An ISO-8601 date from the given fields. The week arguments are ignored.
-pub fn iso8601DateFromFields(fields: CalendarDateFields, firstDay: i64, minDays: i64) Error!ISO8601Date {
+pub fn iso8601DateFromFields(db: *const tzdb.Database, fields: CalendarDateFields, firstDay: i64, minDays: i64) Error!ISO8601Date {
     _ = firstDay;
     _ = minDays;
-    return core.dateFromFields(&iso8601Calendar, fields, 1, 1);
+    return core.dateFromFields(db, &iso8601Calendar, fields, 1, 1);
 }
 
 /// An ISO-8601 date from a UNIX epoch. The week arguments are ignored.
-pub fn iso8601DateFromUnixEpoch(epoch: i64, zoneId: []const u8, firstDay: i64, minDays: i64) ISO8601Date {
+pub fn iso8601DateFromUnixEpoch(db: *const tzdb.Database, epoch: i64, zoneId: []const u8, firstDay: i64, minDays: i64) ISO8601Date {
     _ = firstDay;
     _ = minDays;
-    return core.dateFromUnixEpoch(&iso8601Calendar, epoch, zoneId, 1, 1);
+    return core.dateFromUnixEpoch(db, &iso8601Calendar, epoch, zoneId, 1, 1);
 }
 
 /// True if the date is in the ISO-8601 calendar.

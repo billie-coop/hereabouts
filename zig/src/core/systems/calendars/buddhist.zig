@@ -1,5 +1,6 @@
 //! The Buddhist calendar (`buddhist.ts`).
 
+const tzdb = @import("../../../timezone/timezone.zig");
 const C = @import("constants.zig");
 const core = @import("core.zig");
 const F = @import("fields.zig").DateField;
@@ -37,13 +38,13 @@ pub const buddhistCalendar: CalendarSystem = .{
 };
 
 /// A Buddhist date from the given fields.
-pub fn buddhistDateFromFields(fields: CalendarDateFields, firstDay: i64, minDays: i64) Error!BuddhistDate {
-    return core.dateFromFields(&buddhistCalendar, fields, firstDay, minDays);
+pub fn buddhistDateFromFields(db: *const tzdb.Database, fields: CalendarDateFields, firstDay: i64, minDays: i64) Error!BuddhistDate {
+    return core.dateFromFields(db, &buddhistCalendar, fields, firstDay, minDays);
 }
 
 /// A Buddhist date from a UNIX epoch.
-pub fn buddhistDateFromUnixEpoch(epoch: i64, zoneId: []const u8, firstDay: i64, minDays: i64) BuddhistDate {
-    return core.dateFromUnixEpoch(&buddhistCalendar, epoch, zoneId, firstDay, minDays);
+pub fn buddhistDateFromUnixEpoch(db: *const tzdb.Database, epoch: i64, zoneId: []const u8, firstDay: i64, minDays: i64) BuddhistDate {
+    return core.dateFromUnixEpoch(db, &buddhistCalendar, epoch, zoneId, firstDay, minDays);
 }
 
 /// True if the date is in the Buddhist calendar.

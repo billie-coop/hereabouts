@@ -1,5 +1,6 @@
 //! Calendar date types (`types.ts`).
 
+const tzdb = @import("../../../timezone/timezone.zig");
 const std = @import("std");
 const fields_ = @import("fields.zig");
 
@@ -102,7 +103,7 @@ pub const CalendarSystem = struct {
     computeFields: *const fn (f: *Fields) void,
     /// Resolve complete wall clock fields to a UTC epoch and the zone id of the resulting date.
     /// `zoneId` and `offset` are those of the date the fields are being set on.
-    resolveFields: *const fn (f: WallFields, zoneId: []const u8, offset: f64) Resolved,
+    resolveFields: *const fn (db: *const tzdb.Database, f: WallFields, zoneId: []const u8, offset: f64) Resolved,
 };
 
 /// Time zone information carried by a calendar date. The strings are static, or owned by the
@@ -125,6 +126,8 @@ pub const DateZoneInfo = struct {
 /// A date and time in a calendar system and time zone. Plain immutable data: read and operate on
 /// it with the `date*` functions.
 pub const CalendarDate = struct {
+    /// Immutable timezone rules used by all later transformations. Must outlive this date.
+    database: *const tzdb.Database = tzdb.defaultDatabase,
     /// Rules of the calendar this date belongs to.
     calendar: *const CalendarSystem,
     /// Computed fields (internal layout, indexed by `DateField`).

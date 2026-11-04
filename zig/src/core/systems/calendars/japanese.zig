@@ -1,5 +1,6 @@
 //! The Japanese Imperial calendar (`japanese.ts`): the Gregorian calendar with Japanese eras.
 
+const tzdb = @import("../../../timezone/timezone.zig");
 const core = @import("core.zig");
 const F = @import("fields.zig").DateField;
 const Fields = @import("fields.zig").Fields;
@@ -17,13 +18,13 @@ pub const JapaneseDate = CalendarDate;
 
 /// A Japanese date from the given fields. Without a month or day, `error.InvalidFields`: the
 /// calendar has no default fields.
-pub fn japaneseDateFromFields(fields: CalendarDateFields, firstDay: i64, minDays: i64) Error!JapaneseDate {
-    return core.dateFromFields(&japaneseCalendar, fields, firstDay, minDays);
+pub fn japaneseDateFromFields(db: *const tzdb.Database, fields: CalendarDateFields, firstDay: i64, minDays: i64) Error!JapaneseDate {
+    return core.dateFromFields(db, &japaneseCalendar, fields, firstDay, minDays);
 }
 
 /// A Japanese date from a UNIX epoch.
-pub fn japaneseDateFromUnixEpoch(epoch: i64, zoneId: []const u8, firstDay: i64, minDays: i64) JapaneseDate {
-    return core.dateFromUnixEpoch(&japaneseCalendar, epoch, zoneId, firstDay, minDays);
+pub fn japaneseDateFromUnixEpoch(db: *const tzdb.Database, epoch: i64, zoneId: []const u8, firstDay: i64, minDays: i64) JapaneseDate {
+    return core.dateFromUnixEpoch(db, &japaneseCalendar, epoch, zoneId, firstDay, minDays);
 }
 
 /// True if the date is in the Japanese calendar.

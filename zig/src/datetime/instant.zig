@@ -7,6 +7,7 @@ const scan = @import("scan.zig");
 const day_ = @import("day.zig");
 const tod = @import("time_of_day.zig");
 const zone_ = @import("zone.zig");
+const tz = @import("../timezone/timezone.zig");
 
 const Instant = types.Instant;
 const Error = types.Error;
@@ -22,7 +23,7 @@ const MS_PER_DAY = 86400000;
 /// (including `24:00` and partial forms such as `2026-01`). An unknown `zone` is
 /// `error.UnknownTimeZone`, as for every function that takes a zone (only checked when the text
 /// needs it). Offsets may include seconds (`+00:09:21`), as historical ones do.
-pub fn instantParse(s: []const u8, zone: ?[]const u8) Error!?Instant {
+pub fn instantParse(db: *const tz.Database, s: []const u8, zone: ?[]const u8) Error!?Instant {
     // date [T or space] time [offset]
     var p: scan.Scanner = .{ .s = s };
     const year = p.year() orelse return null;
@@ -75,7 +76,7 @@ pub fn instantParse(s: []const u8, zone: ?[]const u8) Error!?Instant {
             break :blk wall - secs * 1000 * @as(i64, if (o.neg) -1 else 1);
         },
         .none => if (zone) |z|
-            try zone_.wallToInstant(wall, try zone_.timeZoneId(z), .compatible)
+            try zone_.wallToInstant(db, wall, try zone_.timeZoneId(db, z), .compatible)
         else
             return null,
     };
@@ -87,9 +88,9 @@ pub fn instantParse(s: []const u8, zone: ?[]const u8) Error!?Instant {
 /// zone's wall clock time and offset (`2026-01-31T09:00:00.000-08:00`). An offset with seconds
 /// is written with them (`+00:09:21`), so the text always parses back to the same instant. The
 /// caller owns the result.
-pub fn instantToString(gpa: Allocator, instant: Instant, zone: ?[]const u8) (Error || Allocator.Error)![]u8 {
+pub fn instantToString(gpa: Allocator, db: *const tz.Database, instant: Instant, zone: ?[]const u8) (Error || Allocator.Error)![]u8 {
     try zone_.checkInstant(instant);
-    const offset = if (zone) |z| try zone_.timeZoneOffset(z, instant) else 0;
+    const offset = if (zone) |z| try zone_.timeZoneOffset(db, z, instant) else 0;
     const wall = instant + offset;
     const n = @divFloor(wall, MS_PER_DAY);
     const t = tod.timeOfDayFromMillis(wall - n * MS_PER_DAY) catch unreachable;

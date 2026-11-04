@@ -38,9 +38,10 @@ fn intervalOptions(o: DayIntervalFormatOptions) Error!opts.DateIntervalFormatOpt
     try check(o.skeleton, "GyYuUrQqMLlwWdDFgEec");
     return .{ .skeleton = if ((o.skeleton != null and o.skeleton.?.len > 0)) o.skeleton else "yMMMd", .ca = o.ca, .nu = o.nu, .context = o.context, .alt = o.alt };
 }
-fn zoned(instant: dt.Instant, zone: []const u8) Error!dates.DateInput {
-    const id = try dt.timeZoneId(zone);
-    try inRange(try dt.dayFromInstant(instant, id));
+fn zoned(data: *const LocaleData, instant: dt.Instant, zone: []const u8) Error!dates.DateInput {
+    const context: dt.ZoneContext = .{ .database = data.timezone_database };
+    const id = try context.timeZoneId(zone);
+    try inRange(try context.dayFromInstant(instant, id));
     return .{ .zoned = .{ .date = @floatFromInt(instant), .zone_id = id } };
 }
 pub fn formatDay(a: A, data: *const LocaleData, d: dt.Day, options: ?DayFormatOptions) Error![]u8 {
@@ -67,11 +68,11 @@ pub fn formatDayRelative(a: A, data: *const LocaleData, d: dt.Day, relative_to: 
     return dates.formatRelativeTimeField(a, data, try D.fromInt(arena.allocator(), try dt.dayUntil(relative_to, d, .days)), "day", options);
 }
 pub fn formatInstant(a: A, data: *const LocaleData, instant: dt.Instant, zone: []const u8, options: ?opts.DateFormatOptions) Error![]u8 {
-    return dates.formatDate(a, data, try zoned(instant, zone), options);
+    return dates.formatDate(a, data, try zoned(data, instant, zone), options);
 }
 pub fn formatInstantToParts(a: A, data: *const LocaleData, instant: dt.Instant, zone: []const u8, options: ?opts.DateFormatOptions) Error![]D.Part {
-    return dates.formatDateToParts(a, data, try zoned(instant, zone), options);
+    return dates.formatDateToParts(a, data, try zoned(data, instant, zone), options);
 }
 pub fn formatInstantRelative(a: A, data: *const LocaleData, instant: dt.Instant, relative_to: dt.Instant, zone: []const u8, options: ?opts.RelativeTimeFormatOptions) Error![]u8 {
-    return dates.formatRelativeTime(a, data, try zoned(relative_to, zone), try zoned(instant, zone), options);
+    return dates.formatRelativeTime(a, data, try zoned(data, relative_to, zone), try zoned(data, instant, zone), options);
 }

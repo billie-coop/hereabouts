@@ -21,8 +21,8 @@ fn stableKey(zoneid: []const u8) ?[]const u8 {
 }
 
 /// Time zone info of a zone at a UTC instant (milliseconds). An unknown zone is UTC.
-pub fn zoneInfoFromUTC(zoneid: []const u8, utc: f64) DateZoneInfo {
-    const info = tz.fromUTC(zoneid, util.toInstant(utc)) orelse tz.utcZone();
+pub fn zoneInfoFromUTC(db: *const tz.Database, zoneid: []const u8, utc: f64) DateZoneInfo {
+    const info = db.fromUTC(zoneid, util.toInstant(utc)) orelse tz.utcZone();
 
     // For the purposes of CLDR stable timezone ids, check if the passed-in id is an alias to a
     // current/valid tzdb id. Use the passed-in id as the stable id if it is one, otherwise look
@@ -43,9 +43,9 @@ pub fn zoneInfoFromUTC(zoneid: []const u8, utc: f64) DateZoneInfo {
 
 /// The UTC epoch of a wall clock time (milliseconds as if the zone were UTC) in a zone, or null
 /// if the zone is unknown (`tzFromWall`, keeping a fractional or huge wall time as it is).
-pub fn utcFromWall(zoneid: []const u8, wall: f64) ?f64 {
+pub fn utcFromWall(db: *const tz.Database, zoneid: []const u8, wall: f64) ?f64 {
     const instant = util.toInstant(wall);
-    const r = tz.fromWall(zoneid, instant) orelse return null;
+    const r = db.fromWall(zoneid, instant) orelse return null;
     // In a spring gap, the resolved UTC instant uses the pre-transition offset while
     // the returned info describes the post-transition zone. Preserve that resolution,
     // and keep the caller's fractional or huge wall value.
@@ -60,11 +60,11 @@ pub fn currentMetazone(id: []const u8) ?[]const u8 {
 
 /// Map a time zone id to a CLDR stable time zone id, or "" if it is not a known zone. Lighter
 /// than `zoneInfoFromUTC`.
-pub fn getStableTimeZoneId(zoneid: []const u8) []const u8 {
+pub fn getStableTimeZoneId(db: *const tz.Database, zoneid: []const u8) []const u8 {
     // Already a CLDR stable timezone id?
     if (stableKey(zoneid)) |k| return k;
     // Resolve the string to a real tzdb zone id, and map that to a CLDR stable id.
-    const realid = tz.resolveId(zoneid) orelse return "";
+    const realid = db.resolveId(zoneid) orelse return "";
     return getStableId(realid);
 }
 
@@ -99,15 +99,15 @@ fn getStableId(zoneid: []const u8) []const u8 {
 
 test "zone info" {
     const utc: f64 = 1554263155000;
-    var info = zoneInfoFromUTC("America/New_York", utc);
+    var info = zoneInfoFromUTC(tz.defaultDatabase, "America/New_York", utc);
     try std.testing.expectEqualStrings("EDT", info.abbr);
     try std.testing.expectEqualStrings("America_Eastern", info.metazoneid);
     try std.testing.expectEqual(@as(i64, -14400000), info.offset);
-    info = zoneInfoFromUTC("Etc/GMT+1", utc);
+    info = zoneInfoFromUTC(tz.defaultDatabase, "Etc/GMT+1", utc);
     try std.testing.expectEqualStrings("", info.metazoneid);
-    info = zoneInfoFromUTC("MissingZone", utc);
+    info = zoneInfoFromUTC(tz.defaultDatabase, "MissingZone", utc);
     try std.testing.expectEqualStrings("GMT", info.metazoneid);
-    try std.testing.expectEqualStrings("Africa/Bamako", getStableTimeZoneId("Africa/Bamako"));
-    try std.testing.expectEqualStrings("Asia/Shanghai", getStableTimeZoneId("Asia/Harbin"));
-    try std.testing.expectEqualStrings("", getStableTimeZoneId("Foo/Bar"));
+    try std.testing.expectEqualStrings("Africa/Bamako", getStableTimeZoneId(tz.defaultDatabase, "Africa/Bamako"));
+    try std.testing.expectEqualStrings("Asia/Shanghai", getStableTimeZoneId(tz.defaultDatabase, "Asia/Harbin"));
+    try std.testing.expectEqualStrings("", getStableTimeZoneId(tz.defaultDatabase, "Foo/Bar"));
 }

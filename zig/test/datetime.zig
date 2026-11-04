@@ -180,7 +180,7 @@ const Hash = struct {
 
 fn sweep(a: Allocator, zone: []const u8) !Hash {
     var hash: Hash = .{ .a = a };
-    const ref = tz.activeDatabase().find(zone) orelse return hash;
+    const ref = tz.defaultDatabase.find(zone) orelse return hash;
     for (ref.zone.untils) |u| {
         const off_a = tz.fromUTC(zone, u - 1).?.offset;
         const off_b = tz.fromUTC(zone, u).?.offset;
@@ -328,11 +328,10 @@ test "replacement time zone data applies to datetime" {
         .zoneinfo = &.{ "0_0_0__UTC:0:0__", "2s0_0_0_XX_FOO:0:2s0__" },
     });
     defer db.deinit(gpa);
-    tz.setTimeZoneData(&db);
-    defer tz.setTimeZoneData(tz.defaultDatabase);
-    try std.testing.expectEqualStrings("Foo/Bar", try dt.timeZoneId("FOO/BAZ"));
-    try std.testing.expectEqual(@as(i64, 3600000), try dt.timeZoneOffset("foo/bar", 0));
-    try std.testing.expectError(error.UnknownTimeZone, dt.timeZoneOffset("America/New_York", 0));
+    const context: dt.ZoneContext = .{ .database = &db };
+    try std.testing.expectEqualStrings("Foo/Bar", try context.timeZoneId("FOO/BAZ"));
+    try std.testing.expectEqual(@as(i64, 3600000), try context.timeZoneOffset("foo/bar", 0));
+    try std.testing.expectError(error.UnknownTimeZone, context.timeZoneOffset("America/New_York", 0));
 }
 
 test "system time zone and now" {

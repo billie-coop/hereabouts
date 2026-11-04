@@ -1,5 +1,6 @@
 //! The Persian calendar (`persian.ts`).
 
+const tzdb = @import("../../../timezone/timezone.zig");
 const std = @import("std");
 const C = @import("constants.zig");
 const core = @import("core.zig");
@@ -22,13 +23,13 @@ pub const PersianDate = CalendarDate;
 
 /// A Persian date from the given fields. As in 1.x, the 'zoneId' field is ignored and the date
 /// is constructed in UTC.
-pub fn persianDateFromFields(fields: CalendarDateFields, firstDay: i64, minDays: i64) Error!PersianDate {
-    return core.dateFromFields(&persianCalendar, fields, firstDay, minDays);
+pub fn persianDateFromFields(db: *const tzdb.Database, fields: CalendarDateFields, firstDay: i64, minDays: i64) Error!PersianDate {
+    return core.dateFromFields(db, &persianCalendar, fields, firstDay, minDays);
 }
 
 /// A Persian date from a UNIX epoch.
-pub fn persianDateFromUnixEpoch(epoch: i64, zoneId: []const u8, firstDay: i64, minDays: i64) PersianDate {
-    return core.dateFromUnixEpoch(&persianCalendar, epoch, zoneId, firstDay, minDays);
+pub fn persianDateFromUnixEpoch(db: *const tzdb.Database, epoch: i64, zoneId: []const u8, firstDay: i64, minDays: i64) PersianDate {
+    return core.dateFromUnixEpoch(db, &persianCalendar, epoch, zoneId, firstDay, minDays);
 }
 
 /// True if the date is in the Persian calendar.
@@ -118,7 +119,7 @@ fn persianYmdToJD(yarg: f64, marg: f64, darg: f64) f64 {
 
 /// Persian dates are set in the date's own time zone using its current offset; the 'zoneId'
 /// field is ignored (1.x behaviour).
-fn persianResolveFields(f: types.WallFields, zoneId: []const u8, offset: f64) types.Resolved {
+fn persianResolveFields(_: *const tzdb.Database, f: types.WallFields, zoneId: []const u8, offset: f64) types.Resolved {
     const jd = persianYmdToJD(f.year, f.month, f.day);
     const ms = math.wallTimeToMillis(f.hour, f.minute, f.second, f.millis) - offset;
     return .{ .epoch = math.unixEpochFromJD(jd, ms), .zoneId = zoneId };

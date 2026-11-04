@@ -45,14 +45,14 @@ fn zoneId(input: DateInput) []const u8 {
     };
 }
 pub fn toCalendarDate(data: *const LocaleData, c: CalendarType, input: DateInput) cal.CalendarDate {
-    return @import("../systems/calendars/core.zig").newDate(cal.calendarSystem(c), epoch(input), zoneId(input), firstDayOfWeek(data), minDaysInFirstWeek(data));
+    return @import("../systems/calendars/core.zig").newDate(if (input == .calendar) input.calendar.database else data.timezone_database, cal.calendarSystem(c), epoch(input), zoneId(input), firstDayOfWeek(data), minDaysInFirstWeek(data));
 }
 pub fn convertDateTo(data: *const LocaleData, c: CalendarType, input: DateInput) cal.CalendarDate {
     if (input == .calendar and cal.dateType(&input.calendar) == c) return input.calendar;
     return toCalendarDate(data, if (c == .iso8601) .gregory else c, input);
 }
 pub fn newCalendarDate(data: *const LocaleData, c: CalendarType, fields: cal.CalendarDateFields) cal.Error!cal.CalendarDate {
-    return cal.dateFromFields(cal.calendarSystem(c), fields, firstDayOfWeek(data), minDaysInFirstWeek(data));
+    return cal.dateFromFields(data.timezone_database, cal.calendarSystem(c), fields, firstDayOfWeek(data), minDaysInFirstWeek(data));
 }
 pub fn toBuddhistDate(data: *const LocaleData, date: DateInput) cal.CalendarDate {
     return toCalendarDate(data, .buddhist, date);
@@ -285,24 +285,26 @@ pub fn timeData(gpa: A, data: *const LocaleData) A.Error!o.TimeData {
     while (it.next()) |s| try list.append(gpa, s);
     return .{ .preferred = pair[1], .allowed = try list.toOwnedSlice(gpa) };
 }
-pub const timeZoneIds = tz.zoneIds;
-pub fn resolveTimeZoneId(id: []const u8) ?[]const u8 {
-    return tz.resolveId(cal.substituteZoneAlias(id));
+pub fn timeZoneIds(db: *const tz.Database) []const []const u8 {
+    return db.zoneIds();
 }
-pub fn timeZoneFromUTC(utc: i64, id: []const u8) ?tz.ZoneInfo {
-    return tz.fromUTC(id, utc);
+pub fn resolveTimeZoneId(db: *const tz.Database, id: []const u8) ?[]const u8 {
+    return db.resolveId(cal.substituteZoneAlias(id));
 }
-pub fn timeZoneFromWall(wall: i64, id: []const u8) ?tz.WallResult {
-    return tz.fromWall(id, wall);
+pub fn timeZoneFromUTC(db: *const tz.Database, utc: i64, id: []const u8) ?tz.ZoneInfo {
+    return db.fromUTC(id, utc);
+}
+pub fn timeZoneFromWall(db: *const tz.Database, wall: i64, id: []const u8) ?tz.WallResult {
+    return db.fromWall(id, wall);
 }
 pub fn timeZoneInfo(data: *const LocaleData, zone: []const u8) o.TimeZoneInfo {
-    const id = resolveTimeZoneId(zone) orelse "Factory";
-    const stable = cal.getStableTimeZoneId(id);
+    const id = resolveTimeZoneId(data.timezone_database, zone) orelse "Factory";
+    const stable = cal.getStableTimeZoneId(data.timezone_database, id);
     const meta = cal.currentMetazone(id) orelse "";
     const schema = data.schema.TimeZones;
     const b = &data.bundle;
     const city = schema.exemplarCity.get(b, &.{stable});
-    const loc = tz.zoneMeta(id).?;
+    const loc = data.timezone_database.zoneMeta(id) orelse tz.defaultDatabase.zoneMeta("Factory").?;
     var names: o.MetazoneNames = .{};
     inline for (.{ "long", "short" }) |width| inline for (.{ "generic", "standard", "daylight" }) |key| {
         @field(@field(names, width), key) = @field(schema.metaZones, width).get(b, &.{ key, meta });

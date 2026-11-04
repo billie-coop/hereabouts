@@ -20,7 +20,7 @@ const YearMonthDay = math.YearMonthDay;
 /// it overflows).
 pub fn dateAdd(d: *const CalendarDate, fields: TimePeriod) Error!CalendarDate {
     const jd, const ms = add(d, fields);
-    return core.newDateFromJD(d.calendar, jd, ms, d.zoneInfo.zoneid, d.firstDay, d.minDays);
+    return core.newDateFromJD(d.database, d.calendar, jd, ms, d.zoneInfo.zoneid, d.firstDay, d.minDays);
 }
 
 /// Subtract the period from the date, returning a new date.
@@ -87,7 +87,7 @@ pub fn add(orig: *const CalendarDate, added: TimePeriod) struct { f64, f64 } {
 
     // The wall clock offset in the date's zone, which always resolves (dates are only made
     // with resolved zones); if the time zone data was replaced since, keep the epoch.
-    epoch = timezone.utcFromWall(orig.zoneInfo.zoneid, epoch) orelse epoch;
+    epoch = timezone.utcFromWall(orig.database, orig.zoneInfo.zoneid, epoch) orelse epoch;
 
     // Add the time components.
     epoch += math.timeToMillis(truncated);

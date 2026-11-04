@@ -4,7 +4,7 @@
 //! - `Day`: a calendar day, no time, no zone. Due dates, birthdays.
 //! - `TimeOfDay`: a wall clock time, no day, no zone. "Remind me at 9:00".
 //! - `Instant`: a moment, milliseconds since 1970 UTC. Payments, `created_at`.
-//! - Zone: an IANA id such as "America/Vancouver", looked up in the active `timezone` data.
+//! - Zone: an IANA id such as "America/Vancouver", looked up in immutable `timezone` data (ZoneContext selects a custom database).
 //!
 //! Day and time-of-day math is exact integer arithmetic and never touches a zone. Only the
 //! functions in `zone.zig` take one. Every function checks its inputs and returns an `Error`
@@ -17,6 +17,8 @@ const day_ = @import("day.zig");
 const time_of_day = @import("time_of_day.zig");
 const instant = @import("instant.zig");
 const zone = @import("zone.zig");
+const context = @import("zone_context.zig");
+pub const ZoneContext = context.ZoneContext;
 
 pub const Day = types.Day;
 pub const TimeOfDay = types.TimeOfDay;
@@ -55,8 +57,8 @@ pub const dayUntil = day_.dayUntil;
 
 pub const day = day_.day;
 
-pub const instantParse = instant.instantParse;
-pub const instantToString = instant.instantToString;
+pub const instantParse = context.instantParse;
+pub const instantToString = context.instantToString;
 
 pub const isTimeOfDay = time_of_day.isTimeOfDay;
 pub const timeOfDay = time_of_day.timeOfDay;
@@ -69,12 +71,12 @@ pub const timeOfDayToString = time_of_day.timeOfDayToString;
 pub const formatTimeOfDay = time_of_day.formatTimeOfDay;
 
 pub const DayAtTimeOptions = zone.DayAtTimeOptions;
-pub const dayAtTime = zone.dayAtTime;
-pub const dayFromInstant = zone.dayFromInstant;
-pub const dayStartInstant = zone.dayStartInstant;
-pub const dayToday = zone.dayToday;
-pub const systemTimeZone = zone.systemTimeZone;
-pub const timeOfDayFromInstant = zone.timeOfDayFromInstant;
-pub const timeZoneId = zone.timeZoneId;
-pub const timeZoneOffset = zone.timeZoneOffset;
+pub const dayAtTime = context.dayAtTime;
+pub const dayFromInstant = context.dayFromInstant;
+pub const dayStartInstant = context.dayStartInstant;
+pub const dayToday = context.dayToday;
+pub const systemTimeZone = context.systemTimeZone;
+pub const timeOfDayFromInstant = context.timeOfDayFromInstant;
+pub const timeZoneId = context.timeZoneId;
+pub const timeZoneOffset = context.timeZoneOffset;
 pub const now = zone.now;

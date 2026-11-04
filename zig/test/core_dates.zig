@@ -102,16 +102,16 @@ fn nodes(a: A, pattern: []const core.date_parsing.DateTimeNode) !V {
     return .{ .array = out };
 }
 fn run(a: A, fw: *core.Framework, name: []const u8, args: []const V) !V {
-    if (eq(name, "resolveZone")) return if (api.resolveTimeZoneId(args[0].string)) |s| string(s) else .null;
-    if (eq(name, "zoneUTC")) return val(a, api.timeZoneFromUTC(int(args[0]), args[1].string));
+    if (eq(name, "resolveZone")) return if (api.resolveTimeZoneId(h.timezone.defaultDatabase, args[0].string)) |s| string(s) else .null;
+    if (eq(name, "zoneUTC")) return val(a, api.timeZoneFromUTC(h.timezone.defaultDatabase, int(args[0]), args[1].string));
     if (eq(name, "zoneWall")) {
-        const r = api.timeZoneFromWall(int(args[0]), args[1].string) orelse return .null;
+        const r = api.timeZoneFromWall(h.timezone.defaultDatabase, int(args[0]), args[1].string) orelse return .null;
         var array: std.array_list.Managed(V) = .init(a);
         try array.append(try val(a, r.utc));
         try array.append(try val(a, r.info));
         return .{ .array = array };
     }
-    if (eq(name, "zoneIds")) return val(a, api.timeZoneIds());
+    if (eq(name, "zoneIds")) return val(a, api.timeZoneIds(h.timezone.defaultDatabase));
     if (eq(name, "quantity")) {
         var p: core.calendars.TimePeriod = .{};
         inline for (std.meta.fields(@TypeOf(p))) |f| {

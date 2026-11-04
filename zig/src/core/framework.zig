@@ -48,6 +48,7 @@ pub const Loader = struct {
 /// entries, excluding caller-owned handles. Zero disables retention.
 pub const Options = struct {
     loader: ?Loader = null,
+    timezone_database: *const @import("../timezone/timezone.zig").Database = @import("../timezone/timezone.zig").defaultDatabase,
     skip_checksum: bool = false,
     pack_cache_size: usize = 2,
     locale_cache_size: usize = 64,
@@ -222,10 +223,11 @@ pub const Framework = struct {
         defer pack_node.release();
 
         const bundle = try pack_mod.packGet(gpa, pack_node.pack, resolved.tag);
-        const value = LocaleData.init(gpa, resolved, bundle, self.schema, autogen.index) catch |err| {
+        var value = LocaleData.init(gpa, resolved, bundle, self.schema, autogen.index) catch |err| {
             bundle.deinit(gpa);
             return err;
         };
+        value.timezone_database = self.options.timezone_database;
         owned = false;
         const node = gpa.create(LocaleNode) catch |err| {
             var cleanup = value;

@@ -32,12 +32,12 @@ pub fn checkInstant(instant: Instant) Error!void {
 
 /// The canonical IANA id for a zone id or alias in any letter case ("asia/calcutta" ->
 /// "Asia/Kolkata"). `error.UnknownTimeZone` for an unknown zone.
-pub fn timeZoneId(zone: []const u8) Error![]const u8 {
+pub fn timeZoneId(db: *const tz.Database, zone: []const u8) Error![]const u8 {
     // The tz data indexes canonical spellings, aliases and their lower case forms.
-    if (tz.resolveId(zone)) |id| return id;
+    if (db.resolveId(zone)) |id| return id;
     var buf: [256]u8 = undefined;
     const lower = toLower(&buf, zone) orelse return error.UnknownTimeZone;
-    return tz.resolveId(lower) orelse error.UnknownTimeZone;
+    return db.resolveId(lower) orelse error.UnknownTimeZone;
 }
 
 /// JavaScript `toLowerCase` as far as it matters for ASCII ids: ASCII letters, and the Kelvin
@@ -60,15 +60,15 @@ fn toLower(buf: []u8, s: []const u8) ?[]const u8 {
 
 // Offset lookup without the instant check, for the probes in dayAtTime that may step just
 // outside the supported range.
-fn offsetAt(zone: []const u8, t: i64) Error!i64 {
-    const info = tz.fromUTC(try timeZoneId(zone), t) orelse return error.UnknownTimeZone;
+fn offsetAt(db: *const tz.Database, zone: []const u8, t: i64) Error!i64 {
+    const info = db.fromUTC(try timeZoneId(db, zone), t) orelse return error.UnknownTimeZone;
     return info.offset;
 }
 
 /// The zone's offset from UTC, in milliseconds, at an instant.
-pub fn timeZoneOffset(zone: []const u8, instant: Instant) Error!i64 {
+pub fn timeZoneOffset(db: *const tz.Database, zone: []const u8, instant: Instant) Error!i64 {
     try checkInstant(instant);
-    return offsetAt(zone, instant);
+    return offsetAt(db, zone, instant);
 }
 
 /// The current time, as `Date.now()` gives it in JavaScript.
@@ -80,41 +80,41 @@ pub fn now(io: std.Io) Instant {
 /// The time zone the device or server is set to, as a canonical IANA id, or null if the
 /// platform doesn't report one the time zone data knows. Reads the `TZ` environment variable,
 /// then the `/etc/localtime` link (the JavaScript asks `Intl`). Null on Windows.
-pub fn systemTimeZone(io: std.Io, environ: std.process.Environ) ?[]const u8 {
+pub fn systemTimeZone(db: *const tz.Database, io: std.Io, environ: std.process.Environ) ?[]const u8 {
     if (builtin.os.tag == .windows or builtin.os.tag == .wasi) return null;
     if (environ.getPosix("TZ")) |v| {
-        if (zoneFromPath(v)) |id| return id;
+        if (zoneFromPath(db, v)) |id| return id;
     }
     var buf: [std.Io.Dir.max_path_bytes]u8 = undefined;
     const n = std.Io.Dir.readLinkAbsolute(io, "/etc/localtime", &buf) catch return null;
-    return zoneFromPath(buf[0..n]);
+    return zoneFromPath(db, buf[0..n]);
 }
 
 /// A zone id from `TZ` or a link target: "America/Vancouver", ":America/Vancouver",
 /// "/usr/share/zoneinfo/America/Vancouver".
-fn zoneFromPath(p: []const u8) ?[]const u8 {
+fn zoneFromPath(db: *const tz.Database, p: []const u8) ?[]const u8 {
     var s = p;
     if (s.len > 0 and s[0] == ':') s = s[1..];
     const marker = "zoneinfo/";
     if (std.mem.lastIndexOf(u8, s, marker)) |i| s = s[i + marker.len ..];
     if (s.len == 0) return null;
-    return tz.resolveId(s);
+    return db.resolveId(s);
 }
 
 /// Wall clock milliseconds (as if the zone were UTC) for an instant.
-fn toWall(instant: Instant, zone: []const u8) Error!i64 {
+fn toWall(db: *const tz.Database, instant: Instant, zone: []const u8) Error!i64 {
     try checkInstant(instant);
-    return instant + try timeZoneOffset(zone, instant);
+    return instant + try timeZoneOffset(db, zone, instant);
 }
 
 /// The day it is in `zone` at `instant`. For "today", see `dayToday`.
-pub fn dayFromInstant(instant: Instant, zone: []const u8) Error!Day {
-    return day_.dayFromEpochDay(@divFloor(try toWall(instant, zone), MS_PER_DAY));
+pub fn dayFromInstant(db: *const tz.Database, instant: Instant, zone: []const u8) Error!Day {
+    return day_.dayFromEpochDay(@divFloor(try toWall(db, instant, zone), MS_PER_DAY));
 }
 
 /// The wall clock time in `zone` at `instant`.
-pub fn timeOfDayFromInstant(instant: Instant, zone: []const u8) Error!TimeOfDay {
-    return tod.timeOfDayFromMillis(@mod(try toWall(instant, zone), MS_PER_DAY));
+pub fn timeOfDayFromInstant(db: *const tz.Database, instant: Instant, zone: []const u8) Error!TimeOfDay {
+    return tod.timeOfDayFromMillis(@mod(try toWall(db, instant, zone), MS_PER_DAY));
 }
 
 /// Today's date in `zone` at `now_` (the current time is `now(io)`).
@@ -122,8 +122,8 @@ pub fn timeOfDayFromInstant(instant: Instant, zone: []const u8) Error!TimeOfDay 
 /// Which zone "today" is in is a product decision: the user's zone for "is my invoice overdue?",
 /// the customer's zone for "is it overdue for them?". A server usually runs in UTC, so code that
 /// asks the system for today gets the wrong day for much of the world.
-pub fn dayToday(zone: []const u8, now_: Instant) Error!Day {
-    return dayFromInstant(now_, zone);
+pub fn dayToday(db: *const tz.Database, zone: []const u8, now_: Instant) Error!Day {
+    return dayFromInstant(db, now_, zone);
 }
 
 /// Options for `dayAtTime`.
@@ -144,14 +144,14 @@ const Resolved = struct {
 // the zone were UTC), sorted: one normally, two when the clocks went back over it, none when
 // they went forward over it. Offsets are probed a day before and a day after, so one of them
 // applies unless the zone changed its offset more than once within two days (no zone does).
-fn resolveWall(wall: i64, zone: []const u8) Error!Resolved {
+fn resolveWall(db: *const tz.Database, wall: i64, zone: []const u8) Error!Resolved {
     var r: Resolved = .{
-        .before = try offsetAt(zone, wall - MS_PER_DAY),
-        .after = try offsetAt(zone, wall + MS_PER_DAY),
+        .before = try offsetAt(db, zone, wall - MS_PER_DAY),
+        .after = try offsetAt(db, zone, wall + MS_PER_DAY),
     };
     for ([_]i64{ r.before, r.after }) |offset| {
         const t = wall - offset;
-        if (try offsetAt(zone, t) == offset and !(r.len == 1 and r.candidates[0] == t)) {
+        if (try offsetAt(db, zone, t) == offset and !(r.len == 1 and r.candidates[0] == t)) {
             r.candidates[r.len] = t;
             r.len += 1;
         }
@@ -175,15 +175,15 @@ fn result(t: i64) Error!Instant {
 /// Use this to schedule: store the day (or a rule that picks days), the time of day and, for a
 /// pinned schedule, the zone; compute the instant when needed. Don't store the instant as the
 /// source of truth: time zone rules change, and a repeating time isn't every 24 hours.
-pub fn dayAtTime(d: Day, time: TimeOfDay, zone: []const u8, options: DayAtTimeOptions) Error!Instant {
+pub fn dayAtTime(db: *const tz.Database, d: Day, time: TimeOfDay, zone: []const u8, options: DayAtTimeOptions) Error!Instant {
     const wall = try day_.dayToEpochDay(d) * MS_PER_DAY + try tod.timeOfDayToMillis(time);
-    return result(try wallToInstant(wall, zone, options.disambiguation));
+    return result(try wallToInstant(db, wall, zone, options.disambiguation));
 }
 
 /// The instant for wall clock milliseconds in `zone` (see `dayAtTime`), without the final
 /// range check, so callers can decide how to report an out-of-range result.
-pub fn wallToInstant(wall: i64, zone: []const u8, mode: Disambiguation) Error!i64 {
-    const r = try resolveWall(wall, zone);
+pub fn wallToInstant(db: *const tz.Database, wall: i64, zone: []const u8, mode: Disambiguation) Error!i64 {
+    const r = try resolveWall(db, wall, zone);
 
     if (r.len == 1) return r.candidates[0];
     if (r.len > 1) {
@@ -206,10 +206,10 @@ pub fn wallToInstant(wall: i64, zone: []const u8, mode: Disambiguation) Error!i6
 
 /// The first instant of day `d` in `zone`: midnight, or when a clock change skips midnight, the
 /// moment the clocks jump to (e.g. 01:00, or 00:30 if they jumped from 23:30 to 00:30).
-pub fn dayStartInstant(d: Day, zone: []const u8) Error!Instant {
+pub fn dayStartInstant(db: *const tz.Database, d: Day, zone: []const u8) Error!Instant {
     const n = try day_.dayToEpochDay(d);
     const wall = n * MS_PER_DAY;
-    const r = try resolveWall(wall, zone);
+    const r = try resolveWall(db, wall, zone);
     if (r.len > 0) return result(r.candidates[0]);
     // Midnight was skipped. Find the first instant whose local day is `d`: at `wall - after` the
     // clock still reads the previous day, at `wall - before` it already reads `d`.
@@ -217,7 +217,7 @@ pub fn dayStartInstant(d: Day, zone: []const u8) Error!Instant {
     var hi = wall - r.before;
     while (hi - lo > 1) {
         const mid = lo + @divFloor(hi - lo, 2);
-        if (@divFloor(mid + try offsetAt(zone, mid), MS_PER_DAY) >= n) {
+        if (@divFloor(mid + try offsetAt(db, zone, mid), MS_PER_DAY) >= n) {
             hi = mid;
         } else {
             lo = mid;

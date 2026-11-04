@@ -87,6 +87,22 @@ tables, loaded packs and plain values can be shared while their backing storage 
 Same-thread formatter and translator callbacks may reenter formatting safely. Destruction
 requires no active operations on that object.
 
+## Timezone data
+
+Timezone namespace functions use the bundled immutable database. Decode a custom Database
+and call its fromUTC/fromWall/resolveId/zoneMeta/zoneIds methods directly. For datetime
+operations, use `const ctx: datetime.ZoneContext = .{ .database = &db };` and the same
+TypeScript function names, for example `ctx.dayAtTime(day, time, zone, options)`.
+There is no mutable global database setter.
+
+FrameworkOptions.timezone_database selects a database for dates created from that locale.
+Calendar constructors take the database explicitly, and CalendarDate retains its pointer:
+set, add, withZone, string conversion and differences use its original rules. Converting a
+CalendarDate to another calendar preserves its database; a zoned epoch input uses the locale's
+database. For differences between databases, each date retains its instant and the receiver's
+database supplies wall arithmetic. The database owner must outlive all dates, contexts,
+locale handles and borrowed metadata using it.
+
 ## Differences from the TypeScript
 
 - Functions take typed values (`Decimal`, `Day`, enums), not loose numbers or strings: use

@@ -263,3 +263,55 @@ test "unknown translator pattern churn retains bounded bytes" {
     }
     try std.testing.expect(dbg.total_requested_bytes <= before + 4096);
 }
+
+fn realLoad(_: ?*anyopaque, language: []const u8) ?[]const u8 {
+    return @import("packs").get(language);
+}
+test "independent timezone databases remain explicit through date operations" {
+    const tz = h.timezone;
+    const C = h.core.calendars;
+    const one = try tz.Database.decode(a, .{ .zoneids = "Etc/UTC|Foo/Bar", .links = "UTC:0|Alias/Foo:1", .index = "", .zoneinfo = &.{ "0_0_0__UTC:0:0__", "2s0_0_0__ONE:0:2s0__" } });
+    defer one.deinit(a);
+    const two = try tz.Database.decode(a, .{ .zoneids = "Etc/UTC|Foo/Bar", .links = "UTC:0|Alias/Foo:1", .index = "", .zoneinfo = &.{ "0_0_0__UTC:0:0__", "5k0_0_0__TWO:0:5k0__" } });
+    defer two.deinit(a);
+    const c1: h.datetime.ZoneContext = .{ .database = &one };
+    const c2: h.datetime.ZoneContext = .{ .database = &two };
+    try std.testing.expectEqual(@as(i64, 3600000), try c1.timeZoneOffset("Foo/Bar", 0));
+    try std.testing.expectEqual(@as(i64, 7200000), try c2.timeZoneOffset("Foo/Bar", 0));
+    try std.testing.expect(tz.fromUTC("Foo/Bar", 0) == null);
+    try std.testing.expectEqual(@as(?i64, -3600000), try c1.instantParse("1970-01-01T00:00", "Alias/Foo"));
+    try std.testing.expectEqual(@as(?i64, -7200000), try c2.instantParse("1970-01-01T00:00", "Alias/Foo"));
+    const s = try c1.instantToString(a, 0, "Foo/Bar");
+    defer a.free(s);
+    try std.testing.expectEqualStrings("1970-01-01T01:00:00.000+01:00", s);
+    const d1 = try C.gregorianDateFromFields(&one, .{ .year = 1970, .month = 1, .day = 1, .zoneId = "Foo/Bar" }, 1, 1);
+    const d2 = try C.gregorianDateFromFields(&two, .{ .year = 1970, .month = 1, .day = 1, .zoneId = "Foo/Bar" }, 1, 1);
+    try std.testing.expectEqual(@as(i64, -3600000), C.dateUnixEpoch(&d1));
+    try std.testing.expectEqual(@as(i64, -7200000), C.dateUnixEpoch(&d2));
+    const added = try C.dateAdd(&d1, .{ .day = 1 });
+    const set = C.dateSet(&d1, .{ .day = 2 });
+    const rezoned = C.dateWithZone(&d1, "UTC");
+    try std.testing.expect(added.database == &one and set.database == &one and rezoned.database == &one);
+    try std.testing.expectEqual(@as(i64, 86400000 - 3600000), C.dateUnixEpoch(&added));
+    try std.testing.expectEqual(C.dateUnixEpoch(&added), C.dateUnixEpoch(&set));
+    // Each operand keeps its own instant; result wall arithmetic uses the receiver's database.
+    const mixed = C.dateUntil(&d1, &d2, .{});
+    try std.testing.expectEqual(@as(f64, -1), mixed.hour);
+    const locale = blk: {
+        var fw = h.core.CLDRFramework.init(a, .{ .loader = .{ .load = realLoad }, .timezone_database = &two });
+        defer fw.deinit();
+        break :blk try fw.get(.{ .id = "en" });
+    };
+    defer locale.deinit();
+    const from_locale = try locale.Calendars.newGregorianDate(.{ .year = 1970, .month = 1, .day = 1, .zoneId = "Foo/Bar" });
+    try std.testing.expect(from_locale.database == &two);
+    try std.testing.expectEqual(@as(i64, -7200000), C.dateUnixEpoch(&from_locale));
+    try std.testing.expectEqual(@as(i64, 7200000), locale.Calendars.timeZoneFromUTC(0, "Foo/Bar").?.offset);
+    try std.testing.expectEqual(@as(usize, 2), locale.Calendars.timeZoneIds().len);
+    try std.testing.expectEqualStrings("Foo/Bar", locale.Calendars.resolveTimeZoneId("Alias/Foo").?);
+    const converted = locale.Calendars.toBuddhistDate(.{ .calendar = d1 });
+    try std.testing.expect(converted.database == &one);
+    // A custom database need not include the bundled unknown-zone sentinel.
+    const unknown = locale.Calendars.timeZoneInfo("Missing/Zone");
+    try std.testing.expectEqualStrings("Factory", unknown.id);
+}

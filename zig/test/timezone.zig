@@ -117,16 +117,16 @@ const Hash = struct {
     }
 };
 
-fn sweep(id: []const u8) Hash {
+fn sweep(db: *const tz.Database, id: []const u8) Hash {
     var hash: Hash = .{};
-    const ref = tz.activeDatabase().find(id) orelse return hash;
+    const ref = db.find(id) orelse return hash;
     for (ref.zone.untils) |u| {
-        const a = tz.fromUTC(id, u - 1).?.offset;
-        const b = tz.fromUTC(id, u).?.offset;
-        for ([_]i64{ u - 1, u, u + 1 }) |t| hash.info('U', t, null, tz.fromUTC(id, t).?);
+        const a = db.fromUTC(id, u - 1).?.offset;
+        const b = db.fromUTC(id, u).?.offset;
+        for ([_]i64{ u - 1, u, u + 1 }) |t| hash.info('U', t, null, db.fromUTC(id, t).?);
         const walls = [_]i64{ u + a - 1, u + a, u + b - 1, u + b, @divFloor(2 * u + a + b, 2), u + a - DAY, u + b + DAY };
         for (walls) |t| {
-            const r = tz.fromWall(id, t).?;
+            const r = db.fromWall(id, t).?;
             hash.info('W', t, r.utc, r.info);
         }
     }
@@ -169,26 +169,24 @@ fn customData(a: Allocator, name: []const u8) !tz.RawData {
 // Running a case
 // ---------------------------------------------------------------------------
 
-fn run(a: Allocator, fname: []const u8, args: []const Value, want: Value) !void {
+fn run(db: *const tz.Database, a: Allocator, fname: []const u8, args: []const Value, want: Value) !void {
     if (eql(fname, "tzCustom")) {
-        const db = try tz.Database.decode(a, try customData(a, args[0].string));
-        tz.setTimeZoneData(&db);
-        defer tz.setTimeZoneData(tz.defaultDatabase);
-        return run(a, args[1].string, args[2..], want);
+        const custom_db = try tz.Database.decode(a, try customData(a, args[0].string));
+        return run(&custom_db, a, args[1].string, args[2..], want);
     }
     if (eql(fname, "tzUtcZone")) return expectInfo(want, tz.utcZone());
-    if (eql(fname, "tzZoneIds")) return expectStrings(want, tz.zoneIds());
+    if (eql(fname, "tzZoneIds")) return expectStrings(want, db.zoneIds());
     const id = args[0].string;
-    if (eql(fname, "tzResolveId")) return expectOptString(want, tz.resolveId(id));
-    if (eql(fname, "tzZoneMeta")) return expectMeta(want, tz.zoneMeta(id));
+    if (eql(fname, "tzResolveId")) return expectOptString(want, db.resolveId(id));
+    if (eql(fname, "tzZoneMeta")) return expectMeta(want, db.zoneMeta(id));
     if (eql(fname, "tzSweep")) {
-        const s = sweep(id);
+        const s = sweep(db, id);
         try expectInt(want.object.get("count").?, s.count);
         return expectInt(want.object.get("hash").?, s.h);
     }
     const t = args[1].integer;
-    if (eql(fname, "tzFromUTC")) return expectInfo(want, tz.fromUTC(id, t));
-    if (eql(fname, "tzFromWall")) return expectWall(want, tz.fromWall(id, t));
+    if (eql(fname, "tzFromUTC")) return expectInfo(want, db.fromUTC(id, t));
+    if (eql(fname, "tzFromWall")) return expectWall(want, db.fromWall(id, t));
     return fail("unknown function {s}", .{fname});
 }
 
@@ -203,7 +201,7 @@ test "timezone conformance" {
         var arena = std.heap.ArenaAllocator.init(gpa);
         defer arena.deinit();
         const o = c.object;
-        run(arena.allocator(), o.get("fn").?.string, o.get("args").?.array.items, o.get("result").?) catch |err| {
+        run(tz.defaultDatabase, arena.allocator(), o.get("fn").?.string, o.get("args").?.array.items, o.get("result").?) catch |err| {
             failures += 1;
             if (failures <= 25) {
                 var buf: [1024]u8 = undefined;
@@ -270,12 +268,10 @@ test "no leaks" {
     const gpa = std.testing.allocator;
     const db = try tz.Database.decode(gpa, tz.defaultTimeZoneData);
     defer db.deinit(gpa);
-    tz.setTimeZoneData(&db);
-    defer tz.setTimeZoneData(tz.defaultDatabase);
-    try std.testing.expectEqualStrings("EDT", tz.fromUTC("America/New_York", 1584549000000).?.abbr);
-    try std.testing.expectEqual(@as(i64, 1583651400000), tz.fromWall("America/New_York", 1583633400000).?.utc);
-    try std.testing.expectEqualStrings("Pacific/Pago_Pago", tz.resolveId("Pacific/Samoa").?);
-    try std.testing.expectEqualStrings("Europe/Brussels", tz.zoneMeta("CET").?.zoneid);
+    try std.testing.expectEqualStrings("EDT", db.fromUTC("America/New_York", 1584549000000).?.abbr);
+    try std.testing.expectEqual(@as(i64, 1583651400000), db.fromWall("America/New_York", 1583633400000).?.utc);
+    try std.testing.expectEqualStrings("Pacific/Pago_Pago", db.resolveId("Pacific/Samoa").?);
+    try std.testing.expectEqualStrings("Europe/Brussels", db.zoneMeta("CET").?.zoneid);
     // Decoding fails cleanly part way through.
     const bad = tz.Database.decode(gpa, .{ .zoneids = "A|B", .links = "", .index = "1", .zoneinfo = &.{ "0_0_0_X,Y_UTC:0:0_0_0", "0_0_0" } });
     try std.testing.expectError(error.InvalidTimeZoneData, bad);

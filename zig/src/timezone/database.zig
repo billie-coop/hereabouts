@@ -84,7 +84,13 @@ pub const ZoneRef = struct {
 
 pub const DecodeError = error{InvalidTimeZoneData} || Allocator.Error;
 
-/// A decoded time zone database.
+pub const WallResult = struct { utc: i64, info: ZoneInfo };
+fn makeZoneInfo(zoneid: []const u8, rec: LocalTime) ZoneInfo {
+    return .{ .zoneid = zoneid, .abbr = rec.abbr, .dst = rec.dst, .offset = rec.offset };
+}
+
+/// An immutable decoded time zone database, safe to share while its storage is alive.
+/// No operation may run concurrently with deinit.
 pub const Database = struct {
     zoneids: []const []const u8,
     zones: []const Zone,
@@ -92,6 +98,31 @@ pub const Database = struct {
     links: []const Link,
     /// Owns the memory of a decoded database; null for the bundled one.
     arena: ?std.heap.ArenaAllocator.State = null,
+
+    /// Look up UTC zone information (`tzFromUTC`). Returned strings borrow this database.
+    pub fn fromUTC(self: *const Database, zoneid: []const u8, utc: i64) ?ZoneInfo {
+        const r = self.find(zoneid) orelse return null;
+        return makeZoneInfo(r.id, recordFromUTC(r.zone, utc));
+    }
+    /// Resolve wall time in this database (`tzFromWall`).
+    pub fn fromWall(self: *const Database, zoneid: []const u8, wall: i64) ?WallResult {
+        const r = self.find(zoneid) orelse return null;
+        const utc, const rec = recordFromWall(r.zone, wall);
+        return .{ .utc = utc, .info = makeZoneInfo(r.id, rec) };
+    }
+    /// Resolve a canonical id (`tzResolveId`). The result borrows this database.
+    pub fn resolveId(self: *const Database, id: []const u8) ?[]const u8 {
+        return (self.find(id) orelse return null).id;
+    }
+    /// Zone metadata (`tzZoneMeta`). Returned strings borrow this database.
+    pub fn zoneMeta(self: *const Database, id: []const u8) ?ZoneMeta {
+        const r = self.find(id) orelse return null;
+        return .{ .zoneid = r.id, .stdoffset = r.zone.stdoff, .latitude = @as(f64, @floatFromInt(r.zone.latitude)) / 1e6, .longitude = @as(f64, @floatFromInt(r.zone.longitude)) / 1e6, .countries = r.zone.countries };
+    }
+    /// Canonical ids (`tzZoneIds`). The slice borrows this database.
+    pub fn zoneIds(self: *const Database) []const []const u8 {
+        return self.zoneids;
+    }
 
     /// Decode raw data. The raw data is copied, so it need not outlive the result. Free the
     /// result with `deinit`. Malformed data is an error (the TypeScript decodes it into

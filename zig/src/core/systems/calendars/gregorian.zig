@@ -1,5 +1,6 @@
 //! The Gregorian calendar (`gregorian.ts`).
 
+const tzdb = @import("../../../timezone/timezone.zig");
 const core = @import("core.zig");
 const gm = @import("gregorianmath.zig");
 const math = @import("math.zig");
@@ -21,14 +22,14 @@ pub fn gregorianDaysInYear(y: i64) i64 {
 
 /// Resolve wall clock fields to a UTC epoch in the requested time zone (falling back to the
 /// date's own zone), using the Gregorian calendar. Shared by the Gregorian-based calendars.
-pub fn gregorianResolveFields(f: types.WallFields, zoneId: []const u8, offset: f64) types.Resolved {
+pub fn gregorianResolveFields(db: *const tzdb.Database, f: types.WallFields, zoneId: []const u8, offset: f64) types.Resolved {
     _ = offset;
     const jd = gm.ymdToJD(f.year, f.month, f.day, 12);
     const ms = math.wallTimeToMillis(f.hour, f.minute, f.second, f.millis);
     const epoch = math.unixEpochFromJD(jd, ms);
     const zone = f.zoneId orelse zoneId;
     // UTC epoch of the wall clock time in the requested zone
-    return .{ .epoch = timezone.utcFromWall(zone, epoch) orelse epoch, .zoneId = zone };
+    return .{ .epoch = timezone.utcFromWall(db, zone, epoch) orelse epoch, .zoneId = zone };
 }
 
 /// Rules of the Gregorian calendar. Type `gregory`.
@@ -46,13 +47,13 @@ pub const gregorianCalendar: CalendarSystem = .{
 };
 
 /// A Gregorian date from the given fields (TypeScript defaults for the week: 1, 1).
-pub fn gregorianDateFromFields(fields: CalendarDateFields, firstDay: i64, minDays: i64) Error!GregorianDate {
-    return core.dateFromFields(&gregorianCalendar, fields, firstDay, minDays);
+pub fn gregorianDateFromFields(db: *const tzdb.Database, fields: CalendarDateFields, firstDay: i64, minDays: i64) Error!GregorianDate {
+    return core.dateFromFields(db, &gregorianCalendar, fields, firstDay, minDays);
 }
 
 /// A Gregorian date from a UNIX epoch (TypeScript defaults for the week: 1, 1).
-pub fn gregorianDateFromUnixEpoch(epoch: i64, zoneId: []const u8, firstDay: i64, minDays: i64) GregorianDate {
-    return core.dateFromUnixEpoch(&gregorianCalendar, epoch, zoneId, firstDay, minDays);
+pub fn gregorianDateFromUnixEpoch(db: *const tzdb.Database, epoch: i64, zoneId: []const u8, firstDay: i64, minDays: i64) GregorianDate {
+    return core.dateFromUnixEpoch(db, &gregorianCalendar, epoch, zoneId, firstDay, minDays);
 }
 
 /// True if the date is in the Gregorian calendar or one of the calendars built on it

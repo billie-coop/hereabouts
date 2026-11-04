@@ -20,6 +20,8 @@ pub const IndexLookup = *const fn (name: []const u8) ?*const KeyIndex;
 /// cached in it, see `cached`. Not thread-safe: the caches are filled on first use.
 pub const LocaleData = struct {
     gpa: Allocator,
+    /// Database storage must outlive this locale and all dates created from it.
+    timezone_database: *const @import("../timezone/timezone.zig").Database = @import("../timezone/timezone.zig").defaultDatabase,
     /// The strings (the TypeScript's LocaleData extends Bundle).
     bundle: Bundle,
     /// The locale as requested: the application's id and the resolved language tag.

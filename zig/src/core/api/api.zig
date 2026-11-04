@@ -146,8 +146,8 @@ const timezones = @import("../../timezone/timezone.zig");
 
 pub const Calendars = struct {
     data: *const LocaleData,
-    pub fn timeZoneIds(_: Calendars) []const []const u8 {
-        return dates.timeZoneIds();
+    pub fn timeZoneIds(self: Calendars) []const []const u8 {
+        return dates.timeZoneIds(self.data.timezone_database);
     }
     pub fn firstDayOfWeek(self: Calendars) i64 {
         return dates.firstDayOfWeek(self.data);
@@ -259,14 +259,14 @@ pub const Calendars = struct {
     pub fn timeData(self: Calendars, gpa: Allocator) Allocator.Error!date_options.TimeData {
         return dates.timeData(gpa, self.data);
     }
-    pub fn resolveTimeZoneId(_: Calendars, id: []const u8) ?[]const u8 {
-        return dates.resolveTimeZoneId(id);
+    pub fn resolveTimeZoneId(self: Calendars, id: []const u8) ?[]const u8 {
+        return dates.resolveTimeZoneId(self.data.timezone_database, id);
     }
-    pub fn timeZoneFromUTC(_: Calendars, utc: i64, id: []const u8) ?timezones.ZoneInfo {
-        return dates.timeZoneFromUTC(utc, id);
+    pub fn timeZoneFromUTC(self: Calendars, utc: i64, id: []const u8) ?timezones.ZoneInfo {
+        return dates.timeZoneFromUTC(self.data.timezone_database, utc, id);
     }
-    pub fn timeZoneFromWall(_: Calendars, wall: i64, id: []const u8) ?timezones.WallResult {
-        return dates.timeZoneFromWall(wall, id);
+    pub fn timeZoneFromWall(self: Calendars, wall: i64, id: []const u8) ?timezones.WallResult {
+        return dates.timeZoneFromWall(self.data.timezone_database, wall, id);
     }
     pub fn timeZoneInfo(self: Calendars, zone: []const u8) date_options.TimeZoneInfo {
         return dates.timeZoneInfo(self.data, zone);

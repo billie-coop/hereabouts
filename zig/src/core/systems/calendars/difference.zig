@@ -11,6 +11,7 @@
 //! This avoids both by detecting dates on the same calendar day and skipping the
 //! date-differencing logic for a pure time-of-day difference.
 
+const tzdb = @import("../../../timezone/timezone.zig");
 const add_ = @import("add.zig");
 const C = @import("constants.zig");
 const calendar = @import("calendar.zig");
@@ -100,8 +101,8 @@ fn differenceState(date1: *const CalendarDate, date2: *const CalendarDate, optio
     };
 }
 
-fn wallToUTC(zoneId: []const u8, wall: f64) f64 {
-    return timezone.utcFromWall(zoneId, wall) orelse wall;
+fn wallToUTC(db: *const tzdb.Database, zoneId: []const u8, wall: f64) f64 {
+    return timezone.utcFromWall(db, zoneId, wall) orelse wall;
 }
 
 /// The difference between two dates in years, months, days, etc.
@@ -251,7 +252,7 @@ fn timeDifference(state: *const DifferenceState) struct { YearMonthDay, f64 } {
     while (dayshift <= maxshift) : (dayshift += 1) {
         intermediate = adjustDays(two.year, two.month, two.day - dayshift * incr);
         const jd = gm.ymdToJD(intermediate.year, intermediate.month, intermediate.day, state.monthCount);
-        const epoch = wallToUTC(state.zoneId, math.unixEpochFromJD(jd, state.ms1));
+        const epoch = wallToUTC(state.date1.database, state.zoneId, math.unixEpochFromJD(jd, state.ms1));
         delta = state.epoch2 - epoch;
         if (util.sign(delta) != -state.incr) break;
     }
@@ -275,12 +276,12 @@ fn roundResult(state: *const DifferenceState, result: *TimePeriod) void {
 
     // Wall clock epoch of the start day at the start time of day.
     const jd = gm.ymdToJD(start.year, start.month, start.day, state.monthCount);
-    const startEpoch = wallToUTC(state.date1.zoneInfo.zoneid, math.unixEpochFromJD(jd, state.ms1));
+    const startEpoch = wallToUTC(state.date1.database, state.date1.zoneInfo.zoneid, math.unixEpochFromJD(jd, state.ms1));
 
     // The same for the day +/- 1 after the start, in the direction of the comparison.
     const end = adjustDays(start.year, start.month, start.day + state.incr);
     const endJd = gm.ymdToJD(end.year, end.month, end.day, state.monthCount);
-    const endEpoch = wallToUTC(state.date1.zoneInfo.zoneid, math.unixEpochFromJD(endJd, state.ms1));
+    const endEpoch = wallToUTC(state.date1.database, state.date1.zoneInfo.zoneid, math.unixEpochFromJD(endJd, state.ms1));
 
     const delta = endEpoch - startEpoch;
 

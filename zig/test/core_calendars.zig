@@ -51,24 +51,24 @@ fn make(v: Value) !C.CalendarDate {
     var specific: C.CalendarDate = undefined;
     if (v.object.get("fields")) |f| {
         const fs = fields(f);
-        generic = try C.dateFromFields(sys, fs, fd, md);
+        generic = try C.dateFromFields(tz.defaultDatabase, sys, fs, fd, md);
         specific = try switch (cal) {
-            .gregory => C.gregorianDateFromFields(fs, fd, md),
-            .iso8601 => C.iso8601DateFromFields(fs, fd, md),
-            .buddhist => C.buddhistDateFromFields(fs, fd, md),
-            .japanese => C.japaneseDateFromFields(fs, fd, md),
-            .persian => C.persianDateFromFields(fs, fd, md),
+            .gregory => C.gregorianDateFromFields(tz.defaultDatabase, fs, fd, md),
+            .iso8601 => C.iso8601DateFromFields(tz.defaultDatabase, fs, fd, md),
+            .buddhist => C.buddhistDateFromFields(tz.defaultDatabase, fs, fd, md),
+            .japanese => C.japaneseDateFromFields(tz.defaultDatabase, fs, fd, md),
+            .persian => C.persianDateFromFields(tz.defaultDatabase, fs, fd, md),
         };
     } else {
         const epoch = int(get(v, "epoch"));
         const z = if (v.object.get("zone")) |x| x.string else "UTC";
-        generic = C.dateFromUnixEpoch(sys, epoch, z, fd, md);
+        generic = C.dateFromUnixEpoch(tz.defaultDatabase, sys, epoch, z, fd, md);
         specific = switch (cal) {
-            .gregory => C.gregorianDateFromUnixEpoch(epoch, z, fd, md),
-            .iso8601 => C.iso8601DateFromUnixEpoch(epoch, z, fd, md),
-            .buddhist => C.buddhistDateFromUnixEpoch(epoch, z, fd, md),
-            .japanese => C.japaneseDateFromUnixEpoch(epoch, z, fd, md),
-            .persian => C.persianDateFromUnixEpoch(epoch, z, fd, md),
+            .gregory => C.gregorianDateFromUnixEpoch(tz.defaultDatabase, epoch, z, fd, md),
+            .iso8601 => C.iso8601DateFromUnixEpoch(tz.defaultDatabase, epoch, z, fd, md),
+            .buddhist => C.buddhistDateFromUnixEpoch(tz.defaultDatabase, epoch, z, fd, md),
+            .japanese => C.japaneseDateFromUnixEpoch(tz.defaultDatabase, epoch, z, fd, md),
+            .persian => C.persianDateFromUnixEpoch(tz.defaultDatabase, epoch, z, fd, md),
         };
     }
     try std.testing.expectEqualSlices(f64, &generic.fields, &specific.fields);
@@ -153,16 +153,13 @@ fn run(a: Allocator, name: []const u8, args: []const Value) !Value {
         const info = try a.alloc([]const u8, records.len);
         for (records, info) |v, *s| s.* = v.string;
         const db = try tz.Database.decode(a, .{ .zoneids = get(raw, "zoneids").string, .links = get(raw, "links").string, .index = get(raw, "index").string, .zoneinfo = info });
-        const previous = tz.activeDatabase();
-        tz.setTimeZoneData(&db);
-        defer tz.setTimeZoneData(previous);
         const ids = args[1].array.items;
         const result = try a.alloc(Value, ids.len);
         for (ids, result) |id, *out| {
-            const d = C.gregorianDateFromUnixEpoch(1706621400000, id.string, 1, 1);
+            const d = C.gregorianDateFromUnixEpoch(&db, 1706621400000, id.string, 1, 1);
             const values = try a.alloc(Value, 3);
             values[0] = try snapshot(a, &d);
-            values[1] = try json(a, C.getStableTimeZoneId(id.string));
+            values[1] = try json(a, C.getStableTimeZoneId(&db, id.string));
             values[2] = try json(a, C.currentMetazone(id.string));
             out.* = .{ .array = try std.array_list.Managed(Value).initCapacity(a, 3) };
             try out.array.appendSlice(values);
@@ -174,10 +171,10 @@ fn run(a: Allocator, name: []const u8, args: []const Value) !Value {
         const t = Z.getTZC(int(args[0]));
         return json(a, .{ t.offset, t.negative, t.hours, t.minutes });
     }
-    if (eql(name, "zoneIds")) return json(a, .{ C.getStableTimeZoneId(args[0].string), C.currentMetazone(args[0].string), C.substituteZoneAlias(args[0].string) });
-    if (eql(name, "zoneInfoFromUTC")) return zone(a, C.zoneInfoFromUTC(args[0].string, num(args[1])));
+    if (eql(name, "zoneIds")) return json(a, .{ C.getStableTimeZoneId(tz.defaultDatabase, args[0].string), C.currentMetazone(args[0].string), C.substituteZoneAlias(args[0].string) });
+    if (eql(name, "zoneInfoFromUTC")) return zone(a, C.zoneInfoFromUTC(tz.defaultDatabase, args[0].string, num(args[1])));
     if (eql(name, "era")) {
-        const d = C.japaneseDateFromUnixEpoch(int(args[0]), "UTC", 1, 1);
+        const d = C.japaneseDateFromUnixEpoch(tz.defaultDatabase, int(args[0]), "UTC", 1, 1);
         return json(a, [3]i64{ C.dateEra(&d), C.dateYear(&d), C.dateExtendedYear(&d) });
     }
     if (eql(name, "calendarMath")) {
@@ -319,7 +316,7 @@ fn same(w: Value, g: Value) bool {
 test "calendar strings have caller ownership; invalid fields return errors" {
     const gpa = std.testing.allocator;
     for (std.enums.values(C.CalendarType)) |t| {
-        const d = C.dateFromUnixEpoch(C.calendarSystem(t), 1762074000123, "America/Vancouver", 1, 1);
+        const d = C.dateFromUnixEpoch(tz.defaultDatabase, C.calendarSystem(t), 1762074000123, "America/Vancouver", 1, 1);
         const changed = try C.dateAdd(&d, .{ .month = 1, .day = -2, .hour = 3 });
         _ = try C.dateSubtract(&changed, .{ .millis = 0.7 });
         const one = try C.dateToString(gpa, &d);
@@ -336,8 +333,8 @@ test "calendar strings have caller ownership; invalid fields return errors" {
         defer gpa.free(six);
         _ = C.dateUntil(&d, &changed, .{});
     }
-    try std.testing.expectError(error.InvalidFields, C.japaneseDateFromFields(.{}, 1, 1));
-    try std.testing.expectError(error.InvalidFields, C.iso8601DateFromFields(.{ .month = 1 }, 1, 1));
-    const d = C.gregorianDateFromUnixEpoch(0, "UTC", 1, 1);
+    try std.testing.expectError(error.InvalidFields, C.japaneseDateFromFields(tz.defaultDatabase, .{}, 1, 1));
+    try std.testing.expectError(error.InvalidFields, C.iso8601DateFromFields(tz.defaultDatabase, .{ .month = 1 }, 1, 1));
+    const d = C.gregorianDateFromUnixEpoch(tz.defaultDatabase, 0, "UTC", 1, 1);
     try std.testing.expectError(error.InvalidDate, C.dateAdd(&d, .{ .hour = std.math.inf(f64) }));
 }

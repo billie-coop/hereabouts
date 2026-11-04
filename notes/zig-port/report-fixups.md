@@ -73,3 +73,26 @@ eviction, quantity cleanup and allocation-failure sweeps through handle construc
 
 Validation: full Debug and ReleaseSafe each passed 46/46 steps and 118/118 tests; Zig formatting
 and git diff --check pass. No TS source, generators or conformance JSON changes.
+
+## Step 3: explicit timezone databases
+
+Removed timezone.setTimeZoneData and activeDatabase; there is no mutable global selection.
+Database now exposes immutable lookup methods, while timezone namespace convenience calls
+always use the bundled database. datetime.ZoneContext carries an explicit database and exposes
+the TypeScript-named zone/instant operations; existing datetime conveniences use bundled data.
+
+FrameworkOptions.timezone_database flows into LocaleData and all locale-created dates and
+bound timezone methods. Low-level calendar constructors take a Database pointer. CalendarDate
+stores it, and set/add/subtract/withZone/string conversion/difference reuse it. Calendar-type
+conversion preserves a CalendarDate's database; epoch input uses the locale's database.
+Mixed-database differences keep each operand's instant and use the receiver's database for wall
+arithmetic. Database storage must outlive contexts, dates, locale handles and borrowed metadata.
+
+All replacement-database conformance cases now select a database directly. New tests hold two
+custom databases simultaneously, check instant parse/format, calendar construction/transform,
+locale construction and lookup after framework destruction, mixed differences, and conversion
+preservation. Also fixed unknown-zone metadata fallback when a custom DB lacks `Factory`.
+
+Validation: final Debug and ReleaseSafe each pass 46/46 steps and 119/119 tests. Formatting and
+git diff --check pass. Logs /tmp/hereabouts-step3-debug.log and /tmp/hereabouts-step3-release.log.
+No TS source, generators or conformance JSON changes.

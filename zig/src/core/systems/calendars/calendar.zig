@@ -343,7 +343,7 @@ pub fn writeString(w: *Writer, d: *const CalendarDate) Writer.Error!void {
 /// Write the ISO-8601 string of the date in UTC (`utc`) or with its zone's offset. Always in the
 /// Gregorian calendar.
 pub fn writeISOString(w: *Writer, d: *const CalendarDate, utc: bool) Writer.Error!void {
-    const g = core.newDate(&gregorian.gregorianCalendar, unixEpoch(d), if (utc) "Etc/UTC" else d.zoneInfo.zoneid, d.firstDay, d.minDays);
+    const g = core.newDate(d.database, &gregorian.gregorianCalendar, unixEpoch(d), if (utc) "Etc/UTC" else d.zoneInfo.zoneid, d.firstDay, d.minDays);
     const f = &g.fields;
     try writeYMD(w, f);
     try w.writeByte('T');
@@ -415,13 +415,13 @@ pub fn dateToString(gpa: Allocator, d: *const CalendarDate) Allocator.Error![]u8
 /// Gregorian calendar). Out of range fields are clamped.
 pub fn dateSet(d: *const CalendarDate, fields: CalendarDateFields) CalendarDate {
     const w = core.wallFields(dateFields(d).merge(fields)) catch unreachable;
-    const r = d.calendar.resolveFields(w, d.zoneInfo.zoneid, @floatFromInt(d.zoneInfo.offset));
-    return core.newDate(d.calendar, r.epoch, r.zoneId, d.firstDay, d.minDays);
+    const r = d.calendar.resolveFields(d.database, w, d.zoneInfo.zoneid, @floatFromInt(d.zoneInfo.offset));
+    return core.newDate(d.database, d.calendar, r.epoch, r.zoneId, d.firstDay, d.minDays);
 }
 
 /// The same instant in another time zone.
 pub fn dateWithZone(d: *const CalendarDate, zoneId: []const u8) CalendarDate {
-    return core.newDate(d.calendar, unixEpoch(d), zoneId, d.firstDay, d.minDays);
+    return core.newDate(d.database, d.calendar, unixEpoch(d), zoneId, d.firstDay, d.minDays);
 }
 
 /// Start of the year, month, day, ... of the date.
