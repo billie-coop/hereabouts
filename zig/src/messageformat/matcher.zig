@@ -131,6 +131,11 @@ pub const MessageMatcher = struct {
     pub fn pluralChoice(self: MessageMatcher, r: *MessageState) ?[]const u8 {
         return self.match(r, scanChoice);
     }
+
+    /// TypeScript `buildMessageMatcher` (messageformat/matcher.ts).
+    pub fn init(gpa: Allocator, formatters: []const []const u8, sticky: bool) Allocator.Error!MessageMatcher {
+        return @import("matcher.zig").buildMessageMatcher(gpa, formatters, sticky);
+    }
 };
 
 /// Build a matcher for the builtin formatters plus `formatters` (names are borrowed). The

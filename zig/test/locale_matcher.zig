@@ -81,7 +81,7 @@ fn short(a: Allocator, t: LanguageTag) ![2][]const u8 {
 }
 
 fn tagArg(a: Allocator, v: Value) !LanguageTag {
-    return L.init(a, try fieldsFromArgs(a, v.array.items));
+    return L.LanguageTag.init(a, try fieldsFromArgs(a, v.array.items));
 }
 
 fn locales(a: Allocator, v: Value) ![]const M.Input {
@@ -132,8 +132,8 @@ const EntryJson = struct { []const u8, []const u8, []const u8 };
 fn run(a: Allocator, fname: []const u8, args: []const Value, want: Value) !void {
     if (eql(fname, "getDistance")) {
         const resolve = args[3].bool;
-        const d = if (resolve) try h.locale.resolveLanguageTag(a, .{ .id = args[0].string }) else try L.parse(a, args[0].string);
-        const s = if (resolve) try h.locale.resolveLanguageTag(a, .{ .id = args[1].string }) else try L.parse(a, args[1].string);
+        const d = if (resolve) try h.locale.resolveLanguageTag(a, .{ .id = args[0].string }) else try L.parseLanguageTag(a, args[0].string);
+        const s = if (resolve) try h.locale.resolveLanguageTag(a, .{ .id = args[1].string }) else try L.parseLanguageTag(a, args[1].string);
         return expectJson(a, want, M.getDistance(d, s, threshold(args[2])));
     }
     if (eql(fname, "getRegionPartition")) return expectJson(a, want, M.getRegionPartition(args[0].string));
@@ -147,7 +147,7 @@ fn run(a: Allocator, fname: []const u8, args: []const Value, want: Value) !void 
         return expectJson(a, want, got);
     }
     if (eql(fname, "createLocaleMatcher")) {
-        const m = M.create(a, try locales(a, args[0]), options(args[1])) catch |err| {
+        const m = M.Matcher.init(a, try locales(a, args[0]), options(args[1])) catch |err| {
             if (err == error.NoSupportedLocales and want.object.get("error") != null) return;
             return err;
         };
@@ -161,8 +161,8 @@ fn run(a: Allocator, fname: []const u8, args: []const Value, want: Value) !void 
         return expectJson(a, want.object.get("default").?, m.default_entry.id);
     }
     if (eql(fname, "matchLocale")) {
-        const m = try M.create(a, try locales(a, args[0]), options(args[1]));
-        const r = try M.match(a, m, try desired(a, args[2]), threshold(args[3]));
+        const m = try M.Matcher.init(a, try locales(a, args[0]), options(args[1]));
+        const r = try M.Matcher.matchLocale(m, a, try desired(a, args[2]), threshold(args[3]));
         return expectJson(a, want, .{ .id = r.locale.id, .tag = try short(a, r.locale.tag), .distance = r.distance });
     }
     return fail("unknown function {s}", .{fname});
@@ -198,15 +198,15 @@ test "locale-matcher conformance" {
 
 test "no leaks" {
     const gpa = std.testing.allocator;
-    const tag = try L.parse(gpa, "en-Latn-GB");
+    const tag = try L.parseLanguageTag(gpa, "en-Latn-GB");
     defer tag.deinit(gpa);
     const loc = try h.locale.resolveLocaleId(gpa, "pt_AR");
     defer loc.deinit(gpa);
-    const m = try M.create(gpa, &.{ .{ .string = "en, zh, es-419" }, .{ .tag = tag }, .{ .locale = loc } }, .{});
+    const m = try M.Matcher.init(gpa, &.{ .{ .string = "en, zh, es-419" }, .{ .tag = tag }, .{ .locale = loc } }, .{});
     defer m.deinit(gpa);
     for ([_][]const []const u8{ &.{"en-AU-u-ca-persian"}, &.{ "xx", "pt" }, &.{}, &.{"zh"} }) |d| {
-        const r = try M.match(gpa, m, d, M.DEFAULT_THRESHOLD);
+        const r = try M.Matcher.matchLocale(m, gpa, d, M.DEFAULT_THRESHOLD);
         r.deinit(gpa);
     }
-    try std.testing.expectError(error.NoSupportedLocales, M.create(gpa, &.{}, .{}));
+    try std.testing.expectError(error.NoSupportedLocales, M.Matcher.init(gpa, &.{}, .{}));
 }

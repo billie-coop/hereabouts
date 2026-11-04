@@ -13,8 +13,6 @@ const CalendarSystem = types.CalendarSystem;
 const Error = types.Error;
 
 /// A date in the Gregorian calendar (or one of the calendars built on it).
-pub const GregorianDate = CalendarDate;
-
 /// Days in a year of the Gregorian calendar (Julian calendar before the 1582 cutover).
 pub fn gregorianDaysInYear(y: i64) i64 {
     return if (gm.leapGregorian(@floatFromInt(y))) 366 else 365;
@@ -27,32 +25,32 @@ pub fn gregorianResolveFields(db: *const tzdb.Database, f: types.WallFields, zon
     const jd = gm.ymdToJD(f.year, f.month, f.day, 12);
     const ms = math.wallTimeToMillis(f.hour, f.minute, f.second, f.millis);
     const epoch = math.unixEpochFromJD(jd, ms);
-    const zone = f.zoneId orelse zoneId;
+    const zone = f.zone_id orelse zoneId;
     // UTC epoch of the wall clock time in the requested zone
-    return .{ .epoch = timezone.utcFromWall(db, zone, epoch) orelse epoch, .zoneId = zone };
+    return .{ .epoch = timezone.utcFromWall(db, zone, epoch) orelse epoch, .zone_id = zone };
 }
 
 /// Rules of the Gregorian calendar. Type `gregory`.
 pub const gregorianCalendar: CalendarSystem = .{
     .type = .gregory,
     .name = "Gregorian",
-    .monthCount = 12,
-    .relatedYearOffset = 0,
-    .defaultFields = .{ .year = 1970, .month = 1, .day = 1, .hour = 0, .minute = 0, .second = 0, .millis = 0 },
-    .daysInMonth = gm.daysInMonthInt,
-    .daysInYear = gregorianDaysInYear,
-    .monthStart = gm.monthStart,
-    .computeFields = gm.initGregorianFields,
-    .resolveFields = gregorianResolveFields,
+    .month_count = 12,
+    .related_year_offset = 0,
+    .default_fields = .{ .year = 1970, .month = 1, .day = 1, .hour = 0, .minute = 0, .second = 0, .millis = 0 },
+    .days_in_month = gm.daysInMonthInt,
+    .days_in_year = gregorianDaysInYear,
+    .month_start = gm.monthStart,
+    .compute_fields = gm.initGregorianFields,
+    .resolve_fields = gregorianResolveFields,
 };
 
 /// A Gregorian date from the given fields (TypeScript defaults for the week: 1, 1).
-pub fn gregorianDateFromFields(db: *const tzdb.Database, fields: CalendarDateFields, firstDay: i64, minDays: i64) Error!GregorianDate {
+pub fn gregorianDateFromFields(db: *const tzdb.Database, fields: CalendarDateFields, firstDay: i64, minDays: i64) Error!CalendarDate {
     return core.dateFromFields(db, &gregorianCalendar, fields, firstDay, minDays);
 }
 
 /// A Gregorian date from a UNIX epoch (TypeScript defaults for the week: 1, 1).
-pub fn gregorianDateFromUnixEpoch(db: *const tzdb.Database, epoch: i64, zoneId: []const u8, firstDay: i64, minDays: i64) GregorianDate {
+pub fn gregorianDateFromUnixEpoch(db: *const tzdb.Database, epoch: i64, zoneId: []const u8, firstDay: i64, minDays: i64) CalendarDate {
     return core.dateFromUnixEpoch(db, &gregorianCalendar, epoch, zoneId, firstDay, minDays);
 }
 

@@ -66,6 +66,21 @@ pub const MessageFormatter = struct {
         self.cache.deinit();
         self.matcher.deinit(self.gpa);
     }
+
+    /// TypeScript `createMessageFormatter` (messageformat/formatter.ts).
+    pub fn init(gpa: Allocator, options: MessageFormatterOptions) Allocator.Error!MessageFormatter {
+        return @import("formatter.zig").createMessageFormatter(gpa, options);
+    }
+
+    /// TypeScript `formatMessage` (messageformat/formatter.ts).
+    pub fn formatMessage(formatter: *MessageFormatter, gpa: Allocator, message: []const u8, positional: []const ev.MessageArg, named: []const ev.NamedArg) ev.Error![]u8 {
+        return @import("formatter.zig").formatMessage(gpa, formatter, message, positional, named);
+    }
+
+    /// TypeScript `messageFormatterToString` (messageformat/formatter.ts).
+    pub fn toString(formatter: *const MessageFormatter, gpa: Allocator) Allocator.Error![]u8 {
+        return @import("formatter.zig").messageFormatterToString(gpa, formatter);
+    }
 };
 
 /// Create a message formatter that parses messages on demand and caches them.

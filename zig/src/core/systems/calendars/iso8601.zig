@@ -14,34 +14,32 @@ const CalendarSystem = types.CalendarSystem;
 const Error = types.Error;
 
 /// A date in the ISO-8601 calendar.
-pub const ISO8601Date = CalendarDate;
-
 /// Rules of the Gregorian calendar with the ISO-8601 first day of week and minimum days in the
 /// first week; the locale's week settings are ignored. Type `iso8601`.
 pub const iso8601Calendar: CalendarSystem = .{
     .type = .iso8601,
     .name = "ISO8601",
-    .monthCount = 12,
-    .relatedYearOffset = 0,
-    .weekRule = .{ .firstDay = DayOfWeek.MONDAY, .minDays = C.ISO8601_MIN_DAYS },
+    .month_count = 12,
+    .related_year_offset = 0,
+    .week_rule = .{ .first_day = DayOfWeek.MONDAY, .min_days = C.ISO8601_MIN_DAYS },
     // 1.x ISO8601Date.fromFields applies no defaults
-    .defaultFields = .{},
-    .daysInMonth = gm.daysInMonthInt,
-    .daysInYear = gregorian.gregorianDaysInYear,
-    .monthStart = gm.monthStart,
-    .computeFields = gm.initGregorianFields,
-    .resolveFields = gregorian.gregorianResolveFields,
+    .default_fields = .{},
+    .days_in_month = gm.daysInMonthInt,
+    .days_in_year = gregorian.gregorianDaysInYear,
+    .month_start = gm.monthStart,
+    .compute_fields = gm.initGregorianFields,
+    .resolve_fields = gregorian.gregorianResolveFields,
 };
 
 /// An ISO-8601 date from the given fields. The week arguments are ignored.
-pub fn iso8601DateFromFields(db: *const tzdb.Database, fields: CalendarDateFields, firstDay: i64, minDays: i64) Error!ISO8601Date {
+pub fn iso8601DateFromFields(db: *const tzdb.Database, fields: CalendarDateFields, firstDay: i64, minDays: i64) Error!CalendarDate {
     _ = firstDay;
     _ = minDays;
     return core.dateFromFields(db, &iso8601Calendar, fields, 1, 1);
 }
 
 /// An ISO-8601 date from a UNIX epoch. The week arguments are ignored.
-pub fn iso8601DateFromUnixEpoch(db: *const tzdb.Database, epoch: i64, zoneId: []const u8, firstDay: i64, minDays: i64) ISO8601Date {
+pub fn iso8601DateFromUnixEpoch(db: *const tzdb.Database, epoch: i64, zoneId: []const u8, firstDay: i64, minDays: i64) CalendarDate {
     _ = firstDay;
     _ = minDays;
     return core.dateFromUnixEpoch(db, &iso8601Calendar, epoch, zoneId, 1, 1);

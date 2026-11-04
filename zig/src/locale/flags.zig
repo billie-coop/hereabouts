@@ -128,7 +128,7 @@ pub fn localeFlag(gpa: Allocator, locale: resolver.Input) Allocator.Error!?[]con
     var sfa = std.heap.stackFallback(1024, gpa);
     const tmp = sfa.get();
     const tag = switch (locale) {
-        .id => |s| try lt.parse(tmp, s),
+        .id => |s| try lt.parseLanguageTag(tmp, s),
         .tag => |t| t,
     };
     defer if (locale == .id) tag.deinit(tmp);

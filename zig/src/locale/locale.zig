@@ -52,7 +52,7 @@ pub const Locale = struct {
 pub fn resolveLocaleId(gpa: Allocator, id: []const u8) Allocator.Error!Locale {
     var sfa = std.heap.stackFallback(512, gpa);
     const tmp = sfa.get();
-    const parsed = try lt.parse(tmp, id);
+    const parsed = try lt.parseLanguageTag(tmp, id);
     defer parsed.deinit(tmp);
     var tag: LanguageTag = .{};
     if (parsed.hasLanguage() or parsed.hasScript() or parsed.hasRegion()) {

@@ -36,7 +36,7 @@ fn rulesArg(args: []const Value) P.PluralRules {
 }
 
 fn expectCategory(want: Value, got: P.Category) !void {
-    if (!eql(want.string, got.name())) return fail("category: want {s}, got {s}", .{ want.string, got.name() });
+    if (!eql(want.string, got.toString())) return fail("category: want {s}, got {s}", .{ want.string, got.toString() });
 }
 
 fn expectOperands(want: Value, got: P.NumberOperands) !void {
@@ -107,11 +107,11 @@ fn run(a: Allocator, fname: []const u8, args: []const Value, want: Value) !void 
     }
     if (eql(fname, "numberOperands")) {
         const d = try D.parse(a, args[0].string);
-        return expectOperands(want, P.numberOperands(d, args[1].integer));
+        return expectOperands(want, P.NumberOperands.init(d, args[1].integer));
     }
     if (eql(fname, "numberOperandsToString")) {
         const d = try D.parse(a, args[0].string);
-        const s = try P.numberOperandsToString(a, P.numberOperands(d, args[1].integer));
+        const s = try P.NumberOperands.toString(P.NumberOperands.init(d, args[1].integer), a);
         if (!eql(want.string, s)) return fail("want \"{s}\", got \"{s}\"", .{ want.string, s });
         return;
     }
@@ -163,7 +163,7 @@ test "no leaks" {
     try std.testing.expectEqual(P.Category.one, P.cardinal(rules, d, 0));
     _ = P.ordinal(rules, d);
     _ = P.range(rules, d, d);
-    const s = try P.numberOperandsToString(gpa, P.operands(rules, d));
+    const s = try P.NumberOperands.toString(P.operands(rules, d), gpa);
     defer gpa.free(s);
     try std.testing.expectEqualStrings("n: 1, i: 1, v: 2, w: 1, f: 50, t: 5, c: 0", s);
 }

@@ -62,7 +62,7 @@ fn run(fw: *core.CLDRFramework, a: Allocator, name: []const u8, args: []const Va
 
     defer api.deinit();
     const data = api.data;
-    if (std.mem.startsWith(u8, name, "boundCalendar")) return runCalendar(a, api.Calendars, name, args);
+    if (std.mem.startsWith(u8, name, "boundCalendar")) return runCalendar(a, api.calendars, name, args);
     if (eql(name, "characterOrder")) return string(@tagName(gen.characterOrder(data)));
     if (eql(name, "lineOrder")) return string(@tagName(gen.lineOrder(data)));
     if (eql(name, "measurementSystem")) return string(@tagName(gen.measurementSystem(data, if (args[1] == .null) null else .temperature)));
@@ -75,7 +75,7 @@ fn run(fw: *core.CLDRFramework, a: Allocator, name: []const u8, args: []const Va
         return value(a, try gen.formatListToParts(a, data, ss, t));
     }
     if (eql(name, "getLanguageDisplayName") or eql(name, "getScriptDisplayName") or eql(name, "getRegionDisplayName")) {
-        const input: gen.NameInput = if (args[2].bool) .{ .tag = try h.language_tag.parse(a, args[1].string) } else .{ .code = args[1].string };
+        const input: gen.NameInput = if (args[2].bool) .{ .tag = try h.language_tag.parseLanguageTag(a, args[1].string) } else .{ .code = args[1].string };
         const o = nameOptions(args[3]);
         if (eql(name, "getLanguageDisplayName")) return string(try gen.getLanguageDisplayName(a, data, input, o));
         if (eql(name, "getScriptDisplayName")) return string(try gen.getScriptDisplayName(a, data, input, o));
@@ -88,17 +88,17 @@ fn run(fw: *core.CLDRFramework, a: Allocator, name: []const u8, args: []const Va
             custom = try gen.createMessageFormatter(a, data, .{ .language = "en", .plurals = h.plurals.getPluralRules("en", null), .cache_size = 3 });
             break :blk &custom.?;
         } else try gen.messageFormatter(data);
-        return string(try mf.formatMessage(a, f, args[1].string, &.{.{ .number = number(args[2]) }}, &.{}));
+        return string(try mf.MessageFormatter.formatMessage(f, a, args[1].string, &.{.{ .number = number(args[2]) }}, &.{}));
     }
     if (eql(name, "bindCLDR")) {
         return value(a, .{
-            .characterOrder = @tagName(api.General.characterOrder()),
-            .lineOrder = @tagName(api.General.lineOrder()),
-            .list = try api.General.formatList(a, &.{ "a", "b", "c" }, null),
-            .language = try api.General.getLanguageDisplayName(a, .{ .code = "en-GB" }, .{ .type = .short }),
-            .decimal = try api.Numbers.formatDecimal(a, try D.parse(a, "1234.5"), .{}),
-            .currency = try api.Numbers.formatCurrency(a, try D.parse(a, "19.95"), "USD", .{}),
-            .quantity = try api.Units.formatQuantity(a, .{ .value = try D.parse(a, "17.69"), .unit = "pound" }, .{ .maximum_fraction_digits = 1 }),
+            .characterOrder = @tagName(api.general.characterOrder()),
+            .lineOrder = @tagName(api.general.lineOrder()),
+            .list = try api.general.formatList(a, &.{ "a", "b", "c" }, null),
+            .language = try api.general.getLanguageDisplayName(a, .{ .code = "en-GB" }, .{ .type = .short }),
+            .decimal = try api.numbers.formatDecimal(a, try D.parse(a, "1234.5"), .{}),
+            .currency = try api.numbers.formatCurrency(a, try D.parse(a, "19.95"), "USD", .{}),
+            .quantity = try api.units.formatQuantity(a, .{ .value = try D.parse(a, "17.69"), .unit = "pound" }, .{ .maximum_fraction_digits = 1 }),
         });
     }
     return error.UnknownFunction;
@@ -164,51 +164,51 @@ test "bound API and ownership" {
     const again = try fw.get(.{ .id = "en" });
     defer again.deinit();
     try std.testing.expect(en.data == again.data);
-    try std.testing.expect(en.Schema == fw.config());
-    try std.testing.expect(en.General.bundle() == en.data);
-    try std.testing.expectEqualStrings("en", en.General.locale().id);
-    const s = try en.General.formatList(a, &.{ "one", "two", "three" }, null);
+    try std.testing.expect(en.schema == fw.config());
+    try std.testing.expect(en.general.bundle() == en.data);
+    try std.testing.expectEqualStrings("en", en.general.locale().id);
+    const s = try en.general.formatList(a, &.{ "one", "two", "three" }, null);
     defer a.free(s);
     try std.testing.expectEqualStrings("one, two, and three", s);
-    D.freeParts(a, try en.General.formatListToParts(a, &.{ "a", "" }, .@"or"));
-    a.free(try en.General.getLanguageDisplayName(a, .{ .code = "zh-TW" }, .{}));
-    a.free(try en.General.getScriptDisplayName(a, .{ .tag = .{ .language = "en" } }, .{}));
-    a.free(try en.General.getRegionDisplayName(a, .{ .code = "US" }, .{}));
-    const tag = try en.General.parseLanguageTag(a, "zh-TW");
+    D.freeParts(a, try en.general.formatListToParts(a, &.{ "a", "" }, .@"or"));
+    a.free(try en.general.getLanguageDisplayName(a, .{ .code = "zh-TW" }, .{}));
+    a.free(try en.general.getScriptDisplayName(a, .{ .tag = .{ .language = "en" } }, .{}));
+    a.free(try en.general.getRegionDisplayName(a, .{ .code = "US" }, .{}));
+    const tag = try en.general.parseLanguageTag(a, "zh-TW");
     defer tag.deinit(a);
-    const resolved = try en.General.resolveLocale(a, "zh-TW");
+    const resolved = try en.general.resolveLocale(a, "zh-TW");
     defer resolved.deinit(a);
-    const resolved_tag = try en.General.resolveLocaleTag(a, tag);
+    const resolved_tag = try en.general.resolveLocaleTag(a, tag);
     defer resolved_tag.deinit(a);
-    try std.testing.expectEqualStrings("Hant", resolved_tag.tag.getScript());
-    const n = try en.Numbers.parseDecimal(a, "1234.5");
+    try std.testing.expectEqualStrings("Hant", resolved_tag.tag.tagScript());
+    const n = try en.numbers.parseDecimal(a, "1234.5");
     defer n.deinit(a);
-    a.free(try en.Numbers.formatDecimal(a, n, .{}));
-    D.freeParts(a, try en.Numbers.formatDecimalToParts(a, n, .{}));
-    a.free(try en.Numbers.formatCurrency(a, n, "USD", .{}));
-    D.freeParts(a, try en.Numbers.formatCurrencyToParts(a, n, "USD", .{}));
-    a.free(try en.Numbers.getCurrencyDisplayName(a, "USD", .{}));
-    a.free(try en.Numbers.getCurrencyPluralName(a, n, "USD", .{}));
-    try std.testing.expect(en.Numbers.getCurrencySymbol("USD", .default).len > 0);
-    const adjusted = try en.Numbers.adjustDecimal(a, n, .{});
+    a.free(try en.numbers.formatDecimal(a, n, .{}));
+    D.freeParts(a, try en.numbers.formatDecimalToParts(a, n, .{}));
+    a.free(try en.numbers.formatCurrency(a, n, "USD", .{}));
+    D.freeParts(a, try en.numbers.formatCurrencyToParts(a, n, "USD", .{}));
+    a.free(try en.numbers.getCurrencyDisplayName(a, "USD", .{}));
+    a.free(try en.numbers.getCurrencyPluralName(a, n, "USD", .{}));
+    try std.testing.expect(en.numbers.getCurrencySymbol("USD", .default).len > 0);
+    const adjusted = try en.numbers.adjustDecimal(a, n, .{});
     defer adjusted.deinit(a);
-    _ = try en.Numbers.getPluralCardinal(a, n, null);
-    _ = try en.Numbers.getPluralOrdinal(a, n, null);
-    _ = en.Numbers.getCurrencyFractions("USD");
-    _ = en.Numbers.getCurrencyForRegion("US");
-    _ = en.Units.availableUnits();
-    _ = en.Units.getUnitDisplayName("meter", null);
+    _ = try en.numbers.getPluralCardinal(a, n, null);
+    _ = try en.numbers.getPluralOrdinal(a, n, null);
+    _ = en.numbers.getCurrencyFractions("USD");
+    _ = en.numbers.getCurrencyForRegion("US");
+    _ = en.units.availableUnits();
+    _ = en.units.getUnitDisplayName("meter", null);
     const q: core.units.Quantity = .{ .value = n, .unit = "meter" };
-    a.free(try en.Units.formatQuantity(a, q, .{}));
-    D.freeParts(a, try en.Units.formatQuantityToParts(a, q, .{}));
-    a.free(try en.Units.formatQuantitySequence(a, &.{ q, q }, .{}));
-    D.freeParts(a, try en.Units.formatQuantitySequenceToParts(a, &.{ q, q }, .{}));
-    const f = try en.General.messageFormatter();
-    try std.testing.expect(f == try en.General.messageFormatter());
-    a.free(try mf.formatMessage(a, f, "{0 plural one {one} other {other}}", &.{.{ .number = 2 }}, &.{}));
-    var custom = try en.General.createMessageFormatter(a, .{ .cache_size = 3 });
+    a.free(try en.units.formatQuantity(a, q, .{}));
+    D.freeParts(a, try en.units.formatQuantityToParts(a, q, .{}));
+    a.free(try en.units.formatQuantitySequence(a, &.{ q, q }, .{}));
+    D.freeParts(a, try en.units.formatQuantitySequenceToParts(a, &.{ q, q }, .{}));
+    const f = try en.general.messageFormatter();
+    try std.testing.expect(f == try en.general.messageFormatter());
+    a.free(try mf.MessageFormatter.formatMessage(f, a, "{0 plural one {one} other {other}}", &.{.{ .number = 2 }}, &.{}));
+    var custom = try en.general.createMessageFormatter(a, .{ .cache_size = 3 });
     defer custom.deinit();
-    a.free(try mf.formatMessage(a, &custom, "{0}", &.{.{ .string = "hello" }}, &.{}));
+    a.free(try mf.MessageFormatter.formatMessage(&custom, a, "{0}", &.{.{ .string = "hello" }}, &.{}));
     a.free(try fw.info(a));
     a.free(try core.internals.general.formatWrapper(a, "{0}-{1}", &.{ "a", "b" }));
     a.free(try core.internals.general.contextTransformWithFlag(a, "ßeta", "TN", .standalone));
@@ -224,12 +224,12 @@ test "public declarations" {
     std.testing.refAllDecls(core.bound_api.Calendars);
     std.testing.refAllDecls(core.cldr);
     try std.testing.expectEqual(opts.AltType.stand_alone, opts.AltType.fromString("stand-alone").?);
-    try std.testing.expectEqualStrings("stand-alone", opts.AltType.stand_alone.string());
+    try std.testing.expectEqualStrings("stand-alone", opts.AltType.stand_alone.toString());
     try std.testing.expect(opts.AltType.fromString("INVALID") == null);
 }
 fn calendarSnapshot(a: Allocator, d: core.calendars.CalendarDate) !Value {
     const C = core.calendars;
-    return value(a, .{ .type = C.dateType(&d).toString(), .fields = C.dateFields(&d), .epoch = C.dateUnixEpoch(&d), .firstDay = C.dateFirstDayOfWeek(&d), .minDays = C.dateMinDaysInFirstWeek(&d) });
+    return value(a, .{ .type = C.CalendarDate.type(&d).toString(), .fields = try fieldsJson(a, C.CalendarDate.fields(&d)), .epoch = C.CalendarDate.unixEpoch(&d), .firstDay = C.CalendarDate.firstDayOfWeek(&d), .minDays = C.CalendarDate.minDaysInFirstWeek(&d) });
 }
 fn runCalendar(a: Allocator, c: core.bound_api.Calendars, family: []const u8, args: []const Value) !Value {
     const epoch = 1109934428000;
@@ -246,7 +246,7 @@ fn runCalendar(a: Allocator, c: core.bound_api.Calendars, family: []const u8, ar
             if (eql(name, method)) return calendarSnapshot(a, @field(core.bound_api.Calendars, method)(c, start));
         }
         inline for (.{ "newBuddhistDate", "newGregorianDate", "newISO8601Date", "newJapaneseDate", "newPersianDate" }) |method| {
-            if (eql(name, method)) return calendarSnapshot(a, try @field(core.bound_api.Calendars, method)(c, .{ .year = if (eql(method, "newBuddhistDate")) 2548 else if (eql(method, "newPersianDate")) 1383 else 2005, .month = 3, .day = 4, .hour = 6, .minute = 7, .second = 8, .millis = 0, .zoneId = zone }));
+            if (eql(name, method)) return calendarSnapshot(a, try @field(core.bound_api.Calendars, method)(c, .{ .year = if (eql(method, "newBuddhistDate")) 2548 else if (eql(method, "newPersianDate")) 1383 else 2005, .month = 3, .day = 4, .hour = 6, .minute = 7, .second = 8, .millis = 0, .zone_id = zone }));
         }
     }
     if (eql(family, "boundCalendarNow")) {
@@ -254,7 +254,7 @@ fn runCalendar(a: Allocator, c: core.bound_api.Calendars, family: []const u8, ar
             if (eql(name, method)) {
                 const d = @field(core.bound_api.Calendars, method)(c, std.testing.io, zone);
                 const C = core.calendars;
-                return value(a, .{ C.dateType(&d).toString(), C.dateTimeZoneId(&d), C.dateFirstDayOfWeek(&d), C.dateMinDaysInFirstWeek(&d) });
+                return value(a, .{ C.CalendarDate.type(&d).toString(), C.CalendarDate.timeZoneId(&d), C.CalendarDate.firstDayOfWeek(&d), C.CalendarDate.minDaysInFirstWeek(&d) });
             }
         }
     }
@@ -322,7 +322,7 @@ test "bound calendar ownership" {
     const en = try fw.get(.{ .id = "en" });
 
     defer en.deinit();
-    const c = en.Calendars;
+    const c = en.calendars;
     try std.testing.expect(core.bindCalendars(en.data).data == c.data);
     const start: core.dates.DateInput = .{ .zoned = .{ .date = 1109934428000, .zone_id = "America/New_York" } };
     const end: core.dates.DateInput = .{ .zoned = .{ .date = 1110193628000, .zone_id = "America/New_York" } };
@@ -360,4 +360,8 @@ test "bound calendar ownership" {
     a.free(try c.formatInstant(a, 1109934428000, "America/New_York", null));
     D.freeParts(a, try c.formatInstantToParts(a, 1109934428000, "America/New_York", null));
     a.free(try c.formatInstantRelative(a, 1110193628000, 1109934428000, "America/New_York", null));
+}
+
+fn fieldsJson(a: Allocator, f: core.calendars.CalendarDateFields) !Value {
+    return value(a, .{ .year = f.year, .month = f.month, .day = f.day, .hour = f.hour, .minute = f.minute, .second = f.second, .millis = f.millis, .zoneId = f.zone_id });
 }

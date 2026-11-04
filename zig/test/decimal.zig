@@ -204,7 +204,7 @@ fn run(a: Allocator, fname: []const u8, args: []const Value, want: Value) !void 
     if (eql(fname, "decimalPrecision")) return expectInt(want, D.precision(d));
     if (eql(fname, "decimalScale")) return expectInt(want, D.scale(d));
     if (eql(fname, "decimalIntegerDigits")) return expectInt(want, D.integerDigits(d));
-    if (eql(fname, "decimalAlignexp")) return expectInt(want, D.alignexp(d));
+    if (eql(fname, "decimalAlignexp")) return expectInt(want, D.alignExp(d));
     if (eql(fname, "decimalTrailingZeros")) return expectInt(want, D.trailingZeros(d));
     if (eql(fname, "decimalIsInteger")) return expectBool(want, D.isInteger(d));
     if (eql(fname, "decimalIsZero")) return expectBool(want, D.isZero(d));
@@ -220,8 +220,8 @@ fn run(a: Allocator, fname: []const u8, args: []const Value, want: Value) !void 
     if (eql(fname, "decimalIncrement")) return expectDecimal(want, try D.increment(a, d));
     if (eql(fname, "decimalDecrement")) return expectDecimal(want, try D.decrement(a, d));
     if (eql(fname, "decimalSetScale")) return expectDecimal(want, try D.setScale(a, d, argInt(args[1]), argMode(args[2])));
-    if (eql(fname, "decimalShiftright")) return expectDecimal(want, try D.shiftright(a, d, argInt(args[1]), argMode(args[2])));
-    if (eql(fname, "decimalShiftleft")) return expectDecimal(want, try D.shiftleft(a, d, argInt(args[1])));
+    if (eql(fname, "decimalShiftright")) return expectDecimal(want, try D.shiftRight(a, d, argInt(args[1]), argMode(args[2])));
+    if (eql(fname, "decimalShiftleft")) return expectDecimal(want, try D.shiftLeft(a, d, argInt(args[1])));
     if (eql(fname, "decimalMovePoint")) return expectDecimal(want, try D.movePoint(a, d, argInt(args[1])));
 
     if (eql(fname, "decimalFormatString") or eql(fname, "decimalFormatParts")) {
@@ -251,7 +251,7 @@ fn run(a: Allocator, fname: []const u8, args: []const Value, want: Value) !void 
     if (eql(fname, "decimalMod")) return expectDecimal(want, try D.mod(a, d, v));
     if (eql(fname, "decimalCompare")) return expectInt(want, try D.compare(a, d, v, args[2].bool));
     if (eql(fname, "decimalDivmod")) {
-        const qr = try D.divmod(a, d, v);
+        const qr = try D.divMod(a, d, v);
         try expectDecimal(want.array.items[0], qr.q);
         return expectDecimal(want.array.items[1], qr.r);
     }
@@ -309,7 +309,7 @@ test "no leaks" {
     };
     for (results) |r| r.deinit(gpa);
 
-    const qr = try D.divmod(gpa, u, v);
+    const qr = try D.divMod(gpa, u, v);
     qr.deinit(gpa);
     _ = try D.compare(gpa, u, v, false);
 

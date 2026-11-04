@@ -45,14 +45,14 @@ fn period(ctx: CalendarContext, c: cal.CalendarType, w: usize, key: []const u8, 
 }
 fn extended(ctx: CalendarContext, c: cal.CalendarType, w: usize) []const u8 {
     const d = &ctx.date;
-    const key = if (cal.dateIsAM(d)) "am" else "pm";
-    const ext = if (cal.dateMinute(d) == 0) (if (cal.dateHourOfDay(d) == 0) "midnight" else if (cal.dateHourOfDay(d) == 12) "noon" else key) else key;
+    const key = if (cal.CalendarDate.isAM(d)) "am" else "pm";
+    const ext = if (cal.CalendarDate.minute(d) == 0) (if (cal.CalendarDate.hourOfDay(d) == 0) "midnight" else if (cal.CalendarDate.hourOfDay(d) == 12) "noon" else key) else key;
     return period(ctx, c, w, ext, key);
 }
 fn zoneGMT(a: A, ctx: CalendarContext, short: bool) A.Error![]const u8 {
     const tz = ctx.data.schema.TimeZones;
     const b = &ctx.data.bundle;
-    const offset = cal.dateTimeZoneOffset(&ctx.date);
+    const offset = cal.CalendarDate.timeZoneOffset(&ctx.date);
     if (offset == 0) return tz.gmtZeroFormat.get(b);
     const t = getTZC(offset);
     const emit = !short or t.minutes > 0;
@@ -76,17 +76,17 @@ fn zone(a: A, ctx: CalendarContext, ch: u8, w: usize) A.Error![]const u8 {
         'z', 'v' => {
             if ((ch == 'z' and w > 4) or (ch == 'v' and w != 1 and w != 4)) return "";
             const arrow = if (w == 4) tz.metaZones.long else tz.metaZones.short;
-            const key = if (ch == 'v') "generic" else if (cal.dateIsDaylightSavings(d)) "daylight" else "standard";
-            const v = arrow.get(b, &.{ key, cal.dateMetaZoneId(d) });
+            const key = if (ch == 'v') "generic" else if (cal.CalendarDate.isDaylightSavings(d)) "daylight" else "standard";
+            const v = arrow.get(b, &.{ key, cal.CalendarDate.metaZoneId(d) });
             return if (v.len > 0) v else if (w == 1 or w == 4) zoneGMT(a, ctx, w == 1) else "";
         },
         'O' => return if (w == 1 or w == 4) zoneGMT(a, ctx, w == 1) else "",
         'V' => {
             switch (w) {
                 1 => return "unk",
-                2 => return cal.dateTimeZoneId(d),
+                2 => return cal.CalendarDate.timeZoneId(d),
                 3, 4 => {
-                    const city = tz.exemplarCity.get(b, &.{cal.dateTimeZoneStableId(d)});
+                    const city = tz.exemplarCity.get(b, &.{cal.CalendarDate.timeZoneStableId(d)});
                     if (w == 3) return if (city.len > 0) city else tz.exemplarCity.get(b, &.{"Etc/Unknown"});
                     return if (city.len > 0) general.formatWrapper(a, tz.regionFormat.get(b), &.{city}) else zoneGMT(a, ctx, false);
                 },
@@ -96,7 +96,7 @@ fn zone(a: A, ctx: CalendarContext, ch: u8, w: usize) A.Error![]const u8 {
         'Z', 'x', 'X' => {
             if (ch == 'Z' and w == 4) return zoneGMT(a, ctx, false);
             if (w < 1 or w > 5) return "";
-            const t = getTZC(cal.dateTimeZoneOffset(d));
+            const t = getTZC(cal.CalendarDate.timeZoneOffset(d));
             if (ch == 'X' and t.offset == 0) return "Z";
             const colon = if (ch == 'Z') w == 5 else w == 3 or w == 5;
             const mins = ch == 'Z' or w != 1 or t.minutes > 0;
@@ -124,33 +124,33 @@ pub fn calendarFormat(a: A, c: cal.CalendarType, ctx: CalendarContext, nodes: []
             'G' => {
                 t = "era";
                 const width = if (w == 5) "narrow" else if (w == 4) "names" else "abbr";
-                v = schema.eras.getAlt(b, &.{ &.{width}, &.{try str(a, cal.dateEra(d))}, &.{ ctx.alt.era, "none" } });
+                v = schema.eras.getAlt(b, &.{ &.{width}, &.{try str(a, cal.CalendarDate.era(d))}, &.{ ctx.alt.era, "none" } });
                 if (w != 5) field = if (w == 4) "era-name" else "era-abbr";
             },
             'y' => {
                 t = "year";
-                v = try year(a, ctx, cal.dateYear(d), w);
+                v = try year(a, ctx, cal.CalendarDate.year(d), w);
             },
             'Y' => {
                 t = "year";
-                v = try year(a, ctx, cal.dateYearOfWeekOfYear(d), w);
+                v = try year(a, ctx, cal.CalendarDate.yearOfWeekOfYear(d), w);
             },
             'u' => {
                 t = "year";
-                v = try number(a, ctx, cal.dateExtendedYear(d), w);
+                v = try number(a, ctx, cal.CalendarDate.extendedYear(d), w);
             },
             'U' => {
                 t = "cyclic-year";
             },
             'r' => {
                 t = "related-year";
-                v = try num.formatInt(a, ctx.params.latn_system, cal.dateRelatedYear(d), false, @intCast(w));
+                v = try num.formatInt(a, ctx.params.latn_system, cal.CalendarDate.relatedYear(d), false, @intCast(w));
             },
             'Q', 'q', 'M', 'L' => {
                 t = if (ch == 'Q' or ch == 'q') "quarter" else "month";
                 const format = if (ch == 'Q' or ch == 'M') schema.format else schema.standAlone;
                 const arrow = if (ch == 'Q' or ch == 'q') format.quarters else format.months;
-                const n = if (ch == 'Q' or ch == 'q') @divTrunc(cal.dateMonth(d) - 1, 3) + 1 else cal.dateMonth(d);
+                const n = if (ch == 'Q' or ch == 'q') @divTrunc(cal.CalendarDate.month(d) - 1, 3) + 1 else cal.CalendarDate.month(d);
                 v = if (w >= 3) arrow.get(b, &.{ widthKey(w), try str(a, n) }) else try number(a, ctx, n, w);
                 if (w == 3 or w == 4) {
                     if (ch == 'M') field = "month-format-except-narrow" else if (ch == 'L') field = "month-standalone-except-narrow";
@@ -158,33 +158,33 @@ pub fn calendarFormat(a: A, c: cal.CalendarType, ctx: CalendarContext, nodes: []
             },
             'w' => {
                 t = "week";
-                v = try number(a, ctx, cal.dateWeekOfYear(d), @min(w, 2));
+                v = try number(a, ctx, cal.CalendarDate.weekOfYear(d), @min(w, 2));
             },
             'W' => {
                 t = "week";
-                v = try number(a, ctx, cal.dateWeekOfMonth(d), 1);
+                v = try number(a, ctx, cal.CalendarDate.weekOfMonth(d), 1);
             },
             'd' => {
                 t = "day";
-                v = try number(a, ctx, cal.dateDayOfMonth(d), @min(w, 2));
+                v = try number(a, ctx, cal.CalendarDate.dayOfMonth(d), @min(w, 2));
             },
             'D' => {
                 t = "day";
-                v = try number(a, ctx, cal.dateDayOfYear(d), @min(w, 3));
+                v = try number(a, ctx, cal.CalendarDate.dayOfYear(d), @min(w, 3));
             },
             'F' => {
                 t = "day";
-                v = try number(a, ctx, cal.dateDayOfWeekInMonth(d), 1);
+                v = try number(a, ctx, cal.CalendarDate.dayOfWeekInMonth(d), 1);
             },
             'g' => {
                 t = "mjulian-day";
-                v = try number(a, ctx, cal.dateModifiedJulianDay(d), w);
+                v = try number(a, ctx, cal.CalendarDate.modifiedJulianDay(d), w);
             },
             'E', 'e', 'c' => {
                 t = "weekday";
-                if (ch != 'E' and w <= 2) v = try number(a, ctx, cal.dateOrdinalDayOfWeek(d), if (ch == 'c') 1 else w) else {
+                if (ch != 'E' and w <= 2) v = try number(a, ctx, cal.CalendarDate.ordinalDayOfWeek(d), if (ch == 'c') 1 else w) else {
                     const arrow = if (ch == 'c') schema.standAlone.weekdays else schema.format.weekdays;
-                    v = arrow.get(b, &.{ if (w == 6) "short" else widthKey(w), try str(a, cal.dateDayOfWeek(d)) });
+                    v = arrow.get(b, &.{ if (w == 6) "short" else widthKey(w), try str(a, cal.CalendarDate.dayOfWeek(d)) });
                 }
                 if (w != 5) {
                     if (ch == 'E') field = "day-format-except-narrow" else if (ch == 'c') field = "day-standalone-except-narrow";
@@ -192,7 +192,7 @@ pub fn calendarFormat(a: A, c: cal.CalendarType, ctx: CalendarContext, nodes: []
             },
             'a' => {
                 t = "dayperiod";
-                const key = if (cal.dateHourOfDay(d) < 12) "am" else "pm";
+                const key = if (cal.CalendarDate.hourOfDay(d) < 12) "am" else "pm";
                 v = period(ctx, c, w, key, key);
             },
             'b' => {
@@ -201,12 +201,12 @@ pub fn calendarFormat(a: A, c: cal.CalendarType, ctx: CalendarContext, nodes: []
             },
             'B' => {
                 t = "dayperiod";
-                if (internal.flexDayPeriod(b, cal.dateHourOfDay(d) * 60 + cal.dateMinute(d))) |key| v = period(ctx, c, w, key, key);
+                if (internal.flexDayPeriod(b, cal.CalendarDate.hourOfDay(d) * 60 + cal.CalendarDate.minute(d))) |key| v = period(ctx, c, w, key, key);
                 if (v.len == 0) v = extended(ctx, c, w);
             },
             'h', 'H', 'K', 'k' => {
                 t = "hour";
-                var n = if (ch == 'h' or ch == 'K') cal.dateHour(d) else cal.dateHourOfDay(d);
+                var n = if (ch == 'h' or ch == 'K') cal.CalendarDate.hour(d) else cal.CalendarDate.hourOfDay(d);
                 if (n == 0) {
                     if (ch == 'h') n = 12 else if (ch == 'k') n = 24;
                 }
@@ -214,22 +214,22 @@ pub fn calendarFormat(a: A, c: cal.CalendarType, ctx: CalendarContext, nodes: []
             },
             'm' => {
                 t = "minute";
-                v = try number(a, ctx, cal.dateMinute(d), @min(w, 2));
+                v = try number(a, ctx, cal.CalendarDate.minute(d), @min(w, 2));
             },
             's' => {
                 t = "second";
-                v = try number(a, ctx, cal.dateSecond(d), @min(w, 2));
+                v = try number(a, ctx, cal.CalendarDate.second(d), @min(w, 2));
             },
             'S' => {
                 t = "fracsec";
-                var m = d.fields[cal.DateField.MILLIS];
+                var m = d.field_values[cal.DateField.MILLIS];
                 if (w > 3) m *= if (w - 3 <= 308) @import("autogen.dates.zig").powers_of_ten[w - 3] else std.math.inf(f64);
                 const value = if (w >= 3) m else @import("../../systems/calendars/util.zig").toInt32(m / (if (w == 2) @as(f64, 10) else 100));
                 v = try numberFloat(a, ctx, value, w);
             },
             'A' => {
                 t = "millis-in-day";
-                v = try number(a, ctx, cal.dateMillisecondsInDay(d), w);
+                v = try number(a, ctx, cal.CalendarDate.millisecondsInDay(d), w);
             },
             'z', 'Z', 'O', 'v', 'V', 'X', 'x' => {
                 t = "timezone";

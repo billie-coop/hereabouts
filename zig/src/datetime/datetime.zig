@@ -8,14 +8,13 @@
 //!
 //! Day and time-of-day math is exact integer arithmetic and never touches a zone. Only the
 //! functions in `zone.zig` take one. Every function checks its inputs and returns an `Error`
-//! instead of rolling over; the parse functions return null for text that isn't valid. Names
-//! are the TypeScript names. Functions returning a string or slice take an allocator and the
+//! instead of rolling over; the parse functions return null for text that isn't valid. Method names follow the TypeScript names with the receiver type word dropped. Functions returning a string or slice take an allocator and the
 //! caller owns the result.
 
 const types = @import("types.zig");
 const day_ = @import("day.zig");
 const time_of_day = @import("time_of_day.zig");
-const instant = @import("instant.zig");
+const instant_impl = @import("instant.zig");
 const zone = @import("zone.zig");
 const context = @import("zone_context.zig");
 pub const ZoneContext = context.ZoneContext;
@@ -32,51 +31,19 @@ pub const Error = types.Error;
 pub const isLeapYear = day_.isLeapYear;
 pub const daysInMonth = day_.daysInMonth;
 pub const isDay = day_.isDay;
-pub const dayAdd = day_.dayAdd;
-pub const dayCompare = day_.dayCompare;
-pub const dayDaysInMonth = day_.dayDaysInMonth;
-pub const dayEndOf = day_.dayEndOf;
-pub const dayEndOfWeek = day_.dayEndOfWeek;
-pub const dayEquals = day_.dayEquals;
-pub const dayFromEpochDay = day_.dayFromEpochDay;
-pub const dayFromString = day_.dayFromString;
-pub const dayIsAfter = day_.dayIsAfter;
-pub const dayIsBefore = day_.dayIsBefore;
-pub const dayIsLeapYear = day_.dayIsLeapYear;
-pub const dayOfWeek = day_.dayOfWeek;
-pub const dayOfYear = day_.dayOfYear;
-pub const dayParse = day_.dayParse;
-pub const dayRange = day_.dayRange;
-pub const dayStartOf = day_.dayStartOf;
-pub const dayStartOfWeek = day_.dayStartOfWeek;
-pub const daySubtract = day_.daySubtract;
-pub const dayToEpochDay = day_.dayToEpochDay;
-pub const dayToString = day_.dayToString;
-pub const formatDay = day_.formatDay;
-pub const dayUntil = day_.dayUntil;
-
-pub const day = day_.day;
-
-pub const instantParse = context.instantParse;
-pub const instantToString = context.instantToString;
 
 pub const isTimeOfDay = time_of_day.isTimeOfDay;
-pub const timeOfDay = time_of_day.timeOfDay;
-pub const timeOfDayCompare = time_of_day.timeOfDayCompare;
-pub const timeOfDayFromMillis = time_of_day.timeOfDayFromMillis;
-pub const timeOfDayFromString = time_of_day.timeOfDayFromString;
-pub const timeOfDayParse = time_of_day.timeOfDayParse;
-pub const timeOfDayToMillis = time_of_day.timeOfDayToMillis;
-pub const timeOfDayToString = time_of_day.timeOfDayToString;
-pub const formatTimeOfDay = time_of_day.formatTimeOfDay;
 
 pub const DayAtTimeOptions = zone.DayAtTimeOptions;
-pub const dayAtTime = context.dayAtTime;
-pub const dayFromInstant = context.dayFromInstant;
-pub const dayStartInstant = context.dayStartInstant;
-pub const dayToday = context.dayToday;
 pub const systemTimeZone = context.systemTimeZone;
-pub const timeOfDayFromInstant = context.timeOfDayFromInstant;
 pub const timeZoneId = context.timeZoneId;
 pub const timeZoneOffset = context.timeZoneOffset;
 pub const now = zone.now;
+
+/// Namespace for the TypeScript Instant integer alias.
+pub const instant = struct {
+    /// TypeScript instantParse.
+    pub const parse = context.instantParse;
+    /// TypeScript instantToString.
+    pub const toString = context.instantToString;
+};

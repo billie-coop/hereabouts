@@ -38,8 +38,8 @@ pub fn getDistance(desired: LanguageTag, supported: LanguageTag, threshold: i32)
     // Compare the LANGUAGE subtag.
     var wildcard = false;
     var map: []const Entry = &data.distance_map;
-    var want = desired.getLanguage();
-    var have = supported.getLanguage();
+    var want = desired.tagLanguage();
+    var have = supported.tagLanguage();
 
     var node = get(map, want, have) orelse blk: {
         wildcard = true;
@@ -52,8 +52,8 @@ pub fn getDistance(desired: LanguageTag, supported: LanguageTag, threshold: i32)
 
     // Move to compare the SCRIPT subtag.
     map = node.next;
-    want = desired.getScript();
-    have = supported.getScript();
+    want = desired.tagScript();
+    have = supported.tagScript();
 
     if (get(map, want, have)) |n| {
         node = n;
@@ -68,8 +68,8 @@ pub fn getDistance(desired: LanguageTag, supported: LanguageTag, threshold: i32)
     if (distance >= threshold) return MAX_DISTANCE;
 
     // Move to compare the REGION subtag.
-    want = desired.getRegion();
-    have = supported.getRegion();
+    want = desired.tagRegion();
+    have = supported.tagRegion();
 
     // If regions are equal, we're done.
     if (std.mem.eql(u8, want, have)) return distance;

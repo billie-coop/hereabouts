@@ -49,7 +49,7 @@ pub fn renderUnit(a: Allocator, data: *const LocaleData, renderer: NumberRendere
     const unit = q.unit orelse return num;
 
     // Compute plural category for the value '1'
-    const singular = plurals.cardinal(data.bundle.plurals, D.ONE, 0).name();
+    const singular = plurals.cardinal(data.bundle.plurals, D.ONE, 0).toString();
 
     // For default and "per" compound pattern, the {0} will use the plural category and {1}
     // will be singular. Examples:

@@ -45,6 +45,11 @@ pub const Pack = struct {
         self.arena.deinit();
         gpa.destroy(self);
     }
+
+    /// TypeScript packGet. The returned bundle borrows this immutable pack.
+    pub fn get(self: *Pack, gpa: Allocator, tag: LanguageTag) Error!Bundle {
+        return packGet(gpa, self, tag);
+    }
 };
 
 const RawScript = struct {
@@ -170,13 +175,13 @@ fn packScriptGet(gpa: Allocator, pack: *Pack, script: *PackScript, tag_in: Langu
     var tag = tag_in;
     var tmp: ?LanguageTag = null;
     defer if (tmp) |t| t.deinit(gpa);
-    var index = try cachedRegion(pack, script, tag.getRegion());
+    var index = try cachedRegion(pack, script, tag.tagRegion());
     if (index == null) {
-        tmp = try lt.init(gpa, .{
-            .language = tag.getLanguage(),
-            .script = tag.getScript(),
+        tmp = try lt.LanguageTag.init(gpa, .{
+            .language = tag.tagLanguage(),
+            .script = tag.tagScript(),
             .region = script.default_region,
-            .variant = tag.getVariant(),
+            .variant = tag.tagVariant(),
             .extensions = tag.extensions,
             .private_use = tag.private_use,
         });
@@ -190,7 +195,7 @@ fn packScriptGet(gpa: Allocator, pack: *Pack, script: *PackScript, tag_in: Langu
 /// the script's default region when the tag's are not present. The bundle borrows the pack's
 /// tables; free it with `bundle.deinit(gpa)`. (`packGet`)
 ///
-/// Decoding a region's exception index caches it in the pack, so this mutates the pack.
+/// Region exception tables are decoded during load; this lookup does not mutate the pack.
 pub fn packGet(gpa: Allocator, pack: *Pack, tag_in: LanguageTag) Error!Bundle {
     var tag = tag_in;
     var resolved: ?LanguageTag = null;
@@ -206,20 +211,20 @@ pub fn packGet(gpa: Allocator, pack: *Pack, tag_in: LanguageTag) Error!Bundle {
     }
 
     // Strings for a language are organized by script.
-    var script = pack.scripts.getPtr(tag.getScript());
+    var script = pack.scripts.getPtr(tag.tagScript());
     if (script == null) {
         // Swap in the default script
         const d = pack.default_tag;
-        swapped = try lt.init(gpa, .{
-            .language = d.getLanguage(),
-            .script = d.getScript(),
-            .region = d.getRegion(),
-            .variant = d.getVariant(),
+        swapped = try lt.LanguageTag.init(gpa, .{
+            .language = d.tagLanguage(),
+            .script = d.tagScript(),
+            .region = d.tagRegion(),
+            .variant = d.tagVariant(),
             .extensions = tag.extensions,
             .private_use = tag.private_use,
         });
         tag = swapped.?;
-        script = pack.scripts.getPtr(tag.getScript());
+        script = pack.scripts.getPtr(tag.tagScript());
     }
     // The TypeScript fails with a TypeError here.
     const s = script orelse return error.InvalidPack;

@@ -62,7 +62,7 @@ pub fn getNumberPattern(a: Allocator, raw: []const u8, negative: bool) Allocator
 }
 
 fn cardinal(data: *const LocaleData, n: Decimal) []const u8 {
-    return plurals.cardinal(data.bundle.plurals, n, 0).name();
+    return plurals.cardinal(data.bundle.plurals, n, 0).toString();
 }
 
 fn field(data: *const LocaleData, arrow: anytype) []const u8 {
@@ -147,7 +147,7 @@ pub fn renderDecimal(a: Allocator, data: *const LocaleData, renderer: NumberRend
             }
 
             // Select percent or permille symbol.
-            const symbol = if (style == .percent or style == .percent_scaled) params.symbols.percentSign else params.symbols.perMille;
+            const symbol = if (style == .percent or style == .percent_scaled) params.symbols.percent_sign else params.symbols.per_mille;
 
             // Adjust number using pattern and options, then render.
             var ctx = NumberContext.init(no, round, false, false, -1);
@@ -352,7 +352,7 @@ fn setupCompact(a: Allocator, data: *const LocaleData, n: Decimal, ctx: *NumberC
             // number at its correct scale. Otherwise we would end up with 999,999 becoming
             // 0.999999 and half-even rounding truncating the number to '0M' instead of '1M'.
             q1 = try D.movePoint(a, n, -divisor);
-            q1 = try D.shiftright(a, q1, divisor, .half_even);
+            q1 = try D.shiftRight(a, q1, divisor, .half_even);
             ctx.setCompact(pattern, D.integerDigits(q1), frac_digits);
             q2 = try ctx.adjust(a, q1, false);
         }

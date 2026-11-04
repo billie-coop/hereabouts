@@ -49,7 +49,7 @@ const DifferenceState = struct {
     ms1: f64,
     ms2: f64,
 
-    zoneId: []const u8,
+    zone_id: []const u8,
 
     // -1 if date1 < date2, 1 if date1 > date2, 0 if equal
     sign: f64,
@@ -65,17 +65,17 @@ const DifferenceState = struct {
     flags: u8,
 
     // Smallest flag requested.
-    smallestFlag: u8,
+    smallest_flag: u8,
 
     // Number of months in a year
-    monthCount: f64,
+    month_count: f64,
 
     fn has(self: *const DifferenceState, flag: u8) bool {
         return (flag & self.flags) != 0;
     }
 
     fn smallest(self: *const DifferenceState, flag: u8) bool {
-        return flag == self.smallestFlag;
+        return flag == self.smallest_flag;
     }
 };
 
@@ -89,15 +89,15 @@ fn differenceState(date1: *const CalendarDate, date2: *const CalendarDate, optio
         .one = math.toYMD(date1),
         .two = math.toYMD(date2),
         .epoch2 = calendar.unixEpoch(date2),
-        .ms1 = date1.fields[F.MILLIS_IN_DAY],
-        .ms2 = date2.fields[F.MILLIS_IN_DAY],
-        .zoneId = date1.zoneInfo.zoneid,
+        .ms1 = date1.field_values[F.MILLIS_IN_DAY],
+        .ms2 = date2.field_values[F.MILLIS_IN_DAY],
+        .zone_id = date1.zone_info.zoneid,
         .sign = sign,
         .incr = -sign,
-        .fractions = options.rollupFractional,
+        .fractions = options.rollup_fractional,
         .flags = if (flags != 0) flags else DEFAULT_FLAGS,
-        .smallestFlag = smallestFlag,
-        .monthCount = @floatFromInt(date1.calendar.monthCount),
+        .smallest_flag = smallestFlag,
+        .month_count = @floatFromInt(date1.calendar.month_count),
     };
 }
 
@@ -145,7 +145,7 @@ pub fn difference(date1: *const CalendarDate, date2: *const CalendarDate, option
     }
 
     if (state.fractions) {
-        if (state.smallestFlag <= Flag.DAY) {
+        if (state.smallest_flag <= Flag.DAY) {
             rollDateFractions(&state, &result);
         } else {
             rollTimeFractions(&state, &result);
@@ -213,12 +213,12 @@ fn differenceOfDates(state: *const DifferenceState, result: *TimePeriod) void {
     const clamped = math.clampYMD(seek.year, seek.month, one.day);
 
     // Final number of days. If years and months weren't set above, the days span the range.
-    var day = gm.ymdToJD(two.year, two.month, two.day, state.monthCount) -
-        gm.ymdToJD(clamped.year, clamped.month, clamped.day, state.monthCount);
+    var day = gm.ymdToJD(two.year, two.month, two.day, state.month_count) -
+        gm.ymdToJD(clamped.year, clamped.month, clamped.day, state.month_count);
 
     // Optionally translate weeks to days
     var week: f64 = 0;
-    if ((state.options.includeWeeks and (state.flags == 0 or state.flags == DEFAULT_FLAGS)) or
+    if ((state.options.include_weeks and (state.flags == 0 or state.flags == DEFAULT_FLAGS)) or
         state.has(Flag.WEEK))
     {
         week = @trunc(day / 7);
@@ -251,8 +251,8 @@ fn timeDifference(state: *const DifferenceState) struct { YearMonthDay, f64 } {
     // Always loops at least once.
     while (dayshift <= maxshift) : (dayshift += 1) {
         intermediate = adjustDays(two.year, two.month, two.day - dayshift * incr);
-        const jd = gm.ymdToJD(intermediate.year, intermediate.month, intermediate.day, state.monthCount);
-        const epoch = wallToUTC(state.date1.database, state.zoneId, math.unixEpochFromJD(jd, state.ms1));
+        const jd = gm.ymdToJD(intermediate.year, intermediate.month, intermediate.day, state.month_count);
+        const epoch = wallToUTC(state.date1.database, state.zone_id, math.unixEpochFromJD(jd, state.ms1));
         delta = state.epoch2 - epoch;
         if (util.sign(delta) != -state.incr) break;
     }
@@ -275,13 +275,13 @@ fn roundResult(state: *const DifferenceState, result: *TimePeriod) void {
     const start = add_.addYMD(date, .{ .year = result.year, .month = result.month, .week = result.week, .day = result.day });
 
     // Wall clock epoch of the start day at the start time of day.
-    const jd = gm.ymdToJD(start.year, start.month, start.day, state.monthCount);
-    const startEpoch = wallToUTC(state.date1.database, state.date1.zoneInfo.zoneid, math.unixEpochFromJD(jd, state.ms1));
+    const jd = gm.ymdToJD(start.year, start.month, start.day, state.month_count);
+    const startEpoch = wallToUTC(state.date1.database, state.date1.zone_info.zoneid, math.unixEpochFromJD(jd, state.ms1));
 
     // The same for the day +/- 1 after the start, in the direction of the comparison.
     const end = adjustDays(start.year, start.month, start.day + state.incr);
-    const endJd = gm.ymdToJD(end.year, end.month, end.day, state.monthCount);
-    const endEpoch = wallToUTC(state.date1.database, state.date1.zoneInfo.zoneid, math.unixEpochFromJD(endJd, state.ms1));
+    const endJd = gm.ymdToJD(end.year, end.month, end.day, state.month_count);
+    const endEpoch = wallToUTC(state.date1.database, state.date1.zone_info.zoneid, math.unixEpochFromJD(endJd, state.ms1));
 
     const delta = endEpoch - startEpoch;
 
@@ -346,7 +346,7 @@ fn rollDateFractions(state: *const DifferenceState, result: *TimePeriod) void {
     result.millis = 0;
 
     if (state.smallest(Flag.YEAR)) {
-        result.year += result.month / state.monthCount + (result.week * 7 + days) / 365.25;
+        result.year += result.month / state.month_count + (result.week * 7 + days) / 365.25;
         result.month = 0;
         result.week = 0;
         result.day = 0;
@@ -404,7 +404,7 @@ pub fn dateRelativeTime(d: *const CalendarDate, other: *const CalendarDate, fiel
     } else {
         // Calculate the difference in all fields and select the largest.
         var o = options;
-        o.rollupFractional = false;
+        o.rollup_fractional = false;
         o.fields = null;
         field = relativeField(difference(d, other, o));
     }

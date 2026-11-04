@@ -25,9 +25,9 @@ pub const YearMonth = struct { year: f64, month: f64 };
 /// Extended year, month and day of a date.
 pub fn toYMD(d: *const CalendarDate) YearMonthDay {
     return .{
-        .year = d.fields[F.EXTENDED_YEAR],
-        .month = d.fields[F.MONTH],
-        .day = d.fields[F.DAY_OF_MONTH],
+        .year = d.field_values[F.EXTENDED_YEAR],
+        .month = d.field_values[F.MONTH],
+        .day = d.field_values[F.DAY_OF_MONTH],
     };
 }
 

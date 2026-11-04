@@ -14,7 +14,7 @@ const PluralRules = plurals.PluralRules;
 
 /// Errors from evaluating a message. Custom formatters and converters return
 /// `error.FormatFailed` to fail an evaluation (where the TypeScript would throw).
-pub const Error = error{ OutOfMemory, FormatFailed };
+pub const Error = Allocator.Error || error{FormatFailed};
 
 /// A value of a type the formatters don't know, for custom formatters: a pointer plus a
 /// name the formatter checks before casting it back. The default converter turns these into
@@ -53,22 +53,22 @@ pub const MessageArgs = struct {
 /// evaluation), or return static data.
 pub const MessageArgConverter = struct {
     ctx: ?*const anyopaque = null,
-    asStringFn: *const fn (ctx: ?*const anyopaque, a: Allocator, arg: ?MessageArg) Error![]const u8,
-    asDecimalFn: *const fn (ctx: ?*const anyopaque, a: Allocator, arg: ?MessageArg) Error!Decimal,
+    as_string_fn: *const fn (ctx: ?*const anyopaque, a: Allocator, arg: ?MessageArg) Error![]const u8,
+    as_decimal_fn: *const fn (ctx: ?*const anyopaque, a: Allocator, arg: ?MessageArg) Error!Decimal,
 
     pub fn asString(self: MessageArgConverter, a: Allocator, arg: ?MessageArg) Error![]const u8 {
-        return self.asStringFn(self.ctx, a, arg);
+        return self.as_string_fn(self.ctx, a, arg);
     }
 
     pub fn asDecimal(self: MessageArgConverter, a: Allocator, arg: ?MessageArg) Error!Decimal {
-        return self.asDecimalFn(self.ctx, a, arg);
+        return self.as_decimal_fn(self.ctx, a, arg);
     }
 };
 
 /// Default argument converter: converts arguments to string or Decimal.
 pub const default_converter: MessageArgConverter = .{
-    .asStringFn = defaultAsString,
-    .asDecimalFn = defaultAsDecimal,
+    .as_string_fn = defaultAsString,
+    .as_decimal_fn = defaultAsDecimal,
 };
 
 /// Convert to a string if possible: strings as they are, numbers and booleans as JavaScript
@@ -267,7 +267,7 @@ fn evaluate(ctx: *Context, code: MessageCode, argsub: ?MessageArg) Error!void {
                         }
                     },
                     .category => {
-                        if (std.mem.eql(u8, c.value, category.name())) {
+                        if (std.mem.eql(u8, c.value, category.toString())) {
                             return evaluate(ctx, c.code, .{ .decimal = sub });
                         } else if (std.mem.eql(u8, c.value, "other")) {
                             // Capture the 'other' as a fallback

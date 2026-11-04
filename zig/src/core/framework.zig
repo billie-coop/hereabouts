@@ -5,7 +5,8 @@
 //! var fw = core.Framework.init(gpa, .{ .loader = .{ .load = myLoad } });
 //! defer fw.deinit();
 //! const en = try fw.loadLocale(.{ .id = "en-US" });
-//! const s = try core.numbers.formatDecimal(gpa, en, n, .{});
+//! defer en.deinit();
+//! const s = try en.formatDecimal(gpa, n, .{});
 //! ```
 //!
 //! Only the shipped schema config (`src/config.ts`) is supported: its schema is generated at
@@ -158,6 +159,436 @@ pub const LocaleHandle = struct {
     pub fn deinit(self: LocaleHandle) void {
         self.node.release();
     }
+
+    /// TypeScript `bundle`, bound to this locale.
+    pub fn bundle(self: LocaleHandle) *const LocaleData {
+        return (api.General{ .data = self.data() }).bundle();
+    }
+
+    /// TypeScript `locale`, bound to this locale.
+    pub fn locale(self: LocaleHandle) @import("../locale/locale.zig").Locale {
+        return (api.General{ .data = self.data() }).locale();
+    }
+
+    /// TypeScript `resolveLocale`, bound to this locale.
+    pub fn resolveLocale(self: LocaleHandle, gpa: Allocator, id: []const u8) Allocator.Error!@import("../locale/locale.zig").Locale {
+        return (api.General{ .data = self.data() }).resolveLocale(gpa, id);
+    }
+
+    /// TypeScript `resolveLocaleTag`, bound to this locale.
+    pub fn resolveLocaleTag(self: LocaleHandle, gpa: Allocator, tag: @import("../language_tag/language_tag.zig").LanguageTag) Allocator.Error!@import("../locale/locale.zig").Locale {
+        return (api.General{ .data = self.data() }).resolveLocaleTag(gpa, tag);
+    }
+
+    /// TypeScript `parseLanguageTag`, bound to this locale.
+    pub fn parseLanguageTag(self: LocaleHandle, gpa: Allocator, code: []const u8) Allocator.Error!@import("../language_tag/language_tag.zig").LanguageTag {
+        return (api.General{ .data = self.data() }).parseLanguageTag(gpa, code);
+    }
+
+    /// TypeScript `characterOrder`, bound to this locale.
+    pub fn characterOrder(self: LocaleHandle) gen_options.CharacterOrder {
+        return (api.General{ .data = self.data() }).characterOrder();
+    }
+
+    /// TypeScript `lineOrder`, bound to this locale.
+    pub fn lineOrder(self: LocaleHandle) gen_options.LineOrder {
+        return (api.General{ .data = self.data() }).lineOrder();
+    }
+
+    /// TypeScript `measurementSystem`, bound to this locale.
+    pub fn measurementSystem(self: LocaleHandle, category: ?gen_options.MeasurementCategory) gen_options.MeasurementSystem {
+        return (api.General{ .data = self.data() }).measurementSystem(category);
+    }
+
+    /// TypeScript `messageFormatter`, bound to this locale.
+    pub fn messageFormatter(self: LocaleHandle) Allocator.Error!*mf.MessageFormatter {
+        return (api.General{ .data = self.data() }).messageFormatter();
+    }
+
+    /// TypeScript `createMessageFormatter`, bound to this locale.
+    pub fn createMessageFormatter(self: LocaleHandle, gpa: Allocator, opts: mf.MessageFormatterOptions) Allocator.Error!mf.MessageFormatter {
+        return (api.General{ .data = self.data() }).createMessageFormatter(gpa, opts);
+    }
+
+    /// TypeScript `formatList`, bound to this locale.
+    pub fn formatList(self: LocaleHandle, gpa: Allocator, items: []const []const u8, t: ?ListPatternType) Allocator.Error![]u8 {
+        return (api.General{ .data = self.data() }).formatList(gpa, items, t);
+    }
+
+    /// TypeScript `formatListToParts`, bound to this locale.
+    pub fn formatListToParts(self: LocaleHandle, gpa: Allocator, items: []const []const u8, t: ?ListPatternType) Allocator.Error![]Part {
+        return (api.General{ .data = self.data() }).formatListToParts(gpa, items, t);
+    }
+
+    /// TypeScript `getLanguageDisplayName`, bound to this locale.
+    pub fn getLanguageDisplayName(self: LocaleHandle, gpa: Allocator, input: NameInput, o: DisplayNameOptions) Allocator.Error![]u8 {
+        return (api.General{ .data = self.data() }).getLanguageDisplayName(gpa, input, o);
+    }
+
+    /// TypeScript `getScriptDisplayName`, bound to this locale.
+    pub fn getScriptDisplayName(self: LocaleHandle, gpa: Allocator, input: NameInput, o: DisplayNameOptions) Allocator.Error![]u8 {
+        return (api.General{ .data = self.data() }).getScriptDisplayName(gpa, input, o);
+    }
+
+    /// TypeScript `getRegionDisplayName`, bound to this locale.
+    pub fn getRegionDisplayName(self: LocaleHandle, gpa: Allocator, input: NameInput, o: DisplayNameOptions) Allocator.Error![]u8 {
+        return (api.General{ .data = self.data() }).getRegionDisplayName(gpa, input, o);
+    }
+
+    /// TypeScript `parseDecimal`, bound to this locale.
+    pub fn parseDecimal(self: LocaleHandle, gpa: Allocator, value: []const u8) (@import("../decimal/decimal.zig").ParseError || Allocator.Error)!Decimal {
+        return (api.Numbers{ .data = self.data() }).parseDecimal(gpa, value);
+    }
+
+    /// TypeScript `getCurrencyFractions`, bound to this locale.
+    pub fn getCurrencyFractions(self: LocaleHandle, code: []const u8) num.CurrencyFractions {
+        return (api.Numbers{ .data = self.data() }).getCurrencyFractions(code);
+    }
+
+    /// TypeScript `getCurrencyForRegion`, bound to this locale.
+    pub fn getCurrencyForRegion(self: LocaleHandle, region: []const u8) []const u8 {
+        return (api.Numbers{ .data = self.data() }).getCurrencyForRegion(region);
+    }
+
+    /// TypeScript `adjustDecimal`, bound to this locale.
+    pub fn adjustDecimal(self: LocaleHandle, gpa: Allocator, n: Decimal, options: DecimalAdjustOptions) DecimalError!Decimal {
+        return (api.Numbers{ .data = self.data() }).adjustDecimal(gpa, n, options);
+    }
+
+    /// TypeScript `getCurrencySymbol`, bound to this locale.
+    pub fn getCurrencySymbol(self: LocaleHandle, code: []const u8, width: CurrencySymbolWidth) []const u8 {
+        return (api.Numbers{ .data = self.data() }).getCurrencySymbol(code, width);
+    }
+
+    /// TypeScript `getCurrencyDisplayName`, bound to this locale.
+    pub fn getCurrencyDisplayName(self: LocaleHandle, gpa: Allocator, code: []const u8, options: CurrencyDisplayNameOptions) Allocator.Error![]u8 {
+        return (api.Numbers{ .data = self.data() }).getCurrencyDisplayName(gpa, code, options);
+    }
+
+    /// TypeScript `getCurrencyPluralName`, bound to this locale.
+    pub fn getCurrencyPluralName(self: LocaleHandle, gpa: Allocator, n: Decimal, code: []const u8, options: CurrencyDisplayNameOptions) Allocator.Error![]u8 {
+        return (api.Numbers{ .data = self.data() }).getCurrencyPluralName(gpa, n, code, options);
+    }
+
+    /// TypeScript `getPluralCardinal`, bound to this locale.
+    pub fn getPluralCardinal(self: LocaleHandle, gpa: Allocator, n: Decimal, options: ?DecimalAdjustOptions) DecimalError![]const u8 {
+        return (api.Numbers{ .data = self.data() }).getPluralCardinal(gpa, n, options);
+    }
+
+    /// TypeScript `getPluralOrdinal`, bound to this locale.
+    pub fn getPluralOrdinal(self: LocaleHandle, gpa: Allocator, n: Decimal, options: ?DecimalAdjustOptions) DecimalError![]const u8 {
+        return (api.Numbers{ .data = self.data() }).getPluralOrdinal(gpa, n, options);
+    }
+
+    /// TypeScript `formatDecimal`, bound to this locale.
+    pub fn formatDecimal(self: LocaleHandle, gpa: Allocator, n: Decimal, options: DecimalFormatOptions) num.Error![]u8 {
+        return (api.Numbers{ .data = self.data() }).formatDecimal(gpa, n, options);
+    }
+
+    /// TypeScript `formatDecimalToParts`, bound to this locale.
+    pub fn formatDecimalToParts(self: LocaleHandle, gpa: Allocator, n: Decimal, options: DecimalFormatOptions) num.Error![]Part {
+        return (api.Numbers{ .data = self.data() }).formatDecimalToParts(gpa, n, options);
+    }
+
+    /// TypeScript `formatCurrency`, bound to this locale.
+    pub fn formatCurrency(self: LocaleHandle, gpa: Allocator, n: Decimal, code: []const u8, options: CurrencyFormatOptions) num.Error![]u8 {
+        return (api.Numbers{ .data = self.data() }).formatCurrency(gpa, n, code, options);
+    }
+
+    /// TypeScript `formatCurrencyToParts`, bound to this locale.
+    pub fn formatCurrencyToParts(self: LocaleHandle, gpa: Allocator, n: Decimal, code: []const u8, options: CurrencyFormatOptions) num.Error![]Part {
+        return (api.Numbers{ .data = self.data() }).formatCurrencyToParts(gpa, n, code, options);
+    }
+
+    /// TypeScript `availableUnits`, bound to this locale.
+    pub fn availableUnits(self: LocaleHandle) []const []const u8 {
+        return (api.Units{ .data = self.data() }).availableUnits();
+    }
+
+    /// TypeScript `getUnitDisplayName`, bound to this locale.
+    pub fn getUnitDisplayName(self: LocaleHandle, name: []const u8, length: ?UnitLength) []const u8 {
+        return (api.Units{ .data = self.data() }).getUnitDisplayName(name, length);
+    }
+
+    /// TypeScript `formatQuantity`, bound to this locale.
+    pub fn formatQuantity(self: LocaleHandle, gpa: Allocator, q: Quantity, options: UnitFormatOptions) DecimalError![]u8 {
+        return (api.Units{ .data = self.data() }).formatQuantity(gpa, q, options);
+    }
+
+    /// TypeScript `formatQuantityToParts`, bound to this locale.
+    pub fn formatQuantityToParts(self: LocaleHandle, gpa: Allocator, q: Quantity, options: UnitFormatOptions) DecimalError![]Part {
+        return (api.Units{ .data = self.data() }).formatQuantityToParts(gpa, q, options);
+    }
+
+    /// TypeScript `formatQuantitySequence`, bound to this locale.
+    pub fn formatQuantitySequence(self: LocaleHandle, gpa: Allocator, qs: []const Quantity, options: UnitFormatOptions) DecimalError![]u8 {
+        return (api.Units{ .data = self.data() }).formatQuantitySequence(gpa, qs, options);
+    }
+
+    /// TypeScript `formatQuantitySequenceToParts`, bound to this locale.
+    pub fn formatQuantitySequenceToParts(self: LocaleHandle, gpa: Allocator, qs: []const Quantity, options: UnitFormatOptions) DecimalError![]Part {
+        return (api.Units{ .data = self.data() }).formatQuantitySequenceToParts(gpa, qs, options);
+    }
+
+    /// TypeScript `timeZoneIds`, bound to this locale.
+    pub fn timeZoneIds(self: LocaleHandle) []const []const u8 {
+        return (api.Calendars{ .data = self.data() }).timeZoneIds();
+    }
+
+    /// TypeScript `firstDayOfWeek`, bound to this locale.
+    pub fn firstDayOfWeek(self: LocaleHandle) i64 {
+        return (api.Calendars{ .data = self.data() }).firstDayOfWeek();
+    }
+
+    /// TypeScript `minDaysInFirstWeek`, bound to this locale.
+    pub fn minDaysInFirstWeek(self: LocaleHandle) i64 {
+        return (api.Calendars{ .data = self.data() }).minDaysInFirstWeek();
+    }
+
+    /// TypeScript `toBuddhistDate`, bound to this locale.
+    pub fn toBuddhistDate(self: LocaleHandle, date: dates.DateInput) calendar_systems.CalendarDate {
+        return (api.Calendars{ .data = self.data() }).toBuddhistDate(date);
+    }
+
+    /// TypeScript `toGregorianDate`, bound to this locale.
+    pub fn toGregorianDate(self: LocaleHandle, date: dates.DateInput) calendar_systems.CalendarDate {
+        return (api.Calendars{ .data = self.data() }).toGregorianDate(date);
+    }
+
+    /// TypeScript `toISO8601Date`, bound to this locale.
+    pub fn toISO8601Date(self: LocaleHandle, date: dates.DateInput) calendar_systems.CalendarDate {
+        return (api.Calendars{ .data = self.data() }).toISO8601Date(date);
+    }
+
+    /// TypeScript `toJapaneseDate`, bound to this locale.
+    pub fn toJapaneseDate(self: LocaleHandle, date: dates.DateInput) calendar_systems.CalendarDate {
+        return (api.Calendars{ .data = self.data() }).toJapaneseDate(date);
+    }
+
+    /// TypeScript `toPersianDate`, bound to this locale.
+    pub fn toPersianDate(self: LocaleHandle, date: dates.DateInput) calendar_systems.CalendarDate {
+        return (api.Calendars{ .data = self.data() }).toPersianDate(date);
+    }
+
+    /// TypeScript `newBuddhistDate`, bound to this locale.
+    pub fn newBuddhistDate(self: LocaleHandle, fields: calendar_systems.CalendarDateFields) calendar_systems.Error!calendar_systems.CalendarDate {
+        return (api.Calendars{ .data = self.data() }).newBuddhistDate(fields);
+    }
+
+    /// TypeScript `newGregorianDate`, bound to this locale.
+    pub fn newGregorianDate(self: LocaleHandle, fields: calendar_systems.CalendarDateFields) calendar_systems.Error!calendar_systems.CalendarDate {
+        return (api.Calendars{ .data = self.data() }).newGregorianDate(fields);
+    }
+
+    /// TypeScript `newISO8601Date`, bound to this locale.
+    pub fn newISO8601Date(self: LocaleHandle, fields: calendar_systems.CalendarDateFields) calendar_systems.Error!calendar_systems.CalendarDate {
+        return (api.Calendars{ .data = self.data() }).newISO8601Date(fields);
+    }
+
+    /// TypeScript `newJapaneseDate`, bound to this locale.
+    pub fn newJapaneseDate(self: LocaleHandle, fields: calendar_systems.CalendarDateFields) calendar_systems.Error!calendar_systems.CalendarDate {
+        return (api.Calendars{ .data = self.data() }).newJapaneseDate(fields);
+    }
+
+    /// TypeScript `newPersianDate`, bound to this locale.
+    pub fn newPersianDate(self: LocaleHandle, fields: calendar_systems.CalendarDateFields) calendar_systems.Error!calendar_systems.CalendarDate {
+        return (api.Calendars{ .data = self.data() }).newPersianDate(fields);
+    }
+
+    /// TypeScript `now`, bound to this locale.
+    pub fn now(self: LocaleHandle, io: std.Io, zone: []const u8) calendar_systems.CalendarDate {
+        return (api.Calendars{ .data = self.data() }).now(io, zone);
+    }
+
+    /// TypeScript `nowGregorian`, bound to this locale.
+    pub fn nowGregorian(self: LocaleHandle, io: std.Io, zone: []const u8) calendar_systems.CalendarDate {
+        return (api.Calendars{ .data = self.data() }).nowGregorian(io, zone);
+    }
+
+    /// TypeScript `nowBuddhist`, bound to this locale.
+    pub fn nowBuddhist(self: LocaleHandle, io: std.Io, zone: []const u8) calendar_systems.CalendarDate {
+        return (api.Calendars{ .data = self.data() }).nowBuddhist(io, zone);
+    }
+
+    /// TypeScript `nowISO8601`, bound to this locale.
+    pub fn nowISO8601(self: LocaleHandle, io: std.Io, zone: []const u8) calendar_systems.CalendarDate {
+        return (api.Calendars{ .data = self.data() }).nowISO8601(io, zone);
+    }
+
+    /// TypeScript `nowJapanese`, bound to this locale.
+    pub fn nowJapanese(self: LocaleHandle, io: std.Io, zone: []const u8) calendar_systems.CalendarDate {
+        return (api.Calendars{ .data = self.data() }).nowJapanese(io, zone);
+    }
+
+    /// TypeScript `nowPersian`, bound to this locale.
+    pub fn nowPersian(self: LocaleHandle, io: std.Io, zone: []const u8) calendar_systems.CalendarDate {
+        return (api.Calendars{ .data = self.data() }).nowPersian(io, zone);
+    }
+
+    /// TypeScript `fieldOfVisualDifference`, bound to this locale.
+    pub fn fieldOfVisualDifference(self: LocaleHandle, a: dates.DateInput, b: dates.DateInput) ?u8 {
+        return (api.Calendars{ .data = self.data() }).fieldOfVisualDifference(a, b);
+    }
+
+    /// TypeScript `formatDate`, bound to this locale.
+    pub fn formatDate(self: LocaleHandle, gpa: Allocator, date: dates.DateInput, options: ?dates.DateFormatOptions) Allocator.Error![]u8 {
+        return (api.Calendars{ .data = self.data() }).formatDate(gpa, date, options);
+    }
+
+    /// TypeScript `formatDateToParts`, bound to this locale.
+    pub fn formatDateToParts(self: LocaleHandle, gpa: Allocator, date: dates.DateInput, options: ?dates.DateFormatOptions) Allocator.Error![]Part {
+        return (api.Calendars{ .data = self.data() }).formatDateToParts(gpa, date, options);
+    }
+
+    /// TypeScript `formatDateRaw`, bound to this locale.
+    pub fn formatDateRaw(self: LocaleHandle, gpa: Allocator, date: dates.DateInput, options: ?dates.DateRawFormatOptions) Allocator.Error![]u8 {
+        return (api.Calendars{ .data = self.data() }).formatDateRaw(gpa, date, options);
+    }
+
+    /// TypeScript `formatDateRawToParts`, bound to this locale.
+    pub fn formatDateRawToParts(self: LocaleHandle, gpa: Allocator, date: dates.DateInput, options: ?dates.DateRawFormatOptions) Allocator.Error![]Part {
+        return (api.Calendars{ .data = self.data() }).formatDateRawToParts(gpa, date, options);
+    }
+
+    /// TypeScript `formatDateInterval`, bound to this locale.
+    pub fn formatDateInterval(self: LocaleHandle, gpa: Allocator, start: dates.DateInput, end: dates.DateInput, options: ?dates.DateIntervalFormatOptions) Allocator.Error![]u8 {
+        return (api.Calendars{ .data = self.data() }).formatDateInterval(gpa, start, end, options);
+    }
+
+    /// TypeScript `formatDateIntervalToParts`, bound to this locale.
+    pub fn formatDateIntervalToParts(self: LocaleHandle, gpa: Allocator, start: dates.DateInput, end: dates.DateInput, options: ?dates.DateIntervalFormatOptions) Allocator.Error![]Part {
+        return (api.Calendars{ .data = self.data() }).formatDateIntervalToParts(gpa, start, end, options);
+    }
+
+    /// TypeScript `formatDateWrapper`, bound to this locale.
+    pub fn formatDateWrapper(self: LocaleHandle, gpa: Allocator, date: []const u8, time: []const u8, options: ?dates.DateWrapperFormatOptions) Allocator.Error![]u8 {
+        return (api.Calendars{ .data = self.data() }).formatDateWrapper(gpa, date, time, options);
+    }
+
+    /// TypeScript `formatDateWrapperToParts`, bound to this locale.
+    pub fn formatDateWrapperToParts(self: LocaleHandle, gpa: Allocator, date: []const Part, time: []const Part, options: ?dates.DateWrapperFormatOptions) Allocator.Error![]Part {
+        return (api.Calendars{ .data = self.data() }).formatDateWrapperToParts(gpa, date, time, options);
+    }
+
+    /// TypeScript `formatRelativeTimeField`, bound to this locale.
+    pub fn formatRelativeTimeField(self: LocaleHandle, gpa: Allocator, value: Decimal, field: []const u8, options: ?dates.RelativeTimeFieldFormatOptions) DecimalError![]u8 {
+        return (api.Calendars{ .data = self.data() }).formatRelativeTimeField(gpa, value, field, options);
+    }
+
+    /// TypeScript `formatRelativeTime`, bound to this locale.
+    pub fn formatRelativeTime(self: LocaleHandle, gpa: Allocator, start: dates.DateInput, end: dates.DateInput, options: ?dates.RelativeTimeFormatOptions) DecimalError![]u8 {
+        return (api.Calendars{ .data = self.data() }).formatRelativeTime(gpa, start, end, options);
+    }
+
+    /// TypeScript `dateField`, bound to this locale.
+    pub fn dateField(self: LocaleHandle, gpa: Allocator, field: []const u8, options: ?dates.DateFieldFormatOptions) Allocator.Error![]u8 {
+        return (api.Calendars{ .data = self.data() }).dateField(gpa, field, options);
+    }
+
+    /// TypeScript `months`, bound to this locale.
+    pub fn months(self: LocaleHandle, gpa: Allocator, options: ?dates.CalendarFieldsOptions) Allocator.Error!dates.FieldMap {
+        return (api.Calendars{ .data = self.data() }).months(gpa, options);
+    }
+
+    /// TypeScript `weekdays`, bound to this locale.
+    pub fn weekdays(self: LocaleHandle, gpa: Allocator, options: ?dates.CalendarFieldsOptions) Allocator.Error!dates.FieldMap {
+        return (api.Calendars{ .data = self.data() }).weekdays(gpa, options);
+    }
+
+    /// TypeScript `quarters`, bound to this locale.
+    pub fn quarters(self: LocaleHandle, gpa: Allocator, options: ?dates.CalendarFieldsOptions) Allocator.Error!dates.FieldMap {
+        return (api.Calendars{ .data = self.data() }).quarters(gpa, options);
+    }
+
+    /// TypeScript `dayPeriods`, bound to this locale.
+    pub fn dayPeriods(self: LocaleHandle, gpa: Allocator, options: ?dates.CalendarFieldsOptions) Allocator.Error!dates.FieldMap {
+        return (api.Calendars{ .data = self.data() }).dayPeriods(gpa, options);
+    }
+
+    /// TypeScript `eras`, bound to this locale.
+    pub fn eras(self: LocaleHandle, gpa: Allocator, options: ?dates.EraFieldOptions) Allocator.Error!dates.FieldMap {
+        return (api.Calendars{ .data = self.data() }).eras(gpa, options);
+    }
+
+    /// TypeScript `timeData`, bound to this locale.
+    pub fn timeData(self: LocaleHandle, gpa: Allocator) Allocator.Error!date_options.TimeData {
+        return (api.Calendars{ .data = self.data() }).timeData(gpa);
+    }
+
+    /// TypeScript `resolveTimeZoneId`, bound to this locale.
+    pub fn resolveTimeZoneId(self: LocaleHandle, id: []const u8) ?[]const u8 {
+        return (api.Calendars{ .data = self.data() }).resolveTimeZoneId(id);
+    }
+
+    /// TypeScript `timeZoneFromUTC`, bound to this locale.
+    pub fn timeZoneFromUTC(self: LocaleHandle, utc: i64, id: []const u8) ?timezones.ZoneInfo {
+        return (api.Calendars{ .data = self.data() }).timeZoneFromUTC(utc, id);
+    }
+
+    /// TypeScript `timeZoneFromWall`, bound to this locale.
+    pub fn timeZoneFromWall(self: LocaleHandle, wall: i64, id: []const u8) ?timezones.WallResult {
+        return (api.Calendars{ .data = self.data() }).timeZoneFromWall(wall, id);
+    }
+
+    /// TypeScript `timeZoneInfo`, bound to this locale.
+    pub fn timeZoneInfo(self: LocaleHandle, zone: []const u8) date_options.TimeZoneInfo {
+        return (api.Calendars{ .data = self.data() }).timeZoneInfo(zone);
+    }
+
+    /// TypeScript `timePeriodToQuantity`, bound to this locale.
+    pub fn timePeriodToQuantity(self: LocaleHandle, a: Allocator, period: calendar_systems.TimePeriod) Allocator.Error![]@import("common/units.zig").Quantity {
+        return (api.Calendars{ .data = self.data() }).timePeriodToQuantity(a, period);
+    }
+
+    /// TypeScript `formatDay`, bound to this locale.
+    pub fn formatDay(self: LocaleHandle, a: Allocator, d: datetime.Day, options: ?days.DayFormatOptions) days.Error![]u8 {
+        return (api.Calendars{ .data = self.data() }).formatDay(a, d, options);
+    }
+
+    /// TypeScript `formatDayToParts`, bound to this locale.
+    pub fn formatDayToParts(self: LocaleHandle, a: Allocator, d: datetime.Day, options: ?days.DayFormatOptions) days.Error![]Part {
+        return (api.Calendars{ .data = self.data() }).formatDayToParts(a, d, options);
+    }
+
+    /// TypeScript `formatDayInterval`, bound to this locale.
+    pub fn formatDayInterval(self: LocaleHandle, a: Allocator, start: datetime.Day, end: datetime.Day, options: ?days.DayIntervalFormatOptions) days.Error![]u8 {
+        return (api.Calendars{ .data = self.data() }).formatDayInterval(a, start, end, options);
+    }
+
+    /// TypeScript `formatDayIntervalToParts`, bound to this locale.
+    pub fn formatDayIntervalToParts(self: LocaleHandle, a: Allocator, start: datetime.Day, end: datetime.Day, options: ?days.DayIntervalFormatOptions) days.Error![]Part {
+        return (api.Calendars{ .data = self.data() }).formatDayIntervalToParts(a, start, end, options);
+    }
+
+    /// TypeScript `formatTimeOfDay`, bound to this locale.
+    pub fn formatTimeOfDay(self: LocaleHandle, a: Allocator, t: datetime.TimeOfDay, options: ?days.TimeOfDayFormatOptions) days.Error![]u8 {
+        return (api.Calendars{ .data = self.data() }).formatTimeOfDay(a, t, options);
+    }
+
+    /// TypeScript `formatTimeOfDayToParts`, bound to this locale.
+    pub fn formatTimeOfDayToParts(self: LocaleHandle, a: Allocator, t: datetime.TimeOfDay, options: ?days.TimeOfDayFormatOptions) days.Error![]Part {
+        return (api.Calendars{ .data = self.data() }).formatTimeOfDayToParts(a, t, options);
+    }
+
+    /// TypeScript `formatDayRelative`, bound to this locale.
+    pub fn formatDayRelative(self: LocaleHandle, a: Allocator, d: datetime.Day, relative_to: datetime.Day, options: ?date_options.RelativeTimeFieldFormatOptions) days.Error![]u8 {
+        return (api.Calendars{ .data = self.data() }).formatDayRelative(a, d, relative_to, options);
+    }
+
+    /// TypeScript `formatInstant`, bound to this locale.
+    pub fn formatInstant(self: LocaleHandle, a: Allocator, instant: datetime.Instant, zone: []const u8, options: ?date_options.DateFormatOptions) days.Error![]u8 {
+        return (api.Calendars{ .data = self.data() }).formatInstant(a, instant, zone, options);
+    }
+
+    /// TypeScript `formatInstantToParts`, bound to this locale.
+    pub fn formatInstantToParts(self: LocaleHandle, a: Allocator, instant: datetime.Instant, zone: []const u8, options: ?date_options.DateFormatOptions) days.Error![]Part {
+        return (api.Calendars{ .data = self.data() }).formatInstantToParts(a, instant, zone, options);
+    }
+
+    /// TypeScript `formatInstantRelative`, bound to this locale.
+    pub fn formatInstantRelative(self: LocaleHandle, a: Allocator, instant: datetime.Instant, relative_to: datetime.Instant, zone: []const u8, options: ?date_options.RelativeTimeFormatOptions) days.Error![]u8 {
+        return (api.Calendars{ .data = self.data() }).formatInstantRelative(a, instant, relative_to, zone, options);
+    }
 };
 
 /// Single-threaded loader and bounded caches. Each returned handle owns its lifetime;
@@ -203,7 +634,7 @@ pub const Framework = struct {
             return .{ .node = node };
         }
 
-        const language = resolved.tag.getLanguage();
+        const language = resolved.tag.tagLanguage();
         const pack_node = if (self.packs.get(language)) |node| blk: {
             node.retain();
             break :blk node;
@@ -279,3 +710,30 @@ fn cacheKey(gpa: Allocator, l: Locale) Allocator.Error![]u8 {
     defer gpa.free(c);
     return std.fmt.allocPrint(gpa, "{s}\x00{s}", .{ l.id, c });
 }
+
+const api = @import("api/api.zig");
+const Decimal = @import("../decimal/decimal.zig").Decimal;
+const DecimalError = @import("../decimal/decimal.zig").Error;
+const Part = @import("../decimal/decimal.zig").Part;
+const gen = @import("api/general.zig");
+const num = @import("api/numbers.zig");
+const uni = @import("api/units.zig");
+const mf = @import("../messageformat/messageformat.zig");
+const DecimalFormatOptions = num.DecimalFormatOptions;
+const CurrencyFormatOptions = num.CurrencyFormatOptions;
+const DecimalAdjustOptions = num.DecimalAdjustOptions;
+const CurrencyDisplayNameOptions = num.CurrencyDisplayNameOptions;
+const CurrencySymbolWidth = num.CurrencySymbolWidth;
+const UnitFormatOptions = uni.UnitFormatOptions;
+const Quantity = uni.Quantity;
+const UnitLength = uni.UnitLength;
+const DisplayNameOptions = gen.DisplayNameOptions;
+const ListPatternType = gen.ListPatternType;
+const NameInput = gen.NameInput;
+const gen_options = gen.options;
+const dates = @import("api/calendars.zig");
+const days = @import("api/days.zig");
+const calendar_systems = @import("systems/calendars/calendars.zig");
+const date_options = @import("common/calendars.zig");
+const datetime = @import("../datetime/datetime.zig");
+const timezones = @import("../timezone/timezone.zig");

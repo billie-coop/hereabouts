@@ -70,7 +70,7 @@ pub fn getCurrencyDisplayName(gpa: Allocator, data: *const LocaleData, code: []c
 /// The pluralized name of a currency for the given number. Owned by `gpa`.
 /// (`getCurrencyPluralName`)
 pub fn getCurrencyPluralName(gpa: Allocator, data: *const LocaleData, n: Decimal, code: []const u8, options: CurrencyDisplayNameOptions) Allocator.Error![]u8 {
-    const plural = plurals.cardinal(data.bundle.plurals, n, 0).name();
+    const plural = plurals.cardinal(data.bundle.plurals, n, 0).toString();
     const name = internal.currencyPluralName(data, code, plural);
     return general.contextTransform(gpa, name, data, options.context orelse .begin_sentence, "currencyName");
 }
@@ -81,7 +81,7 @@ pub fn getPluralCardinal(gpa: Allocator, data: *const LocaleData, n: Decimal, op
     var arena: std.heap.ArenaAllocator = .init(gpa);
     defer arena.deinit();
     const d = if (options) |o| try internal.adjustNumber(arena.allocator(), n, o) else n;
-    return plurals.cardinal(data.bundle.plurals, d, 0).name();
+    return plurals.cardinal(data.bundle.plurals, d, 0).toString();
 }
 
 /// The ordinal plural category of the number, optionally adjusted first. (`getPluralOrdinal`)
@@ -89,7 +89,7 @@ pub fn getPluralOrdinal(gpa: Allocator, data: *const LocaleData, n: Decimal, opt
     var arena: std.heap.ArenaAllocator = .init(gpa);
     defer arena.deinit();
     const d = if (options) |o| try internal.adjustNumber(arena.allocator(), n, o) else n;
-    return plurals.ordinal(data.bundle.plurals, d).name();
+    return plurals.ordinal(data.bundle.plurals, d).toString();
 }
 
 /// Format a number to a string (`formatDecimal`).

@@ -20,7 +20,7 @@ const YearMonthDay = math.YearMonthDay;
 /// it overflows).
 pub fn dateAdd(d: *const CalendarDate, fields: TimePeriod) Error!CalendarDate {
     const jd, const ms = add(d, fields);
-    return core.newDateFromJD(d.database, d.calendar, jd, ms, d.zoneInfo.zoneid, d.firstDay, d.minDays);
+    return core.newDateFromJD(d.database, d.calendar, jd, ms, d.zone_info.zoneid, d.first_day, d.min_days);
 }
 
 /// Subtract the period from the date, returning a new date.
@@ -51,9 +51,9 @@ pub fn add(orig: *const CalendarDate, added: TimePeriod) struct { f64, f64 } {
     // 6. Finally add the time to the new epoch.
 
     // Julian day and milliseconds in UTC
-    var jd = orig.fields[F.JULIAN_DAY];
-    const millis = orig.fields[F.MILLIS_IN_DAY];
-    const offset: f64 = @floatFromInt(orig.zoneInfo.offset);
+    var jd = orig.field_values[F.JULIAN_DAY];
+    const millis = orig.field_values[F.MILLIS_IN_DAY];
+    const offset: f64 = @floatFromInt(orig.zone_info.offset);
 
     // If nothing is being added, the original date.
     if (!hasDate and !hasTime) return .{ jd, millis - offset };
@@ -69,7 +69,7 @@ pub fn add(orig: *const CalendarDate, added: TimePeriod) struct { f64, f64 } {
     }
 
     // Work in UTC then translate back later
-    const date = calendar.dateSet(orig, .{ .zoneId = "UTC" });
+    const date = calendar.dateSet(orig, .{ .zone_id = "UTC" });
 
     // Add years and months directly to the date fields.
     var ymd = math.toYMD(&date);
@@ -80,14 +80,14 @@ pub fn add(orig: *const CalendarDate, added: TimePeriod) struct { f64, f64 } {
     ymd = addYMD(ymd, truncated);
 
     // Julian day of the year and month, plus the days.
-    jd = date.calendar.monthStart(ymd.year, ymd.month - 1, false) + ymd.day + time.day;
+    jd = date.calendar.month_start(ymd.year, ymd.month - 1, false) + ymd.day + time.day;
 
     // Unix epoch of the Julian day and milliseconds, to find the time zone offset.
     var epoch = math.unixEpochFromJD(jd, millis);
 
     // The wall clock offset in the date's zone, which always resolves (dates are only made
     // with resolved zones); if the time zone data was replaced since, keep the epoch.
-    epoch = timezone.utcFromWall(orig.database, orig.zoneInfo.zoneid, epoch) orelse epoch;
+    epoch = timezone.utcFromWall(orig.database, orig.zone_info.zoneid, epoch) orelse epoch;
 
     // Add the time components.
     epoch += math.timeToMillis(truncated);

@@ -63,7 +63,13 @@ import {
   timeZoneOffset,
 } from '../../src/datetime';
 import { daysInMonth, isLeapYear } from '../../src/datetime/day';
-import { tzFromUTC, tzZoneIds } from '../../src/timezone';
+import {
+  defaultTimeZoneData,
+  type RawData,
+  setTimeZoneData,
+  tzFromUTC,
+  tzZoneIds,
+} from '../../src/timezone';
 import { rawdata } from '../../src/timezone/autogen.zonedata';
 import { createTzDatabase, tzdbRecord } from '../../src/timezone/database';
 import { type ConformanceCase, collector, random } from './_shared';
@@ -850,6 +856,23 @@ export const cases = (): ConformanceCase[] => {
       dayAtTime(d, t, z, { disambiguation: mode }),
     );
   }
+
+  // A forward jump crossing midnight with unequal offsets forces the start-of-day
+  // binary search to converge to the exact millisecond, beyond its first midpoint.
+  const midnightGap: RawData = {
+    zoneids: 'Test/Midnight',
+    links: '',
+    index: (86400).toString(36),
+    zoneinfo: ['230_0_0__BEF:0:-1e0|AFT:1:230_1_0'],
+  };
+  add('dayStartInstantCustom', [midnightGap, D(1970, 1, 2), 'Test/Midnight'], () => {
+    setTimeZoneData(midnightGap);
+    try {
+      return dayStartInstant(D(1970, 1, 2), 'Test/Midnight');
+    } finally {
+      setTimeZoneData(defaultTimeZoneData);
+    }
+  });
 
   // Every transition of every zone.
   for (const z of zones) {

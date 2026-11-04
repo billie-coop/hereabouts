@@ -36,8 +36,8 @@ fn flag(v: Value, key: []const u8) bool {
 fn fields(v: Value) C.CalendarDateFields {
     var f: C.CalendarDateFields = .{};
     inline for (std.meta.fields(C.CalendarDateFields)) |s| {
-        if (v.object.get(s.name)) |x| {
-            @field(f, s.name) = if (comptime eql(s.name, "zoneId")) x.string else int(x);
+        if (v.object.get(if (comptime eql(s.name, "zone_id")) "zoneId" else s.name)) |x| {
+            @field(f, s.name) = if (comptime eql(s.name, "zone_id")) x.string else int(x);
         }
     }
     return f;
@@ -51,7 +51,7 @@ fn make(v: Value) !C.CalendarDate {
     var specific: C.CalendarDate = undefined;
     if (v.object.get("fields")) |f| {
         const fs = fields(f);
-        generic = try C.dateFromFields(tz.defaultDatabase, sys, fs, fd, md);
+        generic = try C.CalendarDate.fromFields(tz.defaultDatabase, sys, fs, fd, md);
         specific = try switch (cal) {
             .gregory => C.gregorianDateFromFields(tz.defaultDatabase, fs, fd, md),
             .iso8601 => C.iso8601DateFromFields(tz.defaultDatabase, fs, fd, md),
@@ -62,7 +62,7 @@ fn make(v: Value) !C.CalendarDate {
     } else {
         const epoch = int(get(v, "epoch"));
         const z = if (v.object.get("zone")) |x| x.string else "UTC";
-        generic = C.dateFromUnixEpoch(tz.defaultDatabase, sys, epoch, z, fd, md);
+        generic = C.CalendarDate.fromUnixEpoch(tz.defaultDatabase, sys, epoch, z, fd, md);
         specific = switch (cal) {
             .gregory => C.gregorianDateFromUnixEpoch(tz.defaultDatabase, epoch, z, fd, md),
             .iso8601 => C.iso8601DateFromUnixEpoch(tz.defaultDatabase, epoch, z, fd, md),
@@ -71,10 +71,10 @@ fn make(v: Value) !C.CalendarDate {
             .persian => C.persianDateFromUnixEpoch(tz.defaultDatabase, epoch, z, fd, md),
         };
     }
-    try std.testing.expectEqualSlices(f64, &generic.fields, &specific.fields);
-    try std.testing.expectEqual(generic.firstDay, specific.firstDay);
-    try std.testing.expectEqual(generic.minDays, specific.minDays);
-    try std.testing.expectEqualStrings(generic.zoneInfo.zoneid, specific.zoneInfo.zoneid);
+    try std.testing.expectEqualSlices(f64, &generic.field_values, &specific.field_values);
+    try std.testing.expectEqual(generic.first_day, specific.first_day);
+    try std.testing.expectEqual(generic.min_days, specific.min_days);
+    try std.testing.expectEqualStrings(generic.zone_info.zoneid, specific.zone_info.zoneid);
     return generic;
 }
 fn json(a: Allocator, v: anytype) !Value {
@@ -85,7 +85,7 @@ fn zone(a: Allocator, z: C.DateZoneInfo) !Value {
     return json(a, .{ z.zoneid, z.stableid, z.abbr, z.dst, z.offset, z.metazoneid });
 }
 fn weeks(d: *const C.CalendarDate) [8]i64 {
-    return .{ C.dateWeekOfYear(d), C.dateYearOfWeekOfYear(d), C.dateWeekOfYearISO(d), C.dateYearOfWeekOfYearISO(d), C.dateWeekOfMonth(d), C.dateOrdinalDayOfWeek(d), C.dateDayOfWeekInMonth(d), C.dateRelatedYear(d) };
+    return .{ C.CalendarDate.weekOfYear(d), C.CalendarDate.yearOfWeekOfYear(d), C.CalendarDate.weekOfYearISO(d), C.CalendarDate.yearOfWeekOfYearISO(d), C.CalendarDate.weekOfMonth(d), C.CalendarDate.ordinalDayOfWeek(d), C.CalendarDate.dayOfWeekInMonth(d), C.CalendarDate.relatedYear(d) };
 }
 fn snapshot(a: Allocator, d: *const C.CalendarDate) !Value {
     // Public field accessors are independently checked against the reference field array.
@@ -105,28 +105,28 @@ fn snapshot(a: Allocator, d: *const C.CalendarDate) !Value {
         .{ "dateMilliseconds", C.DateField.MILLIS },
         .{ "dateMillisecondsInDay", C.DateField.MILLIS_IN_DAY },
     }) |entry| {
-        try std.testing.expectEqual(d.fields[entry[1]], @as(f64, @floatFromInt(@field(C, entry[0])(d))));
+        try std.testing.expectEqual(d.field_values[entry[1]], @as(f64, @floatFromInt(@field(C.CalendarDate, dateMethodName(entry[0]))(d))));
     }
-    try std.testing.expectEqualStrings(d.zoneInfo.zoneid, C.dateTimeZoneId(d));
-    try std.testing.expectEqualStrings(d.zoneInfo.stableid, C.dateTimeZoneStableId(d));
-    try std.testing.expectEqualStrings(d.zoneInfo.metazoneid, C.dateMetaZoneId(d));
-    try std.testing.expectEqual(d.zoneInfo.offset, C.dateTimeZoneOffset(d));
+    try std.testing.expectEqualStrings(d.zone_info.zoneid, C.CalendarDate.timeZoneId(d));
+    try std.testing.expectEqualStrings(d.zone_info.stableid, C.CalendarDate.timeZoneStableId(d));
+    try std.testing.expectEqualStrings(d.zone_info.metazoneid, C.CalendarDate.metaZoneId(d));
+    try std.testing.expectEqual(d.zone_info.offset, C.CalendarDate.timeZoneOffset(d));
     return json(a, .{
-        .f = d.fields,
-        .z = .{ d.zoneInfo.zoneid, d.zoneInfo.stableid, d.zoneInfo.abbr, d.zoneInfo.dst, d.zoneInfo.offset, d.zoneInfo.metazoneid },
-        .fd = C.dateFirstDayOfWeek(d),
-        .md = C.dateMinDaysInFirstWeek(d),
-        .e = C.dateUnixEpoch(d),
-        .jd = C.dateJulianDay(d),
-        .type = @tagName(C.dateType(d)),
-        .df = C.dateFields(d),
+        .f = d.field_values,
+        .z = .{ d.zone_info.zoneid, d.zone_info.stableid, d.zone_info.abbr, d.zone_info.dst, d.zone_info.offset, d.zone_info.metazoneid },
+        .fd = C.CalendarDate.firstDayOfWeek(d),
+        .md = C.CalendarDate.minDaysInFirstWeek(d),
+        .e = C.CalendarDate.unixEpoch(d),
+        .jd = C.CalendarDate.julianDay(d),
+        .type = @tagName(C.CalendarDate.type(d)),
+        .df = try fieldsJson(a, C.CalendarDate.fields(d)),
         .w = weeks(d),
-        .b = [8]bool{ C.dateIsAM(d), C.dateIsLeapYear(d), C.dateIsDaylightSavings(d), C.isGregorianDate(d), C.isISO8601Date(d), C.isBuddhistDate(d), C.isJapaneseDate(d), C.isPersianDate(d) },
-        .s = [5][]const u8{ try C.dateToString(a, d), try C.dateToISOString(a, d), try C.dateToLocalISOString(a, d), try C.dateToDateString(a, d), try C.dateToDateTimeString(a, d, .{ .includeZoneOffset = true, .optionalMilliseconds = true }) },
+        .b = [8]bool{ C.CalendarDate.isAM(d), C.CalendarDate.isLeapYear(d), C.CalendarDate.isDaylightSavings(d), C.isGregorianDate(d), C.isISO8601Date(d), C.isBuddhistDate(d), C.isJapaneseDate(d), C.isPersianDate(d) },
+        .s = [5][]const u8{ try C.CalendarDate.toString(d, a), try C.CalendarDate.toISOString(d, a), try C.CalendarDate.toLocalISOString(d, a), try C.CalendarDate.toDateString(d, a), try C.CalendarDate.toDateTimeString(d, a, .{ .include_zone_offset = true, .optional_milliseconds = true }) },
     });
 }
 fn period(v: Value) C.TimePeriod {
-    var p = C.timePeriod();
+    var p = C.TimePeriod.init();
     for (C.TIME_PERIOD_FIELDS) |f| {
         if (v.object.get(@tagName(f))) |x| p.set(f, num(x));
     }
@@ -138,7 +138,7 @@ fn periodJSON(a: Allocator, p: C.TimePeriod) !Value {
     return json(a, values);
 }
 fn options(a: Allocator, v: Value) !C.DateDiffOptions {
-    var o: C.DateDiffOptions = .{ .includeWeeks = flag(v, "includeWeeks"), .rollupFractional = flag(v, "rollupFractional") };
+    var o: C.DateDiffOptions = .{ .include_weeks = flag(v, "includeWeeks"), .rollup_fractional = flag(v, "rollupFractional") };
     if (v.object.get("fields")) |fs| {
         const values = try a.alloc(C.TimePeriodField, fs.array.items.len);
         for (fs.array.items, values) |x, *f| f.* = C.TimePeriodField.fromString(x.string).?;
@@ -166,7 +166,7 @@ fn run(a: Allocator, name: []const u8, args: []const Value) !Value {
         }
         return .{ .array = std.array_list.Managed(Value).fromOwnedSlice(a, result) };
     }
-    if (eql(name, "timePeriod")) return periodJSON(a, C.timePeriod());
+    if (eql(name, "timePeriod")) return periodJSON(a, C.TimePeriod.init());
     if (eql(name, "getTZC")) {
         const t = Z.getTZC(int(args[0]));
         return json(a, .{ t.offset, t.negative, t.hours, t.minutes });
@@ -175,7 +175,7 @@ fn run(a: Allocator, name: []const u8, args: []const Value) !Value {
     if (eql(name, "zoneInfoFromUTC")) return zone(a, C.zoneInfoFromUTC(tz.defaultDatabase, args[0].string, num(args[1])));
     if (eql(name, "era")) {
         const d = C.japaneseDateFromUnixEpoch(tz.defaultDatabase, int(args[0]), "UTC", 1, 1);
-        return json(a, [3]i64{ C.dateEra(&d), C.dateYear(&d), C.dateExtendedYear(&d) });
+        return json(a, [3]i64{ C.CalendarDate.era(&d), C.CalendarDate.year(&d), C.CalendarDate.extendedYear(&d) });
     }
     if (eql(name, "calendarMath")) {
         const sys = C.calendarSystem(C.CalendarType.fromString(args[0].string).?);
@@ -183,10 +183,10 @@ fn run(a: Allocator, name: []const u8, args: []const Value) !Value {
         var days: [12]i64 = undefined;
         var starts: [12]f64 = undefined;
         for (0..12) |m| {
-            days[m] = sys.daysInMonth(y, @intCast(m));
-            starts[m] = sys.monthStart(@floatFromInt(y), @floatFromInt(m), true);
+            days[m] = sys.days_in_month(y, @intCast(m));
+            starts[m] = sys.month_start(@floatFromInt(y), @floatFromInt(m), true);
         }
-        return json(a, .{ sys.daysInYear(y), days, starts, sys.monthStart(@floatFromInt(y), 4.5, false) });
+        return json(a, .{ sys.days_in_year(y), days, starts, sys.month_start(@floatFromInt(y), 4.5, false) });
     }
     if (eql(name, "invalidFields")) {
         _ = make(args[0]) catch |err| return json(a, .{ .@"error" = @errorName(err) });
@@ -197,43 +197,43 @@ fn run(a: Allocator, name: []const u8, args: []const Value) !Value {
     if (eql(name, "weeks")) return json(a, weeks(&d));
     if (eql(name, "dateAdd") or eql(name, "dateSubtract")) {
         const p = period(args[1]);
-        const added = if (eql(name, "dateAdd")) try C.dateAdd(&d, p) else try C.dateSubtract(&d, p);
+        const added = if (eql(name, "dateAdd")) try C.CalendarDate.add(&d, p) else try C.CalendarDate.subtract(&d, p);
         return snapshot(a, &added);
     }
     if (eql(name, "dateSet")) {
-        const n = C.dateSet(&d, fields(args[1]));
+        const n = C.CalendarDate.set(&d, fields(args[1]));
         return snapshot(a, &n);
     }
     if (eql(name, "dateWithZone")) {
-        const n = C.dateWithZone(&d, args[1].string);
+        const n = C.CalendarDate.withZone(&d, args[1].string);
         return snapshot(a, &n);
     }
     if (eql(name, "dateStartOf") or eql(name, "dateEndOf")) {
         const f = C.CalendarDateModField.fromString(args[1].string).?;
-        const n = if (eql(name, "dateStartOf")) C.dateStartOf(&d, f) else C.dateEndOf(&d, f);
+        const n = if (eql(name, "dateStartOf")) C.CalendarDate.startOf(&d, f) else C.CalendarDate.endOf(&d, f);
         return snapshot(a, &n);
     }
     if (eql(name, "dateToTimeString")) {
-        return json(a, try C.dateToTimeString(a, &d, .{
-            .includeZoneId = flag(args[1], "includeZoneId"),
-            .includeZoneOffset = flag(args[1], "includeZoneOffset"),
-            .optionalMilliseconds = flag(args[1], "optionalMilliseconds"),
+        return json(a, try C.CalendarDate.toTimeString(&d, a, .{
+            .include_zone_id = flag(args[1], "includeZoneId"),
+            .include_zone_offset = flag(args[1], "includeZoneOffset"),
+            .optional_milliseconds = flag(args[1], "optionalMilliseconds"),
         }));
     }
     const other = try make(args[1]);
-    if (eql(name, "dateCompare")) return json(a, C.dateCompare(&d, &other));
+    if (eql(name, "dateCompare")) return json(a, C.CalendarDate.compare(&d, &other));
     if (eql(name, "dateFieldOfVisualDifference")) {
-        if (C.dateFieldOfVisualDifference(&d, &other)) |ch| return json(a, &[_]u8{ch});
+        if (C.CalendarDate.fieldOfVisualDifference(&d, &other)) |ch| return json(a, &[_]u8{ch});
         return .null;
     }
     if (eql(name, "dateRelativeTime")) {
         const f = if (args[2] == .null) null else C.TimePeriodField.fromString(args[2].string);
-        const rel = C.dateRelativeTime(&d, &other, f, try options(a, args[3]));
+        const rel = C.CalendarDate.relativeTime(&d, &other, f, try options(a, args[3]));
         return json(a, .{ @tagName(rel.field), rel.value });
     }
     const o = try options(a, args[2]);
     inline for (.{ "dateUntil", "dateSince", "dateDifference", "dateDifferenceSigned" }) |fn_name| {
-        if (eql(name, fn_name)) return periodJSON(a, @field(C, fn_name)(&d, &other, o));
+        if (eql(name, fn_name)) return periodJSON(a, @field(C.CalendarDate, dateMethodName(fn_name))(&d, &other, o));
     }
     std.debug.print("unknown operation {s}\n", .{name});
     return error.UnknownOperation;
@@ -316,25 +316,33 @@ fn same(w: Value, g: Value) bool {
 test "calendar strings have caller ownership; invalid fields return errors" {
     const gpa = std.testing.allocator;
     for (std.enums.values(C.CalendarType)) |t| {
-        const d = C.dateFromUnixEpoch(tz.defaultDatabase, C.calendarSystem(t), 1762074000123, "America/Vancouver", 1, 1);
-        const changed = try C.dateAdd(&d, .{ .month = 1, .day = -2, .hour = 3 });
-        _ = try C.dateSubtract(&changed, .{ .millis = 0.7 });
-        const one = try C.dateToString(gpa, &d);
+        const d = C.CalendarDate.fromUnixEpoch(tz.defaultDatabase, C.calendarSystem(t), 1762074000123, "America/Vancouver", 1, 1);
+        const changed = try C.CalendarDate.add(&d, .{ .month = 1, .day = -2, .hour = 3 });
+        _ = try C.CalendarDate.subtract(&changed, .{ .millis = 0.7 });
+        const one = try C.CalendarDate.toString(&d, gpa);
         defer gpa.free(one);
-        const two = try C.dateToISOString(gpa, &d);
+        const two = try C.CalendarDate.toISOString(&d, gpa);
         defer gpa.free(two);
-        const three = try C.dateToLocalISOString(gpa, &d);
+        const three = try C.CalendarDate.toLocalISOString(&d, gpa);
         defer gpa.free(three);
-        const four = try C.dateToDateString(gpa, &d);
+        const four = try C.CalendarDate.toDateString(&d, gpa);
         defer gpa.free(four);
-        const five = try C.dateToTimeString(gpa, &d, .{});
+        const five = try C.CalendarDate.toTimeString(&d, gpa, .{});
         defer gpa.free(five);
-        const six = try C.dateToDateTimeString(gpa, &d, .{});
+        const six = try C.CalendarDate.toDateTimeString(&d, gpa, .{});
         defer gpa.free(six);
-        _ = C.dateUntil(&d, &changed, .{});
+        _ = C.CalendarDate.until(&d, &changed, .{});
     }
     try std.testing.expectError(error.InvalidFields, C.japaneseDateFromFields(tz.defaultDatabase, .{}, 1, 1));
     try std.testing.expectError(error.InvalidFields, C.iso8601DateFromFields(tz.defaultDatabase, .{ .month = 1 }, 1, 1));
     const d = C.gregorianDateFromUnixEpoch(tz.defaultDatabase, 0, "UTC", 1, 1);
-    try std.testing.expectError(error.InvalidDate, C.dateAdd(&d, .{ .hour = std.math.inf(f64) }));
+    try std.testing.expectError(error.InvalidDate, C.CalendarDate.add(&d, .{ .hour = std.math.inf(f64) }));
+}
+
+fn dateMethodName(comptime name: []const u8) []const u8 {
+    return std.fmt.comptimePrint("{c}{s}", .{ std.ascii.toLower(name[4]), name[5..] });
+}
+
+fn fieldsJson(a: Allocator, f: C.CalendarDateFields) !Value {
+    return json(a, .{ .year = f.year, .month = f.month, .day = f.day, .hour = f.hour, .minute = f.minute, .second = f.second, .millis = f.millis, .zoneId = f.zone_id });
 }

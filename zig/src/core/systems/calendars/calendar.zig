@@ -39,21 +39,21 @@ pub const CalendarDateModField = enum {
 /// Options of `dateToTimeString` and `dateToDateTimeString`.
 pub const TimeStringOptions = struct {
     /// Include the time zone id.
-    includeZoneId: bool = false,
+    include_zone_id: bool = false,
     /// Include the time zone offset.
-    includeZoneOffset: bool = false,
+    include_zone_offset: bool = false,
     /// Only output milliseconds if non-zero.
-    optionalMilliseconds: bool = false,
+    optional_milliseconds: bool = false,
 };
 
 /// Options of the date difference functions.
 pub const DateDiffOptions = struct {
     /// Calculate weeks.
-    includeWeeks: bool = false,
+    include_weeks: bool = false,
     /// Express the result in these fields (null for the default fields).
     fields: ?[]const interval.TimePeriodField = null,
     /// Roll smaller fields up into a fraction of the smallest field requested.
-    rollupFractional: bool = false,
+    rollup_fractional: bool = false,
 };
 
 /// Fields compared by `dateFieldOfVisualDifference`, with their pattern field characters.
@@ -75,7 +75,7 @@ pub fn dateType(d: *const CalendarDate) CalendarType {
 
 /// Unix epoch of the date, as the double the TypeScript computes.
 pub fn unixEpoch(d: *const CalendarDate) f64 {
-    return d.fields[F.LOCAL_MILLIS] - @as(f64, @floatFromInt(d.zoneInfo.offset));
+    return d.field_values[F.LOCAL_MILLIS] - @as(f64, @floatFromInt(d.zone_info.offset));
 }
 
 /// Unix epoch in milliseconds (UTC).
@@ -85,53 +85,53 @@ pub fn dateUnixEpoch(d: *const CalendarDate) i64 {
 
 /// First day of the week, 1 = Sunday .. 7 = Saturday.
 pub fn dateFirstDayOfWeek(d: *const CalendarDate) i64 {
-    return d.firstDay;
+    return d.first_day;
 }
 
 /// Minimum days in the first week of the year.
 pub fn dateMinDaysInFirstWeek(d: *const CalendarDate) i64 {
-    return d.minDays;
+    return d.min_days;
 }
 
 /// The real Julian day (fractional), UTC.
 pub fn dateJulianDay(d: *const CalendarDate) f64 {
-    const ms = (d.fields[F.MILLIS_IN_DAY] - @as(f64, @floatFromInt(d.zoneInfo.offset))) / C.ONE_DAY_MS;
-    return d.fields[F.JULIAN_DAY] - 0.5 + ms;
+    const ms = (d.field_values[F.MILLIS_IN_DAY] - @as(f64, @floatFromInt(d.zone_info.offset))) / C.ONE_DAY_MS;
+    return d.field_values[F.JULIAN_DAY] - 0.5 + ms;
 }
 
 /// CLDR's modified Julian day, the basis for all date calculations.
 pub fn dateModifiedJulianDay(d: *const CalendarDate) i64 {
-    return toInt(d.fields[F.JULIAN_DAY]);
+    return toInt(d.field_values[F.JULIAN_DAY]);
 }
 
 /// Era.
 pub fn dateEra(d: *const CalendarDate) i64 {
-    return toInt(d.fields[F.ERA]);
+    return toInt(d.field_values[F.ERA]);
 }
 
 /// Extended year.
 pub fn dateExtendedYear(d: *const CalendarDate) i64 {
-    return toInt(d.fields[F.EXTENDED_YEAR]);
+    return toInt(d.field_values[F.EXTENDED_YEAR]);
 }
 
 /// Year (of the era).
 pub fn dateYear(d: *const CalendarDate) i64 {
-    return toInt(d.fields[F.YEAR]);
+    return toInt(d.field_values[F.YEAR]);
 }
 
 /// Related (Gregorian) year.
 pub fn dateRelatedYear(d: *const CalendarDate) i64 {
-    return toInt(d.fields[F.EXTENDED_YEAR] + @as(f64, @floatFromInt(d.calendar.relatedYearOffset)));
+    return toInt(d.field_values[F.EXTENDED_YEAR] + @as(f64, @floatFromInt(d.calendar.related_year_offset)));
 }
 
 /// Year of the week of year, using the date's week rules.
 pub fn dateYearOfWeekOfYear(d: *const CalendarDate) i64 {
-    return toInt(weekOfYear(d, d.firstDay, d.minDays)[1]);
+    return toInt(weekOfYear(d, d.first_day, d.min_days)[1]);
 }
 
 /// Week of year, using the date's week rules.
 pub fn dateWeekOfYear(d: *const CalendarDate) i64 {
-    return toInt(weekOfYear(d, d.firstDay, d.minDays)[0]);
+    return toInt(weekOfYear(d, d.first_day, d.min_days)[0]);
 }
 
 /// Year of the ISO week of year.
@@ -146,105 +146,105 @@ pub fn dateWeekOfYearISO(d: *const CalendarDate) i64 {
 
 /// Ordinal month, one-based, e.g. Gregorian January = 1.
 pub fn dateMonth(d: *const CalendarDate) i64 {
-    return toInt(d.fields[F.MONTH]);
+    return toInt(d.field_values[F.MONTH]);
 }
 
 /// Week of the month, using the date's week rules. In the United States (weeks start on Sunday)
 /// Saturday 9/1/2018 is in week 1 and Sunday 9/2/2018 begins week 2.
 pub fn dateWeekOfMonth(d: *const CalendarDate) i64 {
-    const dom = d.fields[F.DAY_OF_MONTH];
-    return toInt(weekNumber(@floatFromInt(d.firstDay), @floatFromInt(d.minDays), dom, dom, d.fields[F.DAY_OF_WEEK]));
+    const dom = d.field_values[F.DAY_OF_MONTH];
+    return toInt(weekNumber(@floatFromInt(d.first_day), @floatFromInt(d.min_days), dom, dom, d.field_values[F.DAY_OF_WEEK]));
 }
 
 /// Day of year.
 pub fn dateDayOfYear(d: *const CalendarDate) i64 {
-    return toInt(d.fields[F.DAY_OF_YEAR]);
+    return toInt(d.field_values[F.DAY_OF_YEAR]);
 }
 
 /// Day of the week, 1 = Sunday .. 7 = Saturday.
 pub fn dateDayOfWeek(d: *const CalendarDate) i64 {
-    return toInt(d.fields[F.DAY_OF_WEEK]);
+    return toInt(d.field_values[F.DAY_OF_WEEK]);
 }
 
 /// Ordinal day of the week: 1 on the first day of the (locale's) week, 2 on the second, ...
 pub fn dateOrdinalDayOfWeek(d: *const CalendarDate) i64 {
-    const weekday = d.fields[F.DAY_OF_WEEK];
-    return toInt(@rem(7 - @as(f64, @floatFromInt(d.firstDay)) + weekday, 7) + 1);
+    const weekday = d.field_values[F.DAY_OF_WEEK];
+    return toInt(@rem(7 - @as(f64, @floatFromInt(d.first_day)) + weekday, 7) + 1);
 }
 
 /// Which occurrence of its weekday in the month the date is, for "2nd Sunday in August".
 pub fn dateDayOfWeekInMonth(d: *const CalendarDate) i64 {
-    return toInt(util.toInt32((d.fields[F.DAY_OF_MONTH] - 1) / 7) + 1);
+    return toInt(util.toInt32((d.field_values[F.DAY_OF_MONTH] - 1) / 7) + 1);
 }
 
 /// Day of month.
 pub fn dateDayOfMonth(d: *const CalendarDate) i64 {
-    return toInt(d.fields[F.DAY_OF_MONTH]);
+    return toInt(d.field_values[F.DAY_OF_MONTH]);
 }
 
 /// True before noon.
 pub fn dateIsAM(d: *const CalendarDate) bool {
-    return d.fields[F.AM_PM] == 0;
+    return d.field_values[F.AM_PM] == 0;
 }
 
 /// Hour of the morning or afternoon for the 12-hour clock (0 - 11); noon and midnight are 0.
 pub fn dateHour(d: *const CalendarDate) i64 {
-    return toInt(d.fields[F.HOUR]);
+    return toInt(d.field_values[F.HOUR]);
 }
 
 /// Hour of the day for the 24-hour clock (0 - 23).
 pub fn dateHourOfDay(d: *const CalendarDate) i64 {
-    return toInt(d.fields[F.HOUR_OF_DAY]);
+    return toInt(d.field_values[F.HOUR_OF_DAY]);
 }
 
 /// Minute of the hour (0 - 59).
 pub fn dateMinute(d: *const CalendarDate) i64 {
-    return toInt(d.fields[F.MINUTE]);
+    return toInt(d.field_values[F.MINUTE]);
 }
 
 /// Second of the minute (0 - 59).
 pub fn dateSecond(d: *const CalendarDate) i64 {
-    return toInt(d.fields[F.SECOND]);
+    return toInt(d.field_values[F.SECOND]);
 }
 
 /// Milliseconds of the second.
 pub fn dateMilliseconds(d: *const CalendarDate) i64 {
-    return toInt(d.fields[F.MILLIS]);
+    return toInt(d.field_values[F.MILLIS]);
 }
 
 /// Milliseconds in the day.
 pub fn dateMillisecondsInDay(d: *const CalendarDate) i64 {
-    return toInt(d.fields[F.MILLIS_IN_DAY]);
+    return toInt(d.field_values[F.MILLIS_IN_DAY]);
 }
 
 /// CLDR metazone id, or "" if the zone has none.
 pub fn dateMetaZoneId(d: *const CalendarDate) []const u8 {
-    return d.zoneInfo.metazoneid;
+    return d.zone_info.metazoneid;
 }
 
 /// Time zone id.
 pub fn dateTimeZoneId(d: *const CalendarDate) []const u8 {
-    return d.zoneInfo.zoneid;
+    return d.zone_info.zoneid;
 }
 
 /// CLDR stable time zone id.
 pub fn dateTimeZoneStableId(d: *const CalendarDate) []const u8 {
-    return d.zoneInfo.stableid;
+    return d.zone_info.stableid;
 }
 
 /// Time zone offset in milliseconds.
 pub fn dateTimeZoneOffset(d: *const CalendarDate) i64 {
-    return d.zoneInfo.offset;
+    return d.zone_info.offset;
 }
 
 /// True in a leap year.
 pub fn dateIsLeapYear(d: *const CalendarDate) bool {
-    return d.fields[F.IS_LEAP] == 1;
+    return d.field_values[F.IS_LEAP] == 1;
 }
 
 /// True in daylight saving time.
 pub fn dateIsDaylightSavings(d: *const CalendarDate) bool {
-    return d.zoneInfo.dst == 1;
+    return d.zone_info.dst == 1;
 }
 
 /// The largest field in which the dates visually differ, as a date pattern field character
@@ -252,7 +252,7 @@ pub fn dateIsDaylightSavings(d: *const CalendarDate) bool {
 /// or null if none does. Assumes the dates are of the same type and time zone offset.
 pub fn dateFieldOfVisualDifference(d: *const CalendarDate, other: *const CalendarDate) ?u8 {
     for (differenceFields) |e| {
-        if (d.fields[e[0]] != other.fields[e[0]]) return e[1];
+        if (d.field_values[e[0]] != other.field_values[e[0]]) return e[1];
     }
     return null;
 }
@@ -266,7 +266,7 @@ pub fn dateCompare(a: *const CalendarDate, b: *const CalendarDate) i32 {
 
 /// All the date and time fields (the year is the extended year).
 pub fn dateFields(d: *const CalendarDate) CalendarDateFields {
-    const f = &d.fields;
+    const f = &d.field_values;
     return .{
         .year = toInt(f[F.EXTENDED_YEAR]),
         .month = toInt(f[F.MONTH]),
@@ -275,7 +275,7 @@ pub fn dateFields(d: *const CalendarDate) CalendarDateFields {
         .minute = toInt(f[F.MINUTE]),
         .second = toInt(f[F.SECOND]),
         .millis = toInt(f[F.MILLIS]),
-        .zoneId = d.zoneInfo.zoneid,
+        .zone_id = d.zone_info.zoneid,
     };
 }
 
@@ -300,12 +300,12 @@ fn writeYMD(w: *Writer, f: *const types.Fields) Writer.Error!void {
 
 /// Write the date as `YYYY-MM-DD` (a negative year gets a minus sign).
 pub fn writeDateString(w: *Writer, d: *const CalendarDate) Writer.Error!void {
-    try writeYMD(w, &d.fields);
+    try writeYMD(w, &d.field_values);
 }
 
 /// Write the time as `HH:MM:SS.mmm`, with the options' extras.
 pub fn writeTimeString(w: *Writer, d: *const CalendarDate, options: TimeStringOptions) Writer.Error!void {
-    const f = &d.fields;
+    const f = &d.field_values;
     try zeropad(w, f[F.HOUR_OF_DAY], 2);
     try w.writeByte(':');
     try zeropad(w, f[F.MINUTE], 2);
@@ -313,14 +313,14 @@ pub fn writeTimeString(w: *Writer, d: *const CalendarDate, options: TimeStringOp
     try zeropad(w, f[F.SECOND], 2);
     const ms = f[F.MILLIS];
     // Check if the caller disabled milliseconds when zero
-    if (!(options.optionalMilliseconds and ms == 0)) {
+    if (!(options.optional_milliseconds and ms == 0)) {
         try w.writeByte('.');
         try zeropad(w, ms, 3);
     }
-    if (options.includeZoneOffset) try writeZoneOffset(w, d);
-    if (options.includeZoneId) {
+    if (options.include_zone_offset) try writeZoneOffset(w, d);
+    if (options.include_zone_id) {
         try w.writeByte(' ');
-        try w.writeAll(d.zoneInfo.zoneid);
+        try w.writeAll(d.zone_info.zoneid);
     }
 }
 
@@ -337,14 +337,14 @@ pub fn writeString(w: *Writer, d: *const CalendarDate) Writer.Error!void {
     try w.writeByte(' ');
     try writeDateString(w, d);
     try w.writeByte(' ');
-    try writeTimeString(w, d, .{ .includeZoneId = true });
+    try writeTimeString(w, d, .{ .include_zone_id = true });
 }
 
 /// Write the ISO-8601 string of the date in UTC (`utc`) or with its zone's offset. Always in the
 /// Gregorian calendar.
 pub fn writeISOString(w: *Writer, d: *const CalendarDate, utc: bool) Writer.Error!void {
-    const g = core.newDate(d.database, &gregorian.gregorianCalendar, unixEpoch(d), if (utc) "Etc/UTC" else d.zoneInfo.zoneid, d.firstDay, d.minDays);
-    const f = &g.fields;
+    const g = core.newDate(d.database, &gregorian.gregorianCalendar, unixEpoch(d), if (utc) "Etc/UTC" else d.zone_info.zoneid, d.first_day, d.min_days);
+    const f = &g.field_values;
     try writeYMD(w, f);
     try w.writeByte('T');
     try zeropad(w, f[F.HOUR_OF_DAY], 2);
@@ -355,7 +355,7 @@ pub fn writeISOString(w: *Writer, d: *const CalendarDate, utc: bool) Writer.Erro
     try w.writeByte('.');
     try zeropad(w, f[F.MILLIS], 3);
     if (utc) return w.writeByte('Z');
-    const o = util.toInt32(@as(f64, @floatFromInt(d.zoneInfo.offset)) / C.ONE_MINUTE_MS);
+    const o = util.toInt32(@as(f64, @floatFromInt(d.zone_info.offset)) / C.ONE_MINUTE_MS);
     try w.writeByte(if (o < 0) '-' else '+');
     try zeropad(w, util.toInt32(o / 60), 2);
     try w.writeByte(':');
@@ -363,7 +363,7 @@ pub fn writeISOString(w: *Writer, d: *const CalendarDate, utc: bool) Writer.Erro
 }
 
 fn writeZoneOffset(w: *Writer, d: *const CalendarDate) Writer.Error!void {
-    const t = zoneutil.getTZC(d.zoneInfo.offset);
+    const t = zoneutil.getTZC(d.zone_info.offset);
     const zero = t.hours == 0 and t.minutes == 0;
     try w.writeByte(if (zero) '+' else if (t.negative) '-' else '+');
     try zeropad(w, @floatFromInt(t.hours), 2);
@@ -415,13 +415,13 @@ pub fn dateToString(gpa: Allocator, d: *const CalendarDate) Allocator.Error![]u8
 /// Gregorian calendar). Out of range fields are clamped.
 pub fn dateSet(d: *const CalendarDate, fields: CalendarDateFields) CalendarDate {
     const w = core.wallFields(dateFields(d).merge(fields)) catch unreachable;
-    const r = d.calendar.resolveFields(d.database, w, d.zoneInfo.zoneid, @floatFromInt(d.zoneInfo.offset));
-    return core.newDate(d.database, d.calendar, r.epoch, r.zoneId, d.firstDay, d.minDays);
+    const r = d.calendar.resolve_fields(d.database, w, d.zone_info.zoneid, @floatFromInt(d.zone_info.offset));
+    return core.newDate(d.database, d.calendar, r.epoch, r.zone_id, d.first_day, d.min_days);
 }
 
 /// The same instant in another time zone.
 pub fn dateWithZone(d: *const CalendarDate, zoneId: []const u8) CalendarDate {
-    return core.newDate(d.database, d.calendar, unixEpoch(d), zoneId, d.firstDay, d.minDays);
+    return core.newDate(d.database, d.calendar, unixEpoch(d), zoneId, d.first_day, d.min_days);
 }
 
 /// Start of the year, month, day, ... of the date.
@@ -452,7 +452,7 @@ pub fn dateEndOf(d: *const CalendarDate, field: CalendarDateModField) CalendarDa
 fn weekOfYear(d: *const CalendarDate, firstDayArg: i64, minDaysArg: i64) [2]f64 {
     const firstDay: f64 = @floatFromInt(firstDayArg);
     const minDays: f64 = @floatFromInt(minDaysArg);
-    const f = &d.fields;
+    const f = &d.field_values;
     const dow = f[F.DAY_OF_WEEK];
     const doy = f[F.DAY_OF_YEAR];
     const eyear = f[F.EXTENDED_YEAR];
@@ -482,7 +482,7 @@ fn weekOfYear(d: *const CalendarDate, firstDayArg: i64, minDaysArg: i64) [2]f64 
 }
 
 fn yearLength(d: *const CalendarDate, y: f64) f64 {
-    return d.calendar.monthStart(y + 1, 0, false) - d.calendar.monthStart(y, 0, false);
+    return d.calendar.month_start(y + 1, 0, false) - d.calendar.month_start(y, 0, false);
 }
 
 fn weekNumber(firstDay: f64, minDays: f64, desiredDay: f64, dayOfPeriod: f64, dayOfWeek: f64) f64 {

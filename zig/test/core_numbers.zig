@@ -305,10 +305,11 @@ fn symbolsJson(a: Allocator, s: anytype) !Value {
     var o: std.json.ObjectMap = .empty;
     inline for (std.meta.fields(@TypeOf(s))) |f| {
         const v = @field(s, f.name);
+        const key = try snakeToCamel(a, f.name);
         if (@TypeOf(v) == []const u8) {
-            if (v.len > 0) try o.put(a, f.name, .{ .string = v });
+            if (v.len > 0) try o.put(a, key, .{ .string = v });
         } else {
-            try o.put(a, f.name, try symbolsJson(a, v));
+            try o.put(a, key, try symbolsJson(a, v));
         }
     }
     return .{ .object = o };
@@ -649,7 +650,7 @@ test "no leaks" {
     const pack = try core.loadPack(gpa, packs.get("sr").?);
     defer pack.deinit();
     const l = try core.resolveLocale(gpa, "sr-Latn-BA");
-    const b = try core.packGet(gpa, pack, l.tag);
+    const b = try core.Pack.get(pack, gpa, l.tag);
     var ld = try LocaleData.initDefault(gpa, l, b);
     defer ld.deinit();
     const s = try N.formatCurrency(gpa, &ld, D.ONE, "BAM", .{ .style = .name });
@@ -657,4 +658,24 @@ test "no leaks" {
     try std.testing.expect(std.mem.startsWith(u8, s, "1,00 "));
     try std.testing.expectError(error.InvalidPack, core.loadPack(gpa, "{}"));
     try std.testing.expectError(error.InvalidPack, core.loadPack(gpa, "not json"));
+}
+
+fn snakeToCamel(a: Allocator, name: []const u8) Allocator.Error![]const u8 {
+    var count: usize = 0;
+    for (name) |c| if (c != '_') {
+        count += 1;
+    };
+    const out = try a.alloc(u8, count);
+    var n: usize = 0;
+    var upper = false;
+    for (name) |c| {
+        if (c == '_') {
+            upper = true;
+            continue;
+        }
+        out[n] = if (upper) std.ascii.toUpper(c) else c;
+        upper = false;
+        n += 1;
+    }
+    return out;
 }

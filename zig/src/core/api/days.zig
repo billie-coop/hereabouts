@@ -16,15 +16,15 @@ fn check(s: ?[]const u8, allowed: []const u8) Error!void {
     };
 }
 fn inRange(d: dt.Day) Error!void {
-    const n = try dt.dayToEpochDay(d);
-    const lo = try dt.dayToEpochDay(.{ .year = 1582, .month = 10, .day = 15 });
-    const hi = try dt.dayToEpochDay(.{ .year = 8652, .month = 12, .day = 31 });
+    const n = try dt.Day.toEpochDay(d);
+    const lo = try dt.Day.toEpochDay(.{ .year = 1582, .month = 10, .day = 15 });
+    const hi = try dt.Day.toEpochDay(.{ .year = 8652, .month = 12, .day = 31 });
     if (n < lo or n > hi) return error.DateOutOfRange;
 }
 fn fromDay(data: *const LocaleData, d: dt.Day, t: ?dt.TimeOfDay) Error!dates.DateInput {
     try inRange(d);
-    if (t) |time| _ = try dt.timeOfDayToMillis(time);
-    return .{ .calendar = try dates.newGregorianDate(data, .{ .year = d.year, .month = d.month, .day = d.day, .hour = if (t) |v| v.hour else 0, .minute = if (t) |v| v.minute else 0, .second = if (t) |v| v.second else 0, .millis = if (t) |v| v.millis else 0, .zoneId = "Etc/UTC" }) };
+    if (t) |time| _ = try dt.TimeOfDay.toMillis(time);
+    return .{ .calendar = try dates.newGregorianDate(data, .{ .year = d.year, .month = d.month, .day = d.day, .hour = if (t) |v| v.hour else 0, .minute = if (t) |v| v.minute else 0, .second = if (t) |v| v.second else 0, .millis = if (t) |v| v.millis else 0, .zone_id = "Etc/UTC" }) };
 }
 fn dayOptions(o: DayFormatOptions) Error!opts.DateFormatOptions {
     try check(o.skeleton, "GyYuUrQqMLlwWdDFgEec");
@@ -65,7 +65,7 @@ pub fn formatTimeOfDayToParts(a: A, data: *const LocaleData, t: dt.TimeOfDay, op
 pub fn formatDayRelative(a: A, data: *const LocaleData, d: dt.Day, relative_to: dt.Day, options: ?opts.RelativeTimeFieldFormatOptions) Error![]u8 {
     var arena: std.heap.ArenaAllocator = .init(a);
     defer arena.deinit();
-    return dates.formatRelativeTimeField(a, data, try D.fromInt(arena.allocator(), try dt.dayUntil(relative_to, d, .days)), "day", options);
+    return dates.formatRelativeTimeField(a, data, try D.fromInt(arena.allocator(), try dt.Day.until(relative_to, d, .days)), "day", options);
 }
 pub fn formatInstant(a: A, data: *const LocaleData, instant: dt.Instant, zone: []const u8, options: ?opts.DateFormatOptions) Error![]u8 {
     return dates.formatDate(a, data, try zoned(data, instant, zone), options);

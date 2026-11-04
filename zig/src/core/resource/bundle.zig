@@ -72,8 +72,8 @@ pub fn stringBundle(
     errdefer tag.deinit(gpa);
     const id = try tag.compact(gpa);
     errdefer gpa.free(id);
-    const language = tag.getLanguage();
-    const region = tag.getRegion();
+    const language = tag.tagLanguage();
+    const region = tag.tagRegion();
 
     // Empty string will select the preferred calendar for the region.
     var calendar_system: []const u8 = "";
@@ -90,7 +90,7 @@ pub fn stringBundle(
 
     const language_region = try std.fmt.allocPrint(gpa, "{s}-{s}", .{ language, region });
     errdefer gpa.free(language_region);
-    const language_script = try std.fmt.allocPrint(gpa, "{s}-{s}", .{ language, tag.getScript() });
+    const language_script = try std.fmt.allocPrint(gpa, "{s}-{s}", .{ language, tag.tagScript() });
 
     return .{
         .id = id,

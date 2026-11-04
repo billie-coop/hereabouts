@@ -17,15 +17,15 @@ const Error = types.Error;
 pub fn newDate(db: *const tzdb.Database, calendar: *const CalendarSystem, epoch: f64, zoneId: []const u8, firstDay: i64, minDays: i64) CalendarDate {
     var f = fields_.emptyFields();
     const zoneInfo = math.initBaseFromUnixEpoch(db, &f, epoch, zoneId);
-    calendar.computeFields(&f);
-    const rule = calendar.weekRule;
+    calendar.compute_fields(&f);
+    const rule = calendar.week_rule;
     return .{
         .calendar = calendar,
         .database = db,
-        .fields = f,
-        .zoneInfo = zoneInfo,
-        .firstDay = if (rule) |r| r.firstDay else firstDay,
-        .minDays = if (rule) |r| r.minDays else minDays,
+        .field_values = f,
+        .zone_info = zoneInfo,
+        .first_day = if (rule) |r| r.first_day else firstDay,
+        .min_days = if (rule) |r| r.min_days else minDays,
     };
 }
 
@@ -54,10 +54,10 @@ pub fn dateFromUnixEpoch(db: *const tzdb.Database, calendar: *const CalendarSyst
 /// (ISO-8601 and Japanese have none; the TypeScript throws a TypeError, or for a missing day
 /// returns a date of NaN fields).
 pub fn dateFromFields(db: *const tzdb.Database, calendar: *const CalendarSystem, fields: CalendarDateFields, firstDay: i64, minDays: i64) Error!CalendarDate {
-    const merged = calendar.defaultFields.merge(fields);
+    const merged = calendar.default_fields.merge(fields);
     const w = try wallFields(merged);
-    const r = calendar.resolveFields(db, w, timezone.zoneInfoFromUTC(db, "UTC", 0).zoneid, 0);
-    return newDate(db, calendar, r.epoch, r.zoneId, firstDay, minDays);
+    const r = calendar.resolve_fields(db, w, timezone.zoneInfoFromUTC(db, "UTC", 0).zoneid, 0);
+    return newDate(db, calendar, r.epoch, r.zone_id, firstDay, minDays);
 }
 
 fn num(v: ?i64) f64 {
@@ -76,7 +76,7 @@ pub fn wallFields(f: CalendarDateFields) Error!types.WallFields {
         .minute = num(f.minute),
         .second = num(f.second),
         .millis = num(f.millis),
-        .zoneId = if (f.zoneId) |z| (if (z.len == 0) null else z) else null,
+        .zone_id = if (f.zone_id) |z| (if (z.len == 0) null else z) else null,
     };
 }
 

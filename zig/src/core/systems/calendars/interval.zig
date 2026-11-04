@@ -48,6 +48,11 @@ pub const TimePeriod = struct {
             inline else => |t| @field(self, @tagName(t)) = v,
         }
     }
+
+    /// TypeScript timePeriod.
+    pub fn init() TimePeriod {
+        return .{};
+    }
 };
 
 /// A zeroed time period.

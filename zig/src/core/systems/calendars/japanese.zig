@@ -14,16 +14,14 @@ const CalendarSystem = types.CalendarSystem;
 const Error = types.Error;
 
 /// A date in the Japanese Imperial calendar.
-pub const JapaneseDate = CalendarDate;
-
 /// A Japanese date from the given fields. Without a month or day, `error.InvalidFields`: the
 /// calendar has no default fields.
-pub fn japaneseDateFromFields(db: *const tzdb.Database, fields: CalendarDateFields, firstDay: i64, minDays: i64) Error!JapaneseDate {
+pub fn japaneseDateFromFields(db: *const tzdb.Database, fields: CalendarDateFields, firstDay: i64, minDays: i64) Error!CalendarDate {
     return core.dateFromFields(db, &japaneseCalendar, fields, firstDay, minDays);
 }
 
 /// A Japanese date from a UNIX epoch.
-pub fn japaneseDateFromUnixEpoch(db: *const tzdb.Database, epoch: i64, zoneId: []const u8, firstDay: i64, minDays: i64) JapaneseDate {
+pub fn japaneseDateFromUnixEpoch(db: *const tzdb.Database, epoch: i64, zoneId: []const u8, firstDay: i64, minDays: i64) CalendarDate {
     return core.dateFromUnixEpoch(db, &japaneseCalendar, epoch, zoneId, firstDay, minDays);
 }
 
@@ -67,13 +65,13 @@ const ERAS = @import("autogen.eras.zig").eras;
 pub const japaneseCalendar: CalendarSystem = .{
     .type = .japanese,
     .name = "Japanese",
-    .monthCount = 12,
-    .relatedYearOffset = 0,
+    .month_count = 12,
+    .related_year_offset = 0,
     // 1.x JapaneseDate.fromFields applies no defaults
-    .defaultFields = .{},
-    .daysInMonth = gm.daysInMonthInt,
-    .daysInYear = gregorian.gregorianDaysInYear,
-    .monthStart = gm.monthStart,
-    .computeFields = computeJapaneseFields,
-    .resolveFields = gregorian.gregorianResolveFields,
+    .default_fields = .{},
+    .days_in_month = gm.daysInMonthInt,
+    .days_in_year = gregorian.gregorianDaysInYear,
+    .month_start = gm.monthStart,
+    .compute_fields = computeJapaneseFields,
+    .resolve_fields = gregorian.gregorianResolveFields,
 };

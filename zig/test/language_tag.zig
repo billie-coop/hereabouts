@@ -92,7 +92,7 @@ fn describeFull(a: Allocator, t: LanguageTag) !DescFull {
         .extlangs = d.extlangs,
         .compact = d.compact,
         .expanded = d.expanded,
-        .get = .{ t.getLanguage(), t.getScript(), t.getRegion(), t.getVariant() },
+        .get = .{ t.tagLanguage(), t.tagScript(), t.tagRegion(), t.tagVariant() },
         .has = .{ t.hasLanguage(), t.hasScript(), t.hasRegion() },
     };
 }
@@ -153,16 +153,16 @@ fn fastFromJson(v: Value) L.FastTag {
 /// Run one case. Everything is allocated in the arena `a`.
 fn run(a: Allocator, fname: []const u8, args: []const Value, want: Value) !void {
     if (eql(fname, "parseLanguageTag")) {
-        return expectJson(a, want, try describe(a, try L.parse(a, args[0].string)));
+        return expectJson(a, want, try describe(a, try L.parseLanguageTag(a, args[0].string)));
     }
     if (eql(fname, "describeFull")) {
-        return expectJson(a, want, try describeFull(a, try L.parse(a, args[0].string)));
+        return expectJson(a, want, try describeFull(a, try L.parseLanguageTag(a, args[0].string)));
     }
     if (eql(fname, "languageTag")) {
-        return expectJson(a, want, try describeFull(a, try L.init(a, try fieldsFromArgs(a, args))));
+        return expectJson(a, want, try describeFull(a, try L.LanguageTag.init(a, try fieldsFromArgs(a, args))));
     }
     if (eql(fname, "tagExtensionSubtags")) {
-        const t = try L.parse(a, args[0].string);
+        const t = try L.parseLanguageTag(a, args[0].string);
         return expectJson(a, want, t.extensionSubtags(args[1].string));
     }
     if (eql(fname, "substituteRegionAliases")) {
@@ -203,7 +203,7 @@ test "language-tag conformance" {
 
 test "no leaks" {
     const gpa = std.testing.allocator;
-    const t = try L.parse(gpa, "zh-yue-hant-HK-u-nu-hanidec-ca-chinese-t-en-x-foo");
+    const t = try L.parseLanguageTag(gpa, "zh-yue-hant-HK-u-nu-hanidec-ca-chinese-t-en-x-foo");
     defer t.deinit(gpa);
     const c = try t.clone(gpa);
     defer c.deinit(gpa);
@@ -216,11 +216,11 @@ test "no leaks" {
     defer gpa.free(s3);
     try std.testing.expectEqualStrings(s1, s3);
 
-    const u = try L.init(gpa, .{ .language = "EN", .extensions = t.extensions, .private_use = "x-a" });
+    const u = try L.LanguageTag.init(gpa, .{ .language = "EN", .extensions = t.extensions, .private_use = "x-a" });
     u.deinit(gpa);
 
     // An empty tag owns nothing.
-    const e = try L.parse(gpa, "!!");
+    const e = try L.parseLanguageTag(gpa, "!!");
     try std.testing.expectEqual(@as(usize, 0), e.owned.len);
     e.deinit(gpa);
 }

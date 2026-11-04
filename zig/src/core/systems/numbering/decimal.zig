@@ -100,21 +100,21 @@ fn utf16Len(s: []const u8) i64 {
 }
 
 const INTERNAL_SYMBOLS: NumberSymbols = .{
-    .approximatelySign = "~",
-    .currencyDecimal = ".",
-    .currencyGroup = ",",
+    .approximately_sign = "~",
+    .currency_decimal = ".",
+    .currency_group = ",",
     .decimal = ".",
     .exponential = "E",
     .group = ",",
     .infinity = "∞",
     .list = ";",
-    .minusSign = "-",
+    .minus_sign = "-",
     .nan = "NaN",
-    .perMille = "‰",
-    .percentSign = "%",
-    .plusSign = "+",
-    .superscriptingExponent = "×",
-    .timeSeparator = ":",
+    .per_mille = "‰",
+    .percent_sign = "%",
+    .plus_sign = "+",
+    .superscripting_exponent = "×",
+    .time_separator = ":",
 };
 
 /// Latin digits with fixed English-style symbols.

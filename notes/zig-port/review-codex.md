@@ -297,3 +297,61 @@ test "partial clone cleanup" {
     return error.ExpectedOutOfMemory;
 }
 ```
+
+## Recheck
+
+2026-11-04, first follow-up round; reviewed the final working tree against
+`plan-fixups-approval.md`. Independently reran the full Debug and ReleaseSafe builds:
+**46/46 steps and 120/120 tests passed in each mode**. The messageformat suite imports
+`zig/test/release_regressions.zig` and ran all 27 tests, including the 23 named regression tests.
+
+| Original item | Status | Regression in `zig/test/release_regressions.zig` | Debug | ReleaseSafe |
+|---|---|---|---|---|
+| 1. Reentrant code lifetime | Fixed | `reentrant formatter` (line 47) | Pass | Pass |
+| 2. Default formatter retention | Fixed | `default formatter bounded memory` (line 60) | Pass | Pass |
+| 3. Partial-slice cleanup | Fixed | `clone allocation failures`, `names allocation failures`, `catalog allocation failures`, `partial clone cleanup` (lines 11, 18, 27, 92) | Pass | Pass |
+| 4. Integer formatting OOM | Fixed | `integer allocation failures` (line 34) | Pass | Pass |
+| 5. Timezone decode overflow | Fixed | `timezone offset overflow`, `timezone standard offset overflow` (lines 37, 40) | Pass | Pass |
+| 6. Decimal extreme inputs | Fixed | `scale minimum overflow`, `moved exponent overflow`, `decimal exponent and context limits` (lines 56, 79, 103) | Pass | Pass |
+| 7. Date literal ownership | Fixed | `date pattern allocation failures` (line 88), including flush and trailing literal | Pass | Pass |
+
+The repaired code matches the regression results: evaluations hold owned snapshots; default
+formatter storage is reclaimed separately; error cleanup retains full allocation lengths;
+integer parsing propagates OOM; timezone offset multiplication is checked; decimal operations
+reject the original extremes with ExponentOutOfRange; literals transfer only after capacity
+reservation. Full decimal, timezone, datetime, core formatting and ownership suites also passed.
+
+Additional API/cache/timezone verification is recorded below as completed.
+
+Additional verification completed:
+
+- **Owning handles/CLDR:** regression `locale handles survive eviction and framework
+  destruction` (line 148) includes allocation-failure sweeps and capacities 0/1/2;
+  `locale cache hits refresh LRU order` (219) and framework memory plateau (168) passed in
+  both modes. Pack/locale retain-release handoffs and failed cache insertion cleanup were
+  inspected. CLDR.clone/deinit preserve exactly one owning handle per explicit clone.
+- **Derived/message caches:** failed-build reclamation (163), formatter/translator byte and
+  count bounds (185), translator reentrancy (242), and unknown-pattern memory plateau (251)
+  passed in both modes. Finite derived keys replace arbitrary retained string keys; each
+  failed build frees its arena. Default formatter teardown uses its reclaiming allocator.
+- **Independent additional OOM probes:** `std.testing.checkAllAllocationFailures` sweeps of
+  CLDR construction/clone, pack and locale eviction, use after framework destruction,
+  successful derived-cache insertion, default formatter initialization/evaluation, and
+  formatter/translator cache miss/hit/eviction/oversized bypass all passed. These exercised
+  capacities **0, 1, 2**, with **2/2 supplementary tests passing in Debug and ReleaseSafe**.
+  Scratch probe source was external to the repository; no implementation edits were made.
+- **Explicit timezone selection:** regression `independent timezone databases remain
+  explicit through date operations` (270) passed in both modes, covering simultaneous custom
+  databases, CalendarDate transformations/conversion/difference, and locale use after
+  framework destruction. `rg` over all Zig sources found **no setTimeZoneData,
+  activeDatabase, or mutable active database selector**. Custom databases are borrowed with
+  the documented lifetime through contexts, dates and locales; no implicit ownership was
+  introduced by the rename.
+- **API mapping:** direct/grouped/borrowed locale calls and concrete forwarder compilation
+  are covered by `direct locale methods and TypeScript method mapping` (319), passing in
+  both modes. Receiver-first methods, allocator-first namespace functions and approved
+  field-collision exceptions match the approval; ExponentOutOfRange propagates through
+  affected decimal and formatting APIs. `git diff --check` passed.
+
+**Recheck result: all seven original items fixed; no remaining concrete correctness findings
+in the approved API/cache/timezone changes reviewed.** This is the first follow-up round.

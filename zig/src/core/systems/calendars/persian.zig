@@ -19,16 +19,14 @@ const Error = types.Error;
 const floor = std.math.floor;
 
 /// A date in the Persian calendar.
-pub const PersianDate = CalendarDate;
-
 /// A Persian date from the given fields. As in 1.x, the 'zoneId' field is ignored and the date
 /// is constructed in UTC.
-pub fn persianDateFromFields(db: *const tzdb.Database, fields: CalendarDateFields, firstDay: i64, minDays: i64) Error!PersianDate {
+pub fn persianDateFromFields(db: *const tzdb.Database, fields: CalendarDateFields, firstDay: i64, minDays: i64) Error!CalendarDate {
     return core.dateFromFields(db, &persianCalendar, fields, firstDay, minDays);
 }
 
 /// A Persian date from a UNIX epoch.
-pub fn persianDateFromUnixEpoch(db: *const tzdb.Database, epoch: i64, zoneId: []const u8, firstDay: i64, minDays: i64) PersianDate {
+pub fn persianDateFromUnixEpoch(db: *const tzdb.Database, epoch: i64, zoneId: []const u8, firstDay: i64, minDays: i64) CalendarDate {
     return core.dateFromUnixEpoch(db, &persianCalendar, epoch, zoneId, firstDay, minDays);
 }
 
@@ -122,19 +120,19 @@ fn persianYmdToJD(yarg: f64, marg: f64, darg: f64) f64 {
 fn persianResolveFields(_: *const tzdb.Database, f: types.WallFields, zoneId: []const u8, offset: f64) types.Resolved {
     const jd = persianYmdToJD(f.year, f.month, f.day);
     const ms = math.wallTimeToMillis(f.hour, f.minute, f.second, f.millis) - offset;
-    return .{ .epoch = math.unixEpochFromJD(jd, ms), .zoneId = zoneId };
+    return .{ .epoch = math.unixEpochFromJD(jd, ms), .zone_id = zoneId };
 }
 
 /// Rules of the Persian calendar. Type `persian`.
 pub const persianCalendar: CalendarSystem = .{
     .type = .persian,
     .name = "Persian",
-    .monthCount = 12,
-    .relatedYearOffset = 622,
-    .defaultFields = .{ .year = 1, .month = 1, .day = 1 },
-    .daysInMonth = persianDaysInMonth,
-    .daysInYear = persianDaysInYear,
-    .monthStart = persianMonthStart,
-    .computeFields = computePersianFields,
-    .resolveFields = persianResolveFields,
+    .month_count = 12,
+    .related_year_offset = 622,
+    .default_fields = .{ .year = 1, .month = 1, .day = 1 },
+    .days_in_month = persianDaysInMonth,
+    .days_in_year = persianDaysInYear,
+    .month_start = persianMonthStart,
+    .compute_fields = computePersianFields,
+    .resolve_fields = persianResolveFields,
 };

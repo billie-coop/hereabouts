@@ -29,7 +29,6 @@ pub const ExceptionIndex = @import("resource/bundle.zig").ExceptionIndex;
 pub const stringBundle = @import("resource/bundle.zig").stringBundle;
 pub const Pack = @import("resource/pack.zig").Pack;
 pub const loadPack = @import("resource/pack.zig").loadPack;
-pub const packGet = @import("resource/pack.zig").packGet;
 pub const checksum = @import("resource/checksum.zig");
 
 /// The schema of the shipped config: `schema.schema` (the accessor tree), `schema.indices`,
@@ -59,6 +58,7 @@ pub const unit_options = @import("common/units.zig");
 pub const parsing = struct {
     pub const number = @import("parsing/number.zig");
     pub const wrapper = @import("parsing/wrapper.zig");
+    pub const date = @import("parsing/date.zig");
 };
 
 /// Decimal numbering systems: digits by name, `formatString`, `formatInt`, `fastFormatDecimal`.
@@ -79,6 +79,16 @@ pub const getNumberParams = @import("api/private/numbers.zig").getNumberParams;
 
 /// Internals other areas build on.
 pub const internals = struct {
+    /// Advanced date-formatting internals; TypeScript implementation names are retained.
+    pub const calendars = struct {
+        pub const skeletons = @import("internals/calendars/skeleton.zig");
+        pub const patterns = @import("internals/calendars/patterns.zig");
+        pub const manager = @import("internals/calendars/manager.zig");
+        pub const internal = @import("internals/calendars/internal.zig");
+        pub const formatter = @import("internals/calendars/formatter.zig");
+        pub const fields = @import("internals/calendars/fields.zig");
+        pub const relative_time = @import("internals/datefields/internal.zig");
+    };
     /// Number rendering: renderDecimal, renderCurrency, currency names and symbols.
     pub const numbers = @import("internals/numbers/internal.zig");
     pub const number_context = @import("internals/numbers/context.zig");
@@ -120,7 +130,6 @@ pub const bindCalendars = cldr.bindCalendars;
 pub const bindGeneral = cldr.bindGeneral;
 pub const bindNumbers = cldr.bindNumbers;
 pub const bindUnits = cldr.bindUnits;
-pub const cldrFramework = cldr.cldrFramework;
 
 // ---------------------------------------------------------------------------------------------
 // Date formatting, skeletons, relative time and plain-day formatting
@@ -128,11 +137,3 @@ pub const cldrFramework = cldr.cldrFramework;
 pub const dates = @import("api/calendars.zig");
 pub const days = @import("api/days.zig");
 pub const date_options = @import("common/calendars.zig");
-pub const date_parsing = @import("parsing/date.zig");
-pub const date_skeletons = @import("internals/calendars/skeleton.zig");
-pub const date_patterns = @import("internals/calendars/patterns.zig");
-pub const date_manager = @import("internals/calendars/manager.zig");
-pub const date_internal = @import("internals/calendars/internal.zig");
-pub const date_formatter = @import("internals/calendars/formatter.zig");
-pub const date_fields = @import("internals/calendars/fields.zig");
-pub const relative_time = @import("internals/datefields/internal.zig");

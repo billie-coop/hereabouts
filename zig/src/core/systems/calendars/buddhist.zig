@@ -15,8 +15,6 @@ const CalendarSystem = types.CalendarSystem;
 const Error = types.Error;
 
 /// A date in the Buddhist calendar.
-pub const BuddhistDate = CalendarDate;
-
 fn computeBuddhistFields(f: *Fields) void {
     gm.initGregorianFields(f);
     f[F.ERA] = 0;
@@ -27,23 +25,23 @@ fn computeBuddhistFields(f: *Fields) void {
 pub const buddhistCalendar: CalendarSystem = .{
     .type = .buddhist,
     .name = "Buddhist",
-    .monthCount = 12,
-    .relatedYearOffset = 0,
-    .defaultFields = .{ .year = 1, .month = 1, .day = 1, .hour = 0, .minute = 0, .second = 0, .millis = 0 },
-    .daysInMonth = gm.daysInMonthInt,
-    .daysInYear = gregorian.gregorianDaysInYear,
-    .monthStart = gm.monthStart,
-    .computeFields = computeBuddhistFields,
-    .resolveFields = gregorian.gregorianResolveFields,
+    .month_count = 12,
+    .related_year_offset = 0,
+    .default_fields = .{ .year = 1, .month = 1, .day = 1, .hour = 0, .minute = 0, .second = 0, .millis = 0 },
+    .days_in_month = gm.daysInMonthInt,
+    .days_in_year = gregorian.gregorianDaysInYear,
+    .month_start = gm.monthStart,
+    .compute_fields = computeBuddhistFields,
+    .resolve_fields = gregorian.gregorianResolveFields,
 };
 
 /// A Buddhist date from the given fields.
-pub fn buddhistDateFromFields(db: *const tzdb.Database, fields: CalendarDateFields, firstDay: i64, minDays: i64) Error!BuddhistDate {
+pub fn buddhistDateFromFields(db: *const tzdb.Database, fields: CalendarDateFields, firstDay: i64, minDays: i64) Error!CalendarDate {
     return core.dateFromFields(db, &buddhistCalendar, fields, firstDay, minDays);
 }
 
 /// A Buddhist date from a UNIX epoch.
-pub fn buddhistDateFromUnixEpoch(db: *const tzdb.Database, epoch: i64, zoneId: []const u8, firstDay: i64, minDays: i64) BuddhistDate {
+pub fn buddhistDateFromUnixEpoch(db: *const tzdb.Database, epoch: i64, zoneId: []const u8, firstDay: i64, minDays: i64) CalendarDate {
     return core.dateFromUnixEpoch(db, &buddhistCalendar, epoch, zoneId, firstDay, minDays);
 }
 

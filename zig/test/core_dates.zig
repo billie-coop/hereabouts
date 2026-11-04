@@ -87,7 +87,7 @@ fn parts(a: A, v: V) ![]h.decimal.Part {
     for (out, v.array.items) |*p, x| p.* = .{ .type = get(x, "type").?.string, .value = get(x, "value").?.string };
     return out;
 }
-fn nodes(a: A, pattern: []const core.date_parsing.DateTimeNode) !V {
+fn nodes(a: A, pattern: []const core.parsing.date.DateTimeNode) !V {
     var out: std.array_list.Managed(V) = .init(a);
     for (pattern) |n| switch (n) {
         .text => |s| try out.append(string(s)),
@@ -122,14 +122,14 @@ fn run(a: A, fw: *core.Framework, name: []const u8, args: []const V) !V {
         return .{ .array = array };
     }
     if (eq(name, "parse")) {
-        const pattern = try core.date_parsing.parseDatePattern(a, args[0].string);
+        const pattern = try core.parsing.date.parseDatePattern(a, args[0].string);
         var out: std.json.ObjectMap = .empty;
         try out.put(a, "nodes", try nodes(a, pattern));
-        try out.put(a, "boundary", .{ .integer = if (core.date_parsing.intervalPatternBoundary(pattern)) |i| @intCast(i) else -1 });
+        try out.put(a, "boundary", .{ .integer = if (core.parsing.date.intervalPatternBoundary(pattern)) |i| @intCast(i) else -1 });
         return .{ .object = out };
     }
     if (eq(name, "fieldType")) {
-        const row = core.date_fields.getFieldType(args[0].string[0], @intCast(int(args[1]))) orelse return .null;
+        const row = core.internals.calendars.fields.getFieldType(args[0].string[0], @intCast(int(args[1]))) orelse return .null;
         var out: std.array_list.Managed(V) = .init(a);
         try out.append(string(try a.dupe(u8, &.{row.char})));
         for ([_]i64{ @intCast(row.field), row.sub, @intCast(row.repeat), @intCast(row.width) }) |n| try out.append(.{ .integer = n });
@@ -153,7 +153,7 @@ fn run(a: A, fw: *core.Framework, name: []const u8, args: []const V) !V {
             };
         } else if (eq(name, "newDate")) blk: {
             var f = fill(core.calendars.CalendarDateFields, args[2]);
-            if (get(args[2], "zoneId")) |z| f.zoneId = z.string;
+            if (get(args[2], "zoneId")) |z| f.zone_id = z.string;
             break :blk try switch (c) {
                 .gregory => api.newGregorianDate(data, f),
                 .buddhist => api.newBuddhistDate(data, f),
@@ -168,25 +168,25 @@ fn run(a: A, fw: *core.Framework, name: []const u8, args: []const V) !V {
             .japanese => api.nowJapanese(std.testing.io, data, args[2].string),
             .persian => api.nowPersian(std.testing.io, data, args[2].string),
         };
-        if (eq(name, "now")) return val(a, .{ .type = @tagName(core.calendars.dateType(&d)), .first = d.firstDay, .min = d.minDays, .zone = d.zoneInfo.zoneid });
-        return val(a, .{ .type = @tagName(core.calendars.dateType(&d)), .fields = d.fields, .first = d.firstDay, .min = d.minDays, .zone = d.zoneInfo.zoneid });
+        if (eq(name, "now")) return val(a, .{ .type = @tagName(core.calendars.CalendarDate.type(&d)), .first = d.first_day, .min = d.min_days, .zone = d.zone_info.zoneid });
+        return val(a, .{ .type = @tagName(core.calendars.CalendarDate.type(&d)), .fields = d.field_values, .first = d.first_day, .min = d.min_days, .zone = d.zone_info.zoneid });
     }
     if (eq(name, "fovd")) return if (api.fieldOfVisualDifference(data, input(data, args[1]), input(data, args[2]))) |ch| string(try a.dupe(u8, &.{ch})) else .null;
     if (eq(name, "maskedFovd")) {
-        const p = try core.date_patterns.getCalendarPatterns(data, .gregory);
-        const sk = try core.date_patterns.patternsParseSkeleton(a, p, args[3].string);
+        const p = try core.internals.calendars.patterns.getCalendarPatterns(data, .gregory);
+        const sk = try core.internals.calendars.patterns.patternsParseSkeleton(a, p, args[3].string);
         const start = api.toGregorianDate(data, input(data, args[1]));
         const end = api.toGregorianDate(data, input(data, args[2]));
-        return val(a, .{ .largest = try a.dupe(u8, &.{core.date_manager.largestSkeletonField(sk)}), .field = try a.dupe(u8, &.{core.date_manager.maskedFOVD(data, start, end, sk)}) });
+        return val(a, .{ .largest = try a.dupe(u8, &.{core.internals.calendars.manager.largestSkeletonField(sk)}), .field = try a.dupe(u8, &.{core.internals.calendars.manager.maskedFOVD(data, start, end, sk)}) });
     }
-    if (eq(name, "settings")) return val(a, .{ .first = api.firstDayOfWeek(data), .min = api.minDaysInFirstWeek(data), .calendar = @tagName(core.date_internal.selectCalendar(data, null)), .time = try api.timeData(a, data) });
+    if (eq(name, "settings")) return val(a, .{ .first = api.firstDayOfWeek(data), .min = api.minDaysInFirstWeek(data), .calendar = @tagName(core.internals.calendars.internal.selectCalendar(data, null)), .time = try api.timeData(a, data) });
     if (eq(name, "skeleton")) {
-        const p = try core.date_patterns.getCalendarPatterns(data, .gregory);
-        var sk = try core.date_skeletons.skeletonParse(a, p.skeletonParser, args[1].string, args[2].bool);
-        const canon = try core.date_skeletons.skeletonCanonical(a, sk);
-        const match = core.date_patterns.patternsMatchAvailable(p, sk).skeleton;
-        const interval = core.date_patterns.patternsMatchInterval(p, sk).skeleton;
-        const ts = try core.date_skeletons.skeletonSplit(a, &sk);
+        const p = try core.internals.calendars.patterns.getCalendarPatterns(data, .gregory);
+        var sk = try core.internals.calendars.skeletons.skeletonParse(a, p.skeleton_parser, args[1].string, args[2].bool);
+        const canon = try core.internals.calendars.skeletons.skeletonCanonical(a, sk);
+        const match = core.internals.calendars.patterns.patternsMatchAvailable(p, sk).skeleton;
+        const interval = core.internals.calendars.patterns.patternsMatchInterval(p, sk).skeleton;
+        const ts = try core.internals.calendars.skeletons.skeletonSplit(a, &sk);
         return val(a, .{ .canonical = canon, .match = match, .interval = interval, .date = sk.skeleton, .time = ts.skeleton, .dateType = sk.type, .timeType = ts.type });
     }
     if (eq(name, "format")) return string(try api.formatDate(a, data, input(data, args[1]), fill(opt.DateFormatOptions, args[2])));
@@ -206,7 +206,7 @@ fn run(a: A, fw: *core.Framework, name: []const u8, args: []const V) !V {
     if (eq(name, "wrapper")) return string(try api.formatDateWrapper(a, data, args[1].string, args[2].string, fill(opt.DateWrapperFormatOptions, args[3])));
     if (eq(name, "wrapperParts")) return val(a, try api.formatDateWrapperToParts(a, data, try parts(a, args[1]), try parts(a, args[2]), fill(opt.DateWrapperFormatOptions, args[3])));
     if (eq(name, "dateField")) return string(try api.dateField(a, data, args[1].string, fill(opt.DateFieldFormatOptions, args[2])));
-    if (eq(name, "dayPeriodRule")) return if (core.date_internal.flexDayPeriod(&data.bundle, int(args[1]))) |s| string(s) else .null;
+    if (eq(name, "dayPeriodRule")) return if (core.internals.calendars.internal.flexDayPeriod(&data.bundle, int(args[1]))) |s| string(s) else .null;
     const days = core.days;
     if (eq(name, "day")) return string(try days.formatDay(a, data, day(args[1]), fill(days.DayFormatOptions, args[2])));
     if (eq(name, "dayParts")) return val(a, try days.formatDayToParts(a, data, day(args[1]), fill(days.DayFormatOptions, args[2])));
@@ -314,8 +314,8 @@ test "date API compilation and ownership" {
     defer a.free(tod);
     _ = h.core.dates.timeZoneInfo(data, "America/New_York");
     _ = try h.core.dates.timePeriodToQuantity(arena.allocator(), .{ .year = 1, .millis = 2 });
-    const parsed = try core.date_parsing.parseDatePattern(a, "yyyy 'o''clock' '' MM");
-    defer core.date_parsing.freePattern(a, parsed);
+    const parsed = try core.parsing.date.parseDatePattern(a, "yyyy 'o''clock' '' MM");
+    defer core.parsing.date.freePattern(a, parsed);
     const time_data = try api.timeData(a, data);
     defer a.free(time_data.allowed);
     const default_text = try api.formatDate(a, data, d, null);
@@ -325,15 +325,15 @@ test "date API compilation and ownership" {
     try std.testing.expectEqualStrings("Tuesday, April 2, 2019", default_text);
     try std.testing.expectEqualStrings("April 2, 2019", empty_options);
     const clock = api.now(std.testing.io, data, "UTC");
-    try std.testing.expectEqual(.gregory, core.calendars.dateType(&clock));
-    const p = try core.date_patterns.calendarPatterns(arena.allocator(), data, &data.schema.Buddhist, false);
-    try std.testing.expect((try core.date_patterns.patternsMonths(arena.allocator(), &p)) == .object);
-    try std.testing.expect((try core.date_patterns.patternsWeekdays(arena.allocator(), &p)) == .object);
-    try std.testing.expect((try core.date_patterns.patternsQuarters(arena.allocator(), &p)) == .object);
-    try std.testing.expect((try core.date_patterns.patternsEras(arena.allocator(), &p)) == .object);
-    try std.testing.expect((try core.date_patterns.patternsDayPeriods(arena.allocator(), &p)) == .object);
-    try std.testing.expectEqual(@as(usize, 0), (try core.date_patterns.patternsIntervalPattern(arena.allocator(), &p, "x", "xyz")).len);
-    try std.testing.expect(core.date_patterns.patternsIntervalFallback(&p).len > 0);
-    try std.testing.expect((try core.date_patterns.patternsTimeData(arena.allocator(), &p))[0].len > 0);
-    try std.testing.expect(core.date_internal.getCalendarFormatter(data, .buddhist).cal == &data.schema.Buddhist);
+    try std.testing.expectEqual(.gregory, core.calendars.CalendarDate.type(&clock));
+    const p = try core.internals.calendars.patterns.calendarPatterns(arena.allocator(), data, &data.schema.Buddhist, false);
+    try std.testing.expect((try core.internals.calendars.patterns.patternsMonths(arena.allocator(), &p)) == .object);
+    try std.testing.expect((try core.internals.calendars.patterns.patternsWeekdays(arena.allocator(), &p)) == .object);
+    try std.testing.expect((try core.internals.calendars.patterns.patternsQuarters(arena.allocator(), &p)) == .object);
+    try std.testing.expect((try core.internals.calendars.patterns.patternsEras(arena.allocator(), &p)) == .object);
+    try std.testing.expect((try core.internals.calendars.patterns.patternsDayPeriods(arena.allocator(), &p)) == .object);
+    try std.testing.expectEqual(@as(usize, 0), (try core.internals.calendars.patterns.patternsIntervalPattern(arena.allocator(), &p, "x", "xyz")).len);
+    try std.testing.expect(core.internals.calendars.patterns.patternsIntervalFallback(&p).len > 0);
+    try std.testing.expect((try core.internals.calendars.patterns.patternsTimeData(arena.allocator(), &p))[0].len > 0);
+    try std.testing.expect(core.internals.calendars.internal.getCalendarFormatter(data, .buddhist).cal == &data.schema.Buddhist);
 }

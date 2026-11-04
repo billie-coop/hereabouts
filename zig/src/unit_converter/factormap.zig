@@ -93,6 +93,16 @@ pub const UnitFactors = struct {
         }
         return null;
     }
+
+    /// TypeScript `unitFactors` (unit-converter/factormap.ts).
+    pub fn init(gpa: Allocator, factors: []const FactorDef) D.Error!UnitFactors {
+        return @import("factormap.zig").unitFactors(gpa, factors);
+    }
+
+    /// TypeScript `unitFactorsGet` (unit-converter/factormap.ts).
+    pub fn get(map: *const UnitFactors, gpa: Allocator, src: []const u8, dst: []const u8) Error!?UnitConversion {
+        return @import("factormap.zig").unitFactorsGet(gpa, map, src, dst);
+    }
 };
 
 fn value(a: Allocator, v: FactorValue) Error!Rational {
@@ -122,7 +132,7 @@ fn setEdge(a: Allocator, list: *EdgeList, e: Edge, overwrite: bool) Allocator.Er
 fn precision(r: Rational) i64 {
     const n = r.numerator;
     const d = r.denominator;
-    return @intCast(@abs(D.precision(n) + D.alignexp(n)) + @abs(D.precision(d) + D.alignexp(d)));
+    return @intCast(@abs(D.precision(n) + D.alignExp(n)) + @abs(D.precision(d) + D.alignExp(d)));
 }
 
 /// Build a set of unit conversion factors. `factors` is borrowed and must outlive the set.

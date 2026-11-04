@@ -2,11 +2,11 @@
 //! Port of `packages/hereabouts/src/unit-converter`.
 //!
 //! ```zig
-//! var length = try uc.unitFactors(gpa, &uc.LENGTH);
+//! var length = try uc.UnitFactors.init(gpa, &uc.LENGTH);
 //! defer length.deinit(gpa);
-//! const c = try uc.create(gpa, &.{.{ .category = "length", .factors = &length }});
+//! const c = try uc.UnitConverter.init(gpa, &.{.{ .category = "length", .factors = &length }});
 //! defer c.deinit(gpa);
-//! const v = (try uc.convertUnits(gpa, c, "length", n, "mile", "yard", .{})).?;
+//! const v = (try c.convertUnits(gpa, "length", n, "mile", "yard", .{})).?;
 //! defer v.deinit(gpa);
 //! ```
 
@@ -23,19 +23,10 @@ pub const FactorValue = types.FactorValue;
 const factormap = @import("factormap.zig");
 pub const UnitConversion = factormap.UnitConversion;
 pub const UnitFactors = factormap.UnitFactors;
-pub const unitFactors = factormap.unitFactors;
-pub const unitFactorsGet = factormap.unitFactorsGet;
 
 const converter = @import("converter.zig");
 pub const Error = converter.Error;
 pub const UnitConverter = converter.UnitConverter;
-pub const create = converter.create;
-pub const has = converter.has;
-pub const add = converter.add;
-pub const factors = converter.factors;
-pub const categories = converter.categories;
-pub const get = converter.get;
-pub const convertUnits = converter.convertUnits;
 
 const tables = @import("autogen.factors.zig");
 pub const ACCELERATION = tables.ACCELERATION;

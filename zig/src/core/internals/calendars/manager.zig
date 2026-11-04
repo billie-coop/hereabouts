@@ -50,7 +50,7 @@ pub fn getDateFormatRequest(a: A, data: *const LocaleData, d: cal.CalendarDate, 
         timeQuery = try s.skeletonSplit(a, &query);
         dateSkel = p.patternsMatchAvailable(patterns, query);
         timeSkel = p.patternsMatchAvailable(patterns, timeQuery.?);
-    } else if (query.isDate) dateSkel = p.patternsMatchAvailable(patterns, query) else {
+    } else if (query.is_date) dateSkel = p.patternsMatchAvailable(patterns, query) else {
         timeQuery = query;
         timeSkel = p.patternsMatchAvailable(patterns, query);
     }
@@ -78,35 +78,35 @@ pub fn maskedFOVD(data: *const LocaleData, start: cal.CalendarDate, end: cal.Cal
         const info = sk.info[i] orelse continue;
         smallest = info;
         switch (i) {
-            F.ERA => if (cal.dateEra(a) != cal.dateEra(b)) {
+            F.ERA => if (cal.CalendarDate.era(a) != cal.CalendarDate.era(b)) {
                 return 'G';
             },
-            F.YEAR => if (cal.dateYear(a) != cal.dateYear(b)) {
+            F.YEAR => if (cal.CalendarDate.year(a) != cal.CalendarDate.year(b)) {
                 return 'y';
             },
-            F.MONTH => if (cal.dateMonth(a) != cal.dateMonth(b)) {
+            F.MONTH => if (cal.CalendarDate.month(a) != cal.CalendarDate.month(b)) {
                 return 'M';
             },
-            F.DAY => if (cal.dateDayOfMonth(a) != cal.dateDayOfMonth(b)) {
+            F.DAY => if (cal.CalendarDate.dayOfMonth(a) != cal.CalendarDate.dayOfMonth(b)) {
                 return 'd';
             },
             F.DAYPERIOD => {
                 if (info.field == 'a' or info.field == 'b') {
-                    if (cal.dateIsAM(a) != cal.dateIsAM(b)) return 'a';
+                    if (cal.CalendarDate.isAM(a) != cal.CalendarDate.isAM(b)) return 'a';
                 } else if (info.field == 'B') {
-                    const x = internal.flexDayPeriod(&data.bundle, cal.dateHourOfDay(a) * 60 + cal.dateMinute(a)) orelse "";
-                    const y = internal.flexDayPeriod(&data.bundle, cal.dateHourOfDay(b) * 60 + cal.dateMinute(b)) orelse "";
+                    const x = internal.flexDayPeriod(&data.bundle, cal.CalendarDate.hourOfDay(a) * 60 + cal.CalendarDate.minute(a)) orelse "";
+                    const y = internal.flexDayPeriod(&data.bundle, cal.CalendarDate.hourOfDay(b) * 60 + cal.CalendarDate.minute(b)) orelse "";
                     if (!std.mem.eql(u8, x, y)) return 'B';
                 }
             },
             F.HOUR => {
                 if (info.field == 'h' or info.field == 'K') {
-                    if (cal.dateHour(a) != cal.dateHour(b)) return 'h';
+                    if (cal.CalendarDate.hour(a) != cal.CalendarDate.hour(b)) return 'h';
                 } else if (info.field == 'H' or info.field == 'k') {
-                    if (cal.dateHourOfDay(a) != cal.dateHourOfDay(b)) return 'H';
+                    if (cal.CalendarDate.hourOfDay(a) != cal.CalendarDate.hourOfDay(b)) return 'H';
                 }
             },
-            F.MINUTE, F.SECOND => if (cal.dateMinute(a) != cal.dateMinute(b)) {
+            F.MINUTE, F.SECOND => if (cal.CalendarDate.minute(a) != cal.CalendarDate.minute(b)) {
                 return 'm';
             },
             else => {},
@@ -117,7 +117,7 @@ pub fn maskedFOVD(data: *const LocaleData, start: cal.CalendarDate, end: cal.Cal
 pub fn getDateIntervalFormatRequest(a: A, data: *const LocaleData, c: cal.CalendarType, start: cal.CalendarDate, end: cal.CalendarDate, o: opts.DateIntervalFormatOptions, params: *const NumberParams) A.Error!DateIntervalFormatRequest {
     const patterns = try getCalendarPatterns(data, c);
     var req: DateIntervalFormatRequest = .{ .wrapper = patterns.schema.intervalFormatFallback.get(&data.bundle) };
-    const fovd = cal.dateFieldOfVisualDifference(&start, &end) orelse 's';
+    const fovd = cal.CalendarDate.fieldOfVisualDifference(&start, &end) orelse 's';
     const dateDiff = std.mem.indexOfScalar(u8, "GyMd", fovd) != null;
     const timeDiff = std.mem.indexOfScalar(u8, "BahHm", fovd) != null;
     var sk = o.skeleton orelse "";
@@ -129,7 +129,7 @@ pub fn getDateIntervalFormatRequest(a: A, data: *const LocaleData, c: cal.Calend
     }
     var query = try p.patternsParseSkeleton(a, patterns, sk);
     if (!defaulted) {
-        if (!o.strict and dateDiff and !query.isDate) {
+        if (!o.strict and dateDiff and !query.is_date) {
             sk = try std.mem.concat(a, u8, &.{ "yMMMd", sk });
             query = try p.patternsParseSkeleton(a, patterns, sk);
         }
@@ -154,7 +154,7 @@ pub fn getDateIntervalFormatRequest(a: A, data: *const LocaleData, c: cal.Calend
             return req;
         }
     }
-    if (!dateDiff and !query.isTime) {
+    if (!dateDiff and !query.is_time) {
         req.date = try matchAvailable(a, patterns, start, query, params);
         return req;
     }

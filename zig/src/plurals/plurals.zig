@@ -21,8 +21,6 @@ pub const Expr = types.Expr;
 pub const Operand = types.Operand;
 pub const RangeMap = types.RangeMap;
 pub const NumberOperands = ops.NumberOperands;
-pub const numberOperands = ops.numberOperands;
-pub const numberOperandsToString = ops.numberOperandsToString;
 pub const digitCount = ops.digitCount;
 
 /// A plural category. The TypeScript returns these as strings ('zero', ..., 'other'); `name`
@@ -35,7 +33,8 @@ pub const Category = enum(u8) {
     many = 4,
     other = 5,
 
-    pub fn name(self: Category) []const u8 {
+    /// Zig string form of the TypeScript category.
+    pub fn toString(self: Category) []const u8 {
         return @tagName(self);
     }
 

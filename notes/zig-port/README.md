@@ -70,6 +70,13 @@ Each module's report has the full list, with case counts and examples.
 ## Not done
 
 - Custom schema configs: Zig supports only the shipped config the packs are built with.
-- The timezone/datetime agent left 12 of its deliberate-break checks unconfirmed (listed in
-  `handoff-timezone-datetime.md`); the cases for them exist.
 - Not published: no Zig package release yet.
+
+## Release verification follow-up
+
+The twelve formerly unconfirmed datetime deliberate-break checks and thirteen foundation/
+number/unit branch checks are now confirmed: each mutation failed in an isolated serial run,
+and restored baselines pass. One midnight-search-bound mutation needed a new TypeScript-derived
+custom-timezone case; datetime now has 12,606 cases. See `report-fixups.md` for the results,
+API/ownership changes, and final review status. Custom schema configurations and publication
+remain outside this fixups task.

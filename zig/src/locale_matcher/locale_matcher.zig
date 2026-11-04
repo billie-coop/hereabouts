@@ -3,9 +3,9 @@
 //! `es-MX` gets `es-419`.
 //!
 //! ```zig
-//! const m = try locale_matcher.create(gpa, &.{.{ .string = "en, en_GB, zh, pt_AR, es-419" }}, .{});
+//! const m = try locale_matcher.Matcher.init(gpa, &.{.{ .string = "en, en_GB, zh, pt_AR, es-419" }}, .{});
 //! defer m.deinit(gpa);
-//! const r = try locale_matcher.match(gpa, m, &.{"en-AU"}, locale_matcher.DEFAULT_THRESHOLD);
+//! const r = try m.matchLocale(gpa, &.{"en-AU"}, locale_matcher.DEFAULT_THRESHOLD);
 //! defer r.deinit(gpa);
 //! // r.distance == 3, r.locale.id == "en_GB"
 //! ```
@@ -23,8 +23,6 @@ pub const Input = matcher.Input;
 pub const Matcher = matcher.Matcher;
 pub const Match = matcher.Match;
 pub const Error = matcher.Error;
-pub const create = matcher.create;
-pub const match = matcher.match;
 
 pub const DEFAULT_THRESHOLD = distance.DEFAULT_THRESHOLD;
 pub const MAX_DISTANCE = distance.MAX_DISTANCE;

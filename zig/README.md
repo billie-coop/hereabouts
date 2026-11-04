@@ -35,15 +35,61 @@ pub fn main() !void {
     defer de.deinit();
 
     const n = try decimal.parse(a, "1234.567");
-    const s = try de.Numbers.formatDecimal(a, n, .{ .maximum_fraction_digits = 2 });
+    const s = try de.formatDecimal(a, n, .{ .maximum_fraction_digits = 2 });
     std.debug.print("{s}\n", .{s}); // 1.234,57
-    const c = try de.Numbers.formatCurrency(a, n, "EUR", .{});
+    const c = try de.numbers.formatCurrency(a, n, "EUR", .{});
     std.debug.print("{s}\n", .{c}); // 1.234,57 €
 
     const sum = try decimal.add(a, try decimal.parse(a, "0.1"), try decimal.parse(a, "0.2"));
     std.debug.print("{s}\n", .{try decimal.toString(a, sum)}); // 0.3
 }
 ```
+
+## Coming from TypeScript
+
+Names follow a mechanical mapping. Operations on a value become methods and drop only the
+receiver's type word: `dayAdd(d, period)` becomes `d.add(period)`, and `dateYear(d)` becomes
+`d.year()`. Decimal and rational arithmetic remain namespace functions. Constructors use
+`Type.init`; generic calendar constructors are `CalendarDate.fromFields/fromUnixEpoch`.
+The five calendar-specific constructor functions keep their exact TypeScript names because
+those calendars share a single CalendarDate value type.
+
+Locale functions keep their exact TypeScript names as methods: `de.formatDecimal(gpa, n, opts)`.
+The bound groups also remain: `de.numbers.formatDecimal(gpa, n, opts)`, `de.calendars.formatDate`,
+`de.general.formatList`, and `de.units.formatQuantity`. Framework.loadLocale handles, owning
+CLDR objects and borrowed CLDRView values expose the same direct methods.
+
+| TypeScript | Zig |
+| --- | --- |
+| `decimalAdd(a, b)` | `decimal.add(gpa, a, b)` |
+| `day(y, m, d)` / `dayAdd(d, period)` | `datetime.Day.init(y, m, d)` / `d.add(period)` |
+| `timeOfDayToString(t)` | `t.toString(gpa)` |
+| `dateYear(date)` / `dateFields(date)` | `date.year()` / `date.fields()` |
+| `formatDecimal(locale, n, opts)` | `locale.formatDecimal(gpa, n, opts)` |
+| `createMessageFormatter(opts)` | `messageformat.MessageFormatter.init(gpa, opts)` |
+| `formatMessage(formatter, ...)` | `formatter.formatMessage(gpa, ...)` |
+| `getPluralRules(language, region)` | `plurals.getPluralRules(language, region)` |
+| `resolveLanguageTag(input)` | `locale.resolveLanguageTag(gpa, input)` |
+| `parseLanguageTag(text)` | `language_tag.parseLanguageTag(gpa, text)` |
+| `isMessageKey(translator, key)` | `translator.isMessageKey(key)` |
+| `convertUnits(converter, ...)` | `converter.convertUnits(gpa, ...)` |
+
+When dropping the type word would collide with a data field, a method keeps its exact
+TypeScript name: `tag.tagLanguage()`, `tag.tagScript()`, `tag.tagRegion()` and `tag.tagVariant()`
+coexist with the raw tag fields. CalendarDate instead names its Zig backing array `field_values`
+so its operation can be `date.fields()`. Methods such as `Day.ofWeek/ofYear` are the literal
+suffixes of `dayOfWeek/dayOfYear`. Other functions retain the exact TypeScript name; there are
+no new synonyms such as rulesFor, hasKey or convert. The casing exceptions alignexp, shiftleft,
+shiftright and divmod become alignExp, shiftLeft, shiftRight and divMod. Each moved declaration
+names its TypeScript original in its doc comment.
+
+Public option and data fields use snake_case (`maximum_fraction_digits`, `zone_id`,
+`include_weeks`). Generated schema identifiers retain their TypeScript spelling because they
+mirror pack data. Private wire records and test adapters also preserve serialized keys.
+Methods put self first and the allocator next; allocating free functions and static constructors
+put the allocator first. Managed owners use deinit(); unmanaged owned values use deinit(gpa);
+strings use gpa.free and owned nested slices have freeParts/freeStrings/freeQuantities helpers.
+Advanced date-formatting helpers live under core.internals.calendars; parsers under core.parsing.
 
 ## Namespaces
 
@@ -106,9 +152,12 @@ locale handles and borrowed metadata using it.
 ## Differences from the TypeScript
 
 - Functions take typed values (`Decimal`, `Day`, enums), not loose numbers or strings: use
-  `decimal.parse`, `language_tag.parse` and the like. Names drop a prefix the namespace already
-  says (`decimalAdd` is `decimal.add`); rounding modes and other string unions are enums
+  `decimal.parse`, `language_tag.parseLanguageTag` and the like. Names follow the mapping above;
+  rounding modes and other string unions are enums
   (`'half-even'` is `.half_even`).
+- Decimal exponents and scales are bounded by +/-decimal.MAX_EXPONENT (999,999,999).
+  Exponent-changing operations return error.ExponentOutOfRange when the result or
+  requested context is outside that domain; allocator failures remain OutOfMemory.
 - Thrown errors are Zig errors. Optional arguments are explicit or an options struct with
   defaults (`.{}`).
 - Only the shipped schema config is supported (the one the packs are built with); custom

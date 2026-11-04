@@ -121,11 +121,11 @@ pub fn addLikelySubtagsFast(dst: *FastTag) void {
 /// A language tag combining the fast tag's core subtags with the original's variant,
 /// extensions and private use. Extlangs are dropped.
 pub fn returnTag(gpa: Allocator, real: LanguageTag, fast: FastTag) Allocator.Error!LanguageTag {
-    return lt.init(gpa, .{
+    return lt.LanguageTag.init(gpa, .{
         .language = fast.language,
         .script = fast.script,
         .region = fast.region,
-        .variant = real.getVariant(),
+        .variant = real.tagVariant(),
         .extensions = real.extensions,
         .private_use = real.private_use,
     });
@@ -138,7 +138,7 @@ const Source = struct {
 
     fn init(a: Allocator, input: Input) Allocator.Error!Source {
         return switch (input) {
-            .id => |s| .{ .tag = try lt.parse(a, s), .parsed = true },
+            .id => |s| .{ .tag = try lt.parseLanguageTag(a, s), .parsed = true },
             .tag => |t| .{ .tag = t, .parsed = false },
         };
     }
@@ -253,7 +253,7 @@ test "resolve" {
 test "fast tag merging" {
     const gpa = std.testing.allocator;
     const f = fastTag(.{ .script = "Latn", .region = "US" });
-    const tag = try lt.parse(gpa, "und-POSIX-u-ca-calendar");
+    const tag = try lt.parseLanguageTag(gpa, "und-POSIX-u-ca-calendar");
     defer tag.deinit(gpa);
     const r = try returnTag(gpa, tag, f);
     defer r.deinit(gpa);

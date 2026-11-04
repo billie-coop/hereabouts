@@ -5,7 +5,7 @@ const a = std.testing.allocator;
 
 fn cloneFail(gpa: std.mem.Allocator) !void {
     const code: M.MessageCode = .{ .simple = .{ .name = "foo", .args = &.{ .{ .name = "first" }, .{ .name = "second" } }, .options = &.{} } };
-    const c = try M.cloneMessageCode(gpa, code);
+    const c = try M.MessageCode.clone(code, gpa);
     defer c.deinit(gpa);
 }
 test "clone allocation failures" {
@@ -19,9 +19,9 @@ test "names allocation failures" {
     try std.testing.checkAllAllocationFailures(a, namesFail, .{});
 }
 fn catalogFail(gpa: std.mem.Allocator) !void {
-    var t = try M.createTranslator(gpa, .{ .source = &.{.{ .key = "x", .message = "{" }}, .catalogs = &.{.{ .id = "de", .messages = &.{} }} });
+    var t = try M.Translator.init(gpa, .{ .source = &.{.{ .key = "x", .message = "{" }}, .catalogs = &.{.{ .id = "de", .messages = &.{} }} });
     defer t.deinit();
-    const issues = try M.checkCatalogs(gpa, &t, .{});
+    const issues = try M.Translator.checkCatalogs(&t, gpa, .{});
     defer M.freeCatalogIssues(gpa, issues);
 }
 test "catalog allocation failures" {
@@ -42,14 +42,14 @@ test "timezone standard offset overflow" {
 }
 fn nested(ctx: ?*const anyopaque, gpa: std.mem.Allocator, _: []const ?M.MessageArg, _: []const []const u8) M.Error![]const u8 {
     const f: *M.MessageFormatter = @ptrCast(@alignCast(@constCast(ctx.?)));
-    return M.formatMessage(gpa, f, "inner", &.{}, &.{});
+    return M.MessageFormatter.formatMessage(f, gpa, "inner", &.{}, &.{});
 }
 test "reentrant formatter" {
     var f: M.MessageFormatter = undefined;
     const fs = [_]M.Formatter{.{ .name = "nested", .ctx = &f, .func = nested }};
-    f = try M.createMessageFormatter(a, .{ .cache_size = 1, .formatters = &fs });
+    f = try M.MessageFormatter.init(a, .{ .cache_size = 1, .formatters = &fs });
     defer f.deinit();
-    const s = try M.formatMessage(a, &f, "{x, nested} tail", &.{}, &.{.{ .name = "x", .value = .{ .string = "x" } }});
+    const s = try M.MessageFormatter.formatMessage(&f, a, "{x, nested} tail", &.{}, &.{.{ .name = "x", .value = .{ .string = "x" } }});
     defer a.free(s);
     try std.testing.expectEqualStrings("inner tail", s);
 }
@@ -70,7 +70,7 @@ test "default formatter bounded memory" {
     var buf: [1024]u8 = @splat('x');
     for (0..2000) |i| {
         _ = std.fmt.bufPrint(buf[0..8], "{d:0>8}", .{i}) catch unreachable;
-        const s = try M.formatMessage(gpa, f, &buf, &.{}, &.{});
+        const s = try M.MessageFormatter.formatMessage(f, gpa, &buf, &.{}, &.{});
         gpa.free(s);
         if (i == 999) at1000 = dbg.total_requested_bytes;
     }
@@ -80,10 +80,10 @@ test "moved exponent overflow" {
     try std.testing.expectError(error.ExponentOutOfRange, h.decimal.movePoint(a, h.decimal.ONE, std.math.maxInt(i64)));
 }
 fn patternFail(gpa: std.mem.Allocator) !void {
-    const p = try h.core.date_parsing.parseDatePattern(gpa, "literal y");
-    defer h.core.date_parsing.freePattern(gpa, p);
-    const trailing = try h.core.date_parsing.parseDatePattern(gpa, "'literal'");
-    defer h.core.date_parsing.freePattern(gpa, trailing);
+    const p = try h.core.parsing.date.parseDatePattern(gpa, "literal y");
+    defer h.core.parsing.date.freePattern(gpa, p);
+    const trailing = try h.core.parsing.date.parseDatePattern(gpa, "'literal'");
+    defer h.core.parsing.date.freePattern(gpa, trailing);
 }
 test "date pattern allocation failures" {
     try std.testing.checkAllAllocationFailures(a, patternFail, .{});
@@ -93,7 +93,7 @@ test "partial clone cleanup" {
     var fail = std.testing.FailingAllocator.init(std.testing.allocator, .{ .fail_index = 3 });
     const gpa = fail.allocator();
     const c: M.MessageCode = .{ .simple = .{ .name = "foo", .args = &.{ .{ .name = "first" }, .{ .name = "second" } }, .options = &.{} } };
-    _ = M.cloneMessageCode(gpa, c) catch |e| {
+    _ = M.MessageCode.clone(c, gpa) catch |e| {
         try std.testing.expectEqual(error.OutOfMemory, e);
         return;
     };
@@ -104,8 +104,8 @@ test "decimal exponent and context limits" {
     const D = h.decimal;
     const huge = std.math.maxInt(i64);
     try std.testing.expectError(error.ExponentOutOfRange, D.movePoint(a, D.ONE, std.math.minInt(i64)));
-    try std.testing.expectError(error.ExponentOutOfRange, D.shiftleft(a, D.ONE, huge));
-    try std.testing.expectError(error.ExponentOutOfRange, D.shiftright(a, D.ONE, huge, .half_even));
+    try std.testing.expectError(error.ExponentOutOfRange, D.shiftLeft(a, D.ONE, huge));
+    try std.testing.expectError(error.ExponentOutOfRange, D.shiftRight(a, D.ONE, huge, .half_even));
     try std.testing.expectError(error.ExponentOutOfRange, D.multiply(a, D.ONE, D.ONE, .{ .scale = std.math.minInt(i64) }));
     try std.testing.expectError(error.ExponentOutOfRange, D.divide(a, D.ONE, D.ONE, .{ .precision = huge }));
     try std.testing.expectError(error.ExponentOutOfRange, D.scientific(a, D.ONE, huge));
@@ -183,27 +183,27 @@ test "framework cache memory plateaus under locale churn" {
     try std.testing.expectEqual(@as(usize, 2), fw.locales.count());
 }
 test "formatter and translator cache limits and oversized bypass" {
-    var f = try M.createMessageFormatter(a, .{ .cache_size = 1, .max_cached_message_bytes = 5 });
+    var f = try M.MessageFormatter.init(a, .{ .cache_size = 1, .max_cached_message_bytes = 5 });
     defer f.deinit();
-    a.free(try M.formatMessage(a, &f, "small", &.{}, &.{}));
-    a.free(try M.formatMessage(a, &f, "oversized", &.{}, &.{}));
+    a.free(try M.MessageFormatter.formatMessage(&f, a, "small", &.{}, &.{}));
+    a.free(try M.MessageFormatter.formatMessage(&f, a, "oversized", &.{}, &.{}));
     try std.testing.expectEqual(@as(usize, 1), f.cache.size());
     try std.testing.expect(f.cache.get("small") != null);
-    var disabled = try M.createMessageFormatter(a, .{ .cache_size = 0 });
+    var disabled = try M.MessageFormatter.init(a, .{ .cache_size = 0 });
     defer disabled.deinit();
-    a.free(try M.formatMessage(a, &disabled, "text", &.{}, &.{}));
+    a.free(try M.MessageFormatter.formatMessage(&disabled, a, "text", &.{}, &.{}));
     try std.testing.expectEqual(@as(usize, 0), disabled.cache.size());
-    var t = try M.createTranslator(a, .{ .source = &.{}, .cache_size = 2, .plural_cache_size = 1, .max_cached_message_bytes = 32 });
+    var t = try M.Translator.init(a, .{ .source = &.{}, .cache_size = 2, .plural_cache_size = 1, .max_cached_message_bytes = 32 });
     defer t.deinit();
     var buf: [64]u8 = undefined;
     for (0..500) |i| {
         const key = try std.fmt.bufPrint(&buf, "{d}:{{x}}", .{i});
-        a.free(try M.translate(a, &t, "en", key, &.{}));
+        a.free(try M.Translator.translate(&t, a, "en", key, &.{}));
         try std.testing.expect(t.parsed.size() <= 2);
         try std.testing.expect(t.plurals.size() <= 1);
     }
     const long = "{x} this pattern exceeds the cache limit of thirty two bytes";
-    a.free(try M.translate(a, &t, "en", long, &.{}));
+    a.free(try M.Translator.translate(&t, a, "en", long, &.{}));
     try std.testing.expect(t.parsed.get(long) == null);
 }
 
@@ -237,14 +237,14 @@ test "locale cache hits refresh LRU order" {
 }
 fn nestedTranslation(ctx: ?*const anyopaque, gpa: std.mem.Allocator, _: []const ?M.MessageArg, _: []const []const u8) M.Error![]const u8 {
     const t: *M.Translator = @ptrCast(@alignCast(@constCast(ctx.?)));
-    return M.translate(gpa, t, "en", "inner", &.{.{ .name = "x", .value = .{ .string = "ok" } }});
+    return M.Translator.translate(t, gpa, "en", "inner", &.{.{ .name = "x", .value = .{ .string = "ok" } }});
 }
 test "translator callbacks may reenter while evicting the outer pattern" {
     var t: M.Translator = undefined;
     const fs = [_]M.Formatter{.{ .name = "nested", .ctx = &t, .func = nestedTranslation }};
-    t = try M.createTranslator(a, .{ .source = &.{.{ .key = "inner", .message = "inner {x}" }}, .cache_size = 1, .formatters = &fs });
+    t = try M.Translator.init(a, .{ .source = &.{.{ .key = "inner", .message = "inner {x}" }}, .cache_size = 1, .formatters = &fs });
     defer t.deinit();
-    const s = try M.translate(a, &t, "en", "{x, nested} tail", &.{.{ .name = "x", .value = .{ .string = "x" } }});
+    const s = try M.Translator.translate(&t, a, "en", "{x, nested} tail", &.{.{ .name = "x", .value = .{ .string = "x" } }});
     defer a.free(s);
     try std.testing.expectEqualStrings("inner ok tail", s);
 }
@@ -252,13 +252,13 @@ test "unknown translator pattern churn retains bounded bytes" {
     var dbg: std.heap.DebugAllocator(.{ .enable_memory_limit = true }) = .init;
     defer _ = dbg.deinit();
     const gpa = dbg.allocator();
-    var t = try M.createTranslator(gpa, .{ .source = &.{}, .cache_size = 3 });
+    var t = try M.Translator.init(gpa, .{ .source = &.{}, .cache_size = 3 });
     defer t.deinit();
     var buf: [512]u8 = @splat('x');
     var before: usize = 0;
     for (0..600) |i| {
         _ = try std.fmt.bufPrint(buf[0..16], "{d:0>12}{{x}}", .{i});
-        gpa.free(try M.translate(gpa, &t, "en", &buf, &.{}));
+        gpa.free(try M.Translator.translate(&t, gpa, "en", &buf, &.{}));
         if (i == 299) before = dbg.total_requested_bytes;
     }
     try std.testing.expect(dbg.total_requested_bytes <= before + 4096);
@@ -284,18 +284,18 @@ test "independent timezone databases remain explicit through date operations" {
     const s = try c1.instantToString(a, 0, "Foo/Bar");
     defer a.free(s);
     try std.testing.expectEqualStrings("1970-01-01T01:00:00.000+01:00", s);
-    const d1 = try C.gregorianDateFromFields(&one, .{ .year = 1970, .month = 1, .day = 1, .zoneId = "Foo/Bar" }, 1, 1);
-    const d2 = try C.gregorianDateFromFields(&two, .{ .year = 1970, .month = 1, .day = 1, .zoneId = "Foo/Bar" }, 1, 1);
-    try std.testing.expectEqual(@as(i64, -3600000), C.dateUnixEpoch(&d1));
-    try std.testing.expectEqual(@as(i64, -7200000), C.dateUnixEpoch(&d2));
-    const added = try C.dateAdd(&d1, .{ .day = 1 });
-    const set = C.dateSet(&d1, .{ .day = 2 });
-    const rezoned = C.dateWithZone(&d1, "UTC");
+    const d1 = try C.gregorianDateFromFields(&one, .{ .year = 1970, .month = 1, .day = 1, .zone_id = "Foo/Bar" }, 1, 1);
+    const d2 = try C.gregorianDateFromFields(&two, .{ .year = 1970, .month = 1, .day = 1, .zone_id = "Foo/Bar" }, 1, 1);
+    try std.testing.expectEqual(@as(i64, -3600000), C.CalendarDate.unixEpoch(&d1));
+    try std.testing.expectEqual(@as(i64, -7200000), C.CalendarDate.unixEpoch(&d2));
+    const added = try C.CalendarDate.add(&d1, .{ .day = 1 });
+    const set = C.CalendarDate.set(&d1, .{ .day = 2 });
+    const rezoned = C.CalendarDate.withZone(&d1, "UTC");
     try std.testing.expect(added.database == &one and set.database == &one and rezoned.database == &one);
-    try std.testing.expectEqual(@as(i64, 86400000 - 3600000), C.dateUnixEpoch(&added));
-    try std.testing.expectEqual(C.dateUnixEpoch(&added), C.dateUnixEpoch(&set));
+    try std.testing.expectEqual(@as(i64, 86400000 - 3600000), C.CalendarDate.unixEpoch(&added));
+    try std.testing.expectEqual(C.CalendarDate.unixEpoch(&added), C.CalendarDate.unixEpoch(&set));
     // Each operand keeps its own instant; result wall arithmetic uses the receiver's database.
-    const mixed = C.dateUntil(&d1, &d2, .{});
+    const mixed = C.CalendarDate.until(&d1, &d2, .{});
     try std.testing.expectEqual(@as(f64, -1), mixed.hour);
     const locale = blk: {
         var fw = h.core.CLDRFramework.init(a, .{ .loader = .{ .load = realLoad }, .timezone_database = &two });
@@ -303,15 +303,53 @@ test "independent timezone databases remain explicit through date operations" {
         break :blk try fw.get(.{ .id = "en" });
     };
     defer locale.deinit();
-    const from_locale = try locale.Calendars.newGregorianDate(.{ .year = 1970, .month = 1, .day = 1, .zoneId = "Foo/Bar" });
+    const from_locale = try locale.calendars.newGregorianDate(.{ .year = 1970, .month = 1, .day = 1, .zone_id = "Foo/Bar" });
     try std.testing.expect(from_locale.database == &two);
-    try std.testing.expectEqual(@as(i64, -7200000), C.dateUnixEpoch(&from_locale));
-    try std.testing.expectEqual(@as(i64, 7200000), locale.Calendars.timeZoneFromUTC(0, "Foo/Bar").?.offset);
-    try std.testing.expectEqual(@as(usize, 2), locale.Calendars.timeZoneIds().len);
-    try std.testing.expectEqualStrings("Foo/Bar", locale.Calendars.resolveTimeZoneId("Alias/Foo").?);
-    const converted = locale.Calendars.toBuddhistDate(.{ .calendar = d1 });
+    try std.testing.expectEqual(@as(i64, -7200000), C.CalendarDate.unixEpoch(&from_locale));
+    try std.testing.expectEqual(@as(i64, 7200000), locale.calendars.timeZoneFromUTC(0, "Foo/Bar").?.offset);
+    try std.testing.expectEqual(@as(usize, 2), locale.calendars.timeZoneIds().len);
+    try std.testing.expectEqualStrings("Foo/Bar", locale.calendars.resolveTimeZoneId("Alias/Foo").?);
+    const converted = locale.calendars.toBuddhistDate(.{ .calendar = d1 });
     try std.testing.expect(converted.database == &one);
     // A custom database need not include the bundled unknown-zone sentinel.
-    const unknown = locale.Calendars.timeZoneInfo("Missing/Zone");
+    const unknown = locale.calendars.timeZoneInfo("Missing/Zone");
     try std.testing.expectEqualStrings("Factory", unknown.id);
+}
+
+test "direct locale methods and TypeScript method mapping" {
+    inline for (.{ h.core.CLDR, h.core.CLDRView, h.core.LocaleHandle, h.datetime.Day, h.datetime.TimeOfDay, h.core.calendars.CalendarDate, M.MessageFormatter, M.Translator, h.unit_converter.UnitConverter, h.unit_converter.UnitFactors }) |T| std.testing.refAllDecls(T);
+    var fw = h.core.CLDRFramework.init(a, .{ .loader = .{ .load = realLoad } });
+    defer fw.deinit();
+    const de = try fw.get(.{ .id = "de" });
+    defer de.deinit();
+    const n = try de.parseDecimal(a, "1234.5");
+    defer n.deinit(a);
+    const direct = try de.formatDecimal(a, n, .{ .maximum_fraction_digits = 1 });
+    defer a.free(direct);
+    const grouped = try de.numbers.formatDecimal(a, n, .{ .maximum_fraction_digits = 1 });
+    defer a.free(grouped);
+    try std.testing.expectEqualStrings("1.234,5", direct);
+    try std.testing.expectEqualStrings(direct, grouped);
+    const borrowed = h.core.bindCLDR(de.data);
+    const list = try borrowed.formatList(a, &.{ "eins", "zwei" }, null);
+    defer a.free(list);
+    try std.testing.expectEqualStrings("eins und zwei", list);
+    const handle = try fw.framework.loadLocale(.{ .id = "de" });
+    defer handle.deinit();
+    const owned_list = try handle.formatList(a, &.{ "eins", "zwei" }, null);
+    defer a.free(owned_list);
+    try std.testing.expectEqualStrings(list, owned_list);
+    const d = try h.datetime.Day.init(2026, 1, 31);
+    const next = try d.add(.{ .months = 1 });
+    try std.testing.expectEqual(@as(i32, 28), next.day);
+    const time = try h.datetime.TimeOfDay.init(9, 0, 0, 0);
+    const rendered = try time.toString(a);
+    defer a.free(rendered);
+    try std.testing.expectEqualStrings("09:00", rendered);
+    var f = try M.MessageFormatter.init(a, .{});
+    defer f.deinit();
+    a.free(try f.formatMessage(a, "hello", &.{}, &.{}));
+    const date = try de.newGregorianDate(.{ .year = 2026, .month = 1, .day = 31 });
+    try std.testing.expectEqual(@as(i64, 2026), date.year());
+    try std.testing.expectEqual(@as(?i64, 31), date.fields().day);
 }

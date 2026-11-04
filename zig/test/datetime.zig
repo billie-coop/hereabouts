@@ -184,14 +184,14 @@ fn sweep(a: Allocator, zone: []const u8) !Hash {
     for (ref.zone.untils) |u| {
         const off_a = tz.fromUTC(zone, u - 1).?.offset;
         const off_b = tz.fromUTC(zone, u).?.offset;
-        try hash.put("S|{d}|{s}", .{ u - 1, try hash.token(dt.instantToString(a, u - 1, zone)) });
-        try hash.put("S|{d}|{s}", .{ u, try hash.token(dt.instantToString(a, u, zone)) });
+        try hash.put("S|{d}|{s}", .{ u - 1, try hash.token(dt.instant.toString(a, u - 1, zone)) });
+        try hash.put("S|{d}|{s}", .{ u, try hash.token(dt.instant.toString(a, u, zone)) });
         const walls = [_]i64{ u + off_a - 1, u + off_a, u + off_b - 1, u + off_b, @divFloor(2 * u + off_a + off_b, 2) };
         for (walls) |w| {
-            const d = try dt.dayFromEpochDay(@divFloor(w, DAY));
-            const t = try dt.timeOfDayFromMillis(@mod(w, DAY));
+            const d = try dt.Day.fromEpochDay(@divFloor(w, DAY));
+            const t = try dt.TimeOfDay.fromMillis(@mod(w, DAY));
             for ([_]dt.Disambiguation{ .compatible, .earlier, .later, .reject }) |mode| {
-                const r = dt.dayAtTime(d, t, zone, .{ .disambiguation = mode });
+                const r = dt.Day.atTime(d, t, zone, .{ .disambiguation = mode });
                 try hash.put("A|{d}|{s}|{s}", .{ w, @tagName(mode), try hash.token(r) });
             }
         }
@@ -200,7 +200,7 @@ fn sweep(a: Allocator, zone: []const u8) !Hash {
         for ([_]i64{ n0, n1 }, 0..) |n, k| {
             if (k == 1 and n1 == n0) break;
             for ([_]i64{ n, n + 1 }) |m| {
-                const r = dt.dayStartInstant(try dt.dayFromEpochDay(m), zone);
+                const r = dt.Day.startInstant(try dt.Day.fromEpochDay(m), zone);
                 try hash.put("B|{d}|{s}", .{ m, try hash.token(r) });
             }
         }
@@ -213,40 +213,50 @@ fn sweep(a: Allocator, zone: []const u8) !Hash {
 // ---------------------------------------------------------------------------
 
 fn run(a: Allocator, fname: []const u8, args: []const Value, want: Value) !void {
+    if (eql(fname, "dayStartInstantCustom")) {
+        const raw = args[0].object;
+        const values = raw.get("zoneinfo").?.array.items;
+        const records = try a.alloc([]const u8, values.len);
+        for (values, records) |v, *record| record.* = v.string;
+        const db = try tz.Database.decode(a, .{ .zoneids = raw.get("zoneids").?.string, .links = raw.get("links").?.string, .index = raw.get("index").?.string, .zoneinfo = records });
+        defer db.deinit(a);
+        const context: dt.ZoneContext = .{ .database = &db };
+        return expect(want, context.dayStartInstant(argDay(args[1]), args[2].string), checkInt);
+    }
     // Days
-    if (eql(fname, "day")) return expect(want, dt.day(int(args[0]), int(args[1]), int(args[2])), checkDay);
+    if (eql(fname, "day")) return expect(want, dt.Day.init(int(args[0]), int(args[1]), int(args[2])), checkDay);
     if (eql(fname, "isDay")) return checkBool(want, dt.isDay(argDay(args[0])));
     if (eql(fname, "isLeapYear")) return checkBool(want, dt.isLeapYear(int(args[0])));
     if (eql(fname, "daysInMonth")) return checkInt(want, dt.daysInMonth(int(args[0]), int(args[1])));
-    if (eql(fname, "dayFromEpochDay")) return expect(want, dt.dayFromEpochDay(int(args[0])), checkDay);
-    if (eql(fname, "dayParse")) return checkOptDay(want, dt.dayParse(args[0].string));
-    if (eql(fname, "dayFromString")) return expect(want, dt.dayFromString(args[0].string), checkDay);
-    if (eql(fname, "timeOfDayParse")) return checkOptTime(want, dt.timeOfDayParse(args[0].string));
-    if (eql(fname, "timeOfDayFromString")) return expect(want, dt.timeOfDayFromString(args[0].string), checkTime);
-    if (eql(fname, "timeOfDayFromMillis")) return expect(want, dt.timeOfDayFromMillis(int(args[0])), checkTime);
+    if (eql(fname, "dayFromEpochDay")) return expect(want, dt.Day.fromEpochDay(int(args[0])), checkDay);
+    if (eql(fname, "dayParse")) return checkOptDay(want, dt.Day.parse(args[0].string));
+    if (eql(fname, "dayFromString")) return expect(want, dt.Day.fromString(args[0].string), checkDay);
+    if (eql(fname, "timeOfDayParse")) return checkOptTime(want, dt.TimeOfDay.parse(args[0].string));
+    if (eql(fname, "timeOfDayFromString")) return expect(want, dt.TimeOfDay.fromString(args[0].string), checkTime);
+    if (eql(fname, "timeOfDayFromMillis")) return expect(want, dt.TimeOfDay.fromMillis(int(args[0])), checkTime);
     if (eql(fname, "timeOfDay")) {
         var f = [_]i64{ 0, 0, 0, 0 };
         for (args, 0..) |x, i| f[i] = int(x);
-        return expect(want, dt.timeOfDay(f[0], f[1], f[2], f[3]), checkTime);
+        return expect(want, dt.TimeOfDay.init(f[0], f[1], f[2], f[3]), checkTime);
     }
     if (eql(fname, "isTimeOfDay")) return checkBool(want, dt.isTimeOfDay(argTime(args[0])));
-    if (eql(fname, "timeOfDayToMillis")) return expect(want, dt.timeOfDayToMillis(argTime(args[0])), checkInt);
-    if (eql(fname, "timeOfDayToString")) return expect(want, dt.timeOfDayToString(a, argTime(args[0])), checkString);
-    if (eql(fname, "timeOfDayCompare")) return expect(want, dt.timeOfDayCompare(argTime(args[0]), argTime(args[1])), checkInt);
+    if (eql(fname, "timeOfDayToMillis")) return expect(want, dt.TimeOfDay.toMillis(argTime(args[0])), checkInt);
+    if (eql(fname, "timeOfDayToString")) return expect(want, dt.TimeOfDay.toString(argTime(args[0]), a), checkString);
+    if (eql(fname, "timeOfDayCompare")) return expect(want, dt.TimeOfDay.compare(argTime(args[0]), argTime(args[1])), checkInt);
 
     // Zones and instants
     if (eql(fname, "timeZoneId")) return expect(want, dt.timeZoneId(args[0].string), checkString);
     if (eql(fname, "timeZoneOffset")) return expect(want, dt.timeZoneOffset(args[0].string, int(args[1])), checkInt);
-    if (eql(fname, "dayFromInstant")) return expect(want, dt.dayFromInstant(int(args[0]), args[1].string), checkDay);
-    if (eql(fname, "timeOfDayFromInstant")) return expect(want, dt.timeOfDayFromInstant(int(args[0]), args[1].string), checkTime);
-    if (eql(fname, "dayToday")) return expect(want, dt.dayToday(args[0].string, int(args[1])), checkDay);
+    if (eql(fname, "dayFromInstant")) return expect(want, dt.Day.fromInstant(int(args[0]), args[1].string), checkDay);
+    if (eql(fname, "timeOfDayFromInstant")) return expect(want, dt.TimeOfDay.fromInstant(int(args[0]), args[1].string), checkTime);
+    if (eql(fname, "dayToday")) return expect(want, dt.Day.today(args[0].string, int(args[1])), checkDay);
     if (eql(fname, "instantParse")) {
         const zone = if (optArg(args, 1)) |z| z.string else null;
-        return expect(want, dt.instantParse(args[0].string, zone), checkOptInt);
+        return expect(want, dt.instant.parse(args[0].string, zone), checkOptInt);
     }
     if (eql(fname, "instantToString")) {
         const zone = if (optArg(args, 1)) |z| z.string else null;
-        return expect(want, dt.instantToString(a, int(args[0]), zone), checkString);
+        return expect(want, dt.instant.toString(a, int(args[0]), zone), checkString);
     }
     if (eql(fname, "dtSweep")) {
         const s = try sweep(a, args[0].string);
@@ -256,38 +266,38 @@ fn run(a: Allocator, fname: []const u8, args: []const Value, want: Value) !void 
 
     // Functions of a day
     const d = argDay(args[0]);
-    if (eql(fname, "dayToEpochDay")) return expect(want, dt.dayToEpochDay(d), checkInt);
-    if (eql(fname, "dayToString")) return expect(want, dt.dayToString(a, d), checkString);
-    if (eql(fname, "dayOfWeek")) return expect(want, dt.dayOfWeek(d), checkInt);
-    if (eql(fname, "dayOfYear")) return expect(want, dt.dayOfYear(d), checkInt);
-    if (eql(fname, "dayDaysInMonth")) return expect(want, dt.dayDaysInMonth(d), checkInt);
-    if (eql(fname, "dayIsLeapYear")) return expect(want, dt.dayIsLeapYear(d), checkBool);
-    if (eql(fname, "dayAdd")) return expect(want, dt.dayAdd(d, argDuration(args[1])), checkDay);
-    if (eql(fname, "daySubtract")) return expect(want, dt.daySubtract(d, argDuration(args[1])), checkDay);
-    if (eql(fname, "dayStartOfWeek")) return expect(want, dt.dayStartOfWeek(d, int(args[1])), checkDay);
-    if (eql(fname, "dayEndOfWeek")) return expect(want, dt.dayEndOfWeek(d, int(args[1])), checkDay);
-    if (eql(fname, "dayStartOf")) return expect(want, dt.dayStartOf(d, dt.DayPeriod.fromString(args[1].string).?), checkDay);
-    if (eql(fname, "dayEndOf")) return expect(want, dt.dayEndOf(d, dt.DayPeriod.fromString(args[1].string).?), checkDay);
-    if (eql(fname, "dayStartInstant")) return expect(want, dt.dayStartInstant(d, args[1].string), checkInt);
+    if (eql(fname, "dayToEpochDay")) return expect(want, dt.Day.toEpochDay(d), checkInt);
+    if (eql(fname, "dayToString")) return expect(want, dt.Day.toString(d, a), checkString);
+    if (eql(fname, "dayOfWeek")) return expect(want, dt.Day.ofWeek(d), checkInt);
+    if (eql(fname, "dayOfYear")) return expect(want, dt.Day.ofYear(d), checkInt);
+    if (eql(fname, "dayDaysInMonth")) return expect(want, dt.Day.daysInMonth(d), checkInt);
+    if (eql(fname, "dayIsLeapYear")) return expect(want, dt.Day.isLeapYear(d), checkBool);
+    if (eql(fname, "dayAdd")) return expect(want, dt.Day.add(d, argDuration(args[1])), checkDay);
+    if (eql(fname, "daySubtract")) return expect(want, dt.Day.subtract(d, argDuration(args[1])), checkDay);
+    if (eql(fname, "dayStartOfWeek")) return expect(want, dt.Day.startOfWeek(d, int(args[1])), checkDay);
+    if (eql(fname, "dayEndOfWeek")) return expect(want, dt.Day.endOfWeek(d, int(args[1])), checkDay);
+    if (eql(fname, "dayStartOf")) return expect(want, dt.Day.startOf(d, dt.DayPeriod.fromString(args[1].string).?), checkDay);
+    if (eql(fname, "dayEndOf")) return expect(want, dt.Day.endOf(d, dt.DayPeriod.fromString(args[1].string).?), checkDay);
+    if (eql(fname, "dayStartInstant")) return expect(want, dt.Day.startInstant(d, args[1].string), checkInt);
     if (eql(fname, "dayAtTime")) {
         var options: dt.DayAtTimeOptions = .{};
         if (optArg(args, 3)) |o| options.disambiguation = dt.Disambiguation.fromString(o.object.get("disambiguation").?.string).?;
-        return expect(want, dt.dayAtTime(d, argTime(args[1]), args[2].string, options), checkInt);
+        return expect(want, dt.Day.atTime(d, argTime(args[1]), args[2].string, options), checkInt);
     }
 
     // Functions of two days
     const e = argDay(args[1]);
-    if (eql(fname, "dayCompare")) return expect(want, dt.dayCompare(d, e), checkInt);
-    if (eql(fname, "dayEquals")) return expect(want, dt.dayEquals(d, e), checkBool);
-    if (eql(fname, "dayIsBefore")) return expect(want, dt.dayIsBefore(d, e), checkBool);
-    if (eql(fname, "dayIsAfter")) return expect(want, dt.dayIsAfter(d, e), checkBool);
+    if (eql(fname, "dayCompare")) return expect(want, dt.Day.compare(d, e), checkInt);
+    if (eql(fname, "dayEquals")) return expect(want, dt.Day.equals(d, e), checkBool);
+    if (eql(fname, "dayIsBefore")) return expect(want, dt.Day.isBefore(d, e), checkBool);
+    if (eql(fname, "dayIsAfter")) return expect(want, dt.Day.isAfter(d, e), checkBool);
     if (eql(fname, "dayUntil")) {
         const unit = if (optArg(args, 2)) |u| dt.DayUnit.fromString(u.string).? else .days;
-        return expect(want, dt.dayUntil(d, e, unit), checkInt);
+        return expect(want, dt.Day.until(d, e, unit), checkInt);
     }
     if (eql(fname, "dayRange")) {
         const step = if (optArg(args, 2)) |s| argDuration(s) else dt.DayDuration{ .days = 1 };
-        return expect(want, dt.dayRange(a, d, e, step), checkDays);
+        return expect(want, dt.Day.range(d, a, e, step), checkDays);
     }
 
     return fail("unknown function {s}", .{fname});
@@ -341,25 +351,25 @@ test "system time zone and now" {
     }
     const t = dt.now(std.testing.io);
     try std.testing.expect(t > 1_700_000_000_000);
-    _ = try dt.dayToday("UTC", t);
+    _ = try dt.Day.today("UTC", t);
 }
 
 test "no leaks" {
     const gpa = std.testing.allocator;
-    const s = try dt.dayToString(gpa, try dt.day(2026, 1, 31));
+    const s = try dt.Day.toString(try dt.Day.init(2026, 1, 31), gpa);
     defer gpa.free(s);
     try std.testing.expectEqualStrings("2026-01-31", s);
-    const ts = try dt.timeOfDayToString(gpa, try dt.timeOfDay(6, 30, 0, 5));
+    const ts = try dt.TimeOfDay.toString(try dt.TimeOfDay.init(6, 30, 0, 5), gpa);
     defer gpa.free(ts);
     try std.testing.expectEqualStrings("06:30:00.005", ts);
-    const is = try dt.instantToString(gpa, 1769878800005, "America/Vancouver");
+    const is = try dt.instant.toString(gpa, 1769878800005, "America/Vancouver");
     defer gpa.free(is);
     try std.testing.expectEqualStrings("2026-01-31T09:00:00.005-08:00", is);
-    const r = try dt.dayRange(gpa, try dt.dayFromString("2026-01-31"), try dt.dayFromString("2026-05-31"), .{ .months = 1 });
+    const r = try dt.Day.range(try dt.Day.fromString("2026-01-31"), gpa, try dt.Day.fromString("2026-05-31"), .{ .months = 1 });
     defer gpa.free(r);
     try std.testing.expectEqual(@as(usize, 5), r.len);
-    try std.testing.expectEqual(@as(i64, 1769817600000), try dt.dayAtTime(try dt.day(2026, 1, 31), try dt.timeOfDay(9, 0, 0, 0), "Asia/Tokyo", .{}));
+    try std.testing.expectEqual(@as(i64, 1769817600000), try dt.Day.atTime(try dt.Day.init(2026, 1, 31), try dt.TimeOfDay.init(9, 0, 0, 0), "Asia/Tokyo", .{}));
     // A failing call frees what it allocated.
-    try std.testing.expectError(error.InvalidDay, dt.dayRange(gpa, .{ .year = 2026, .month = 2, .day = 30 }, try dt.day(2026, 3, 1), .{ .days = 1 }));
-    try std.testing.expectError(error.DayOutOfRange, dt.instantToString(gpa, -8_640_000_000_000_000, "America/New_York"));
+    try std.testing.expectError(error.InvalidDay, dt.Day.range(.{ .year = 2026, .month = 2, .day = 30 }, gpa, try dt.Day.init(2026, 3, 1), .{ .days = 1 }));
+    try std.testing.expectError(error.DayOutOfRange, dt.instant.toString(gpa, -8_640_000_000_000_000, "America/New_York"));
 }

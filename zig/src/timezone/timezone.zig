@@ -13,7 +13,7 @@ pub const RawData = database.RawData;
 pub const ZoneInfo = database.ZoneInfo;
 pub const ZoneMeta = database.ZoneMeta;
 pub const Database = database.Database;
-pub const DecodeError = database.DecodeError;
+pub const Error = database.Error;
 
 /// The time zone data bundled with this package, generated from the tz database, in its packed
 /// form. Decode it with `Database.decode`; the bundled data is already available decoded as

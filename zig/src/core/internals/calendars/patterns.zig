@@ -14,9 +14,9 @@ pub const CalendarPatterns = struct {
     data: *const LocaleData,
     schema: *const CalendarSchema,
     gregorian: bool,
-    skeletonParser: s.DateSkeletonParser,
-    availableMatcher: s.DatePatternMatcher,
-    intervalMatcher: s.DatePatternMatcher,
+    skeleton_parser: s.DateSkeletonParser,
+    available_matcher: s.DatePatternMatcher,
+    interval_matcher: s.DatePatternMatcher,
 };
 fn eq(a: []const u8, b: []const u8) bool {
     return std.mem.eql(u8, a, b);
@@ -32,43 +32,43 @@ pub fn timeDataFor(a: A, language: []const u8, region: []const u8) A.Error![2][]
 pub fn buildSkeletonParser(a: A, language: []const u8, region: []const u8) A.Error!s.DateSkeletonParser {
     const pair = try timeDataFor(a, language, region);
     const end = std.mem.indexOfScalar(u8, pair[0], ' ') orelse pair[0].len;
-    return .{ .preferredFlex = try dates.parseDatePattern(a, pair[1]), .allowedFlex = try dates.parseDatePattern(a, pair[0][0..end]) };
+    return .{ .preferred_flex = try dates.parseDatePattern(a, pair[1]), .allowed_flex = try dates.parseDatePattern(a, pair[0][0..end]) };
 }
 fn build(c: CalendarType, data: *const LocaleData, a: A) A.Error!CalendarPatterns {
     return calendarPatterns(a, data, internal.calendarSchema(data, c), c == .gregory);
 }
 /// Build patterns for an explicit calendar schema. `a` must be an arena.
 pub fn calendarPatterns(a: A, data: *const LocaleData, schema: *const CalendarSchema, gregorian: bool) A.Error!CalendarPatterns {
-    var p: CalendarPatterns = .{ .data = data, .schema = schema, .gregorian = gregorian, .skeletonParser = try buildSkeletonParser(a, data.bundle.language, data.bundle.region), .availableMatcher = .{}, .intervalMatcher = .{} };
+    var p: CalendarPatterns = .{ .data = data, .schema = schema, .gregorian = gregorian, .skeleton_parser = try buildSkeletonParser(a, data.bundle.language, data.bundle.region), .available_matcher = .{}, .interval_matcher = .{} };
     const b = &data.bundle;
     // Key order comes from the schema (matching JS vectorMapping's insertion order).
     for (p.schema.dateFormats.keysets[0].keys) |w| {
         if (p.schema.dateFormats.get(b, &.{w}).len == 0) continue;
-        var ds = try s.skeletonParse(a, p.skeletonParser, p.schema.dateFormats.get(b, &.{w}), true);
+        var ds = try s.skeletonParse(a, p.skeleton_parser, p.schema.dateFormats.get(b, &.{w}), true);
         const dk = p.schema.dateSkeletons.get(b, &.{w});
         if (dk.len > 0) ds.skeleton = dk;
-        try s.matcherAdd(a, &p.availableMatcher, ds);
-        var ts = try s.skeletonParse(a, p.skeletonParser, p.schema.timeFormats.get(b, &.{w}), true);
+        try s.matcherAdd(a, &p.available_matcher, ds);
+        var ts = try s.skeletonParse(a, p.skeleton_parser, p.schema.timeFormats.get(b, &.{w}), true);
         const tk = p.schema.timeSkeletons.get(b, &.{w});
         if (tk.len > 0) ts.skeleton = tk;
-        try s.matcherAdd(a, &p.availableMatcher, ts);
+        try s.matcherAdd(a, &p.available_matcher, ts);
     }
     for (p.schema.availableFormats.keysets[0].keys) |k| {
-        if (p.schema.availableFormats.get(b, &.{k}).len > 0) try s.matcherAdd(a, &p.availableMatcher, try s.skeletonParse(a, p.skeletonParser, k, false));
+        if (p.schema.availableFormats.get(b, &.{k}).len > 0) try s.matcherAdd(a, &p.available_matcher, try s.skeletonParse(a, p.skeleton_parser, k, false));
     }
     for (p.schema.pluralFormats.keysets[1].keys) |k| {
-        if (p.schema.pluralFormats.get(b, &.{ "other", k }).len > 0) try s.matcherAdd(a, &p.availableMatcher, try s.skeletonParse(a, p.skeletonParser, k, false));
+        if (p.schema.pluralFormats.get(b, &.{ "other", k }).len > 0) try s.matcherAdd(a, &p.available_matcher, try s.skeletonParse(a, p.skeleton_parser, k, false));
     }
-    s.matcherSort(&p.availableMatcher);
+    s.matcherSort(&p.available_matcher);
     for (p.schema.intervalFormats.keysets[0].keys) |k| {
         var exists = false;
         for (p.schema.intervalFormats.keysets[1].keys) |f| if (p.schema.intervalFormats.get(b, &.{ k, f }).len > 0) {
             exists = true;
             break;
         };
-        if (exists) try s.matcherAdd(a, &p.intervalMatcher, try s.skeletonParse(a, p.skeletonParser, k, false));
+        if (exists) try s.matcherAdd(a, &p.interval_matcher, try s.skeletonParse(a, p.skeleton_parser, k, false));
     }
-    s.matcherSort(&p.intervalMatcher);
+    s.matcherSort(&p.interval_matcher);
     return p;
 }
 pub fn getCalendarPatterns(data: *const LocaleData, c: CalendarType) A.Error!*const CalendarPatterns {
@@ -92,8 +92,8 @@ pub fn patternsAvailablePattern(a: A, p: *const CalendarPatterns, d: cal.Calenda
     var raw = sk.pattern orelse "";
     if (raw.len == 0) {
         if (p.gregorian and (eq(sk.skeleton, "MMMMW") or eq(sk.skeleton, "yw"))) {
-            const n = try decimal.fromInt(a, if (eq(sk.skeleton, "yw")) cal.dateWeekOfYear(&d) else cal.dateWeekOfMonth(&d));
-            const plural = plurals.cardinal(p.data.bundle.plurals, n, 0).name();
+            const n = try decimal.fromInt(a, if (eq(sk.skeleton, "yw")) cal.CalendarDate.weekOfYear(&d) else cal.CalendarDate.weekOfMonth(&d));
+            const plural = plurals.cardinal(p.data.bundle.plurals, n, 0).toString();
             raw = p.schema.pluralFormats.get(&p.data.bundle, &.{ plural, sk.skeleton });
         } else {
             raw = p.schema.availableFormats.get(&p.data.bundle, &.{sk.skeleton});
@@ -104,13 +104,13 @@ pub fn patternsAvailablePattern(a: A, p: *const CalendarPatterns, d: cal.Calenda
 }
 pub const patternsAdjust = s.matcherAdjust;
 pub fn patternsMatchAvailable(p: *const CalendarPatterns, sk: s.DateSkeleton) s.DateSkeleton {
-    return s.matcherMatch(p.availableMatcher, sk);
+    return s.matcherMatch(p.available_matcher, sk);
 }
 pub fn patternsMatchInterval(p: *const CalendarPatterns, sk: s.DateSkeleton) s.DateSkeleton {
-    return s.matcherMatch(p.intervalMatcher, sk);
+    return s.matcherMatch(p.interval_matcher, sk);
 }
 pub fn patternsParseSkeleton(a: A, p: *const CalendarPatterns, raw: []const u8) A.Error!s.DateSkeleton {
-    return s.skeletonParse(a, p.skeletonParser, raw, false);
+    return s.skeletonParse(a, p.skeleton_parser, raw, false);
 }
 pub fn patternsDayPeriods(a: A, p: *const CalendarPatterns) A.Error!std.json.Value {
     return p.schema.standAlone.dayPeriods.mapping(a, &p.data.bundle);

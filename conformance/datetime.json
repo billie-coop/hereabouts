@@ -12259,6 +12259,7 @@
 {"fn":"dayAtTime","args":[{"year":2005,"month":11,"day":2},{"hour":11,"minute":13,"second":52,"millis":264},"Asia/Urumqi",{"disambiguation":"compatible"}],"result":1130908432264},
 {"fn":"dayAtTime","args":[{"year":2102,"month":8,"day":23},{"hour":13,"minute":17,"second":17,"millis":310},"Asia/Tbilisi",{"disambiguation":"earlier"}],"result":4185767837310},
 {"fn":"dayAtTime","args":[{"year":2044,"month":6,"day":8},{"hour":10,"minute":3,"second":39,"millis":686},"Asia/Jerusalem",{"disambiguation":"later"}],"result":2348985819686},
+{"fn":"dayStartInstantCustom","args":[{"zoneids":"Test/Midnight","links":"","index":"1uo0","zoneinfo":["230_0_0__BEF:0:-1e0|AFT:1:230_1_0"]},{"year":1970,"month":1,"day":2},"Test/Midnight"],"result":86400000},
 {"fn":"dtSweep","args":["Africa/Abidjan"],"result":{"count":24,"hash":1968546893}},
 {"fn":"dtSweep","args":["Africa/Algiers"],"result":{"count":856,"hash":1554611540}},
 {"fn":"dtSweep","args":["Africa/Bissau"],"result":{"count":50,"hash":1299240387}},

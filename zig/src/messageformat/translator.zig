@@ -13,9 +13,9 @@
 //! const de = [_]Message{
 //!     .{ .key = "{count} invoices", .message = "{count, plural, one {# Rechnung} other {# Rechnungen}}" },
 //! };
-//! var t = try createTranslator(gpa, .{ .source = &en, .catalogs = &.{.{ .id = "de", .messages = &de }} });
+//! var t = try Translator.init(gpa, .{ .source = &en, .catalogs = &.{.{ .id = "de", .messages = &de }} });
 //! defer t.deinit();
-//! const s = try translate(gpa, &t, "de-AT", "{count} invoices", &.{.{ .name = "count", .value = .{ .number = 3 } }});
+//! const s = try t.translate(gpa, "de-AT", "{count} invoices", &.{.{ .name = "count", .value = .{ .number = 3 } }});
 //! // "3 Rechnungen"
 //! ```
 //!
@@ -103,6 +103,31 @@ pub const Translator = struct {
         self.parsed.deinit();
         self.plurals.deinit();
         self.matcher.deinit(self.gpa);
+    }
+
+    /// TypeScript `createTranslator` (messageformat/translator.ts).
+    pub fn init(gpa: Allocator, options: TranslatorOptions) Allocator.Error!Translator {
+        return @import("translator.zig").createTranslator(gpa, options);
+    }
+
+    /// TypeScript `resolveMessage` (messageformat/translator.ts).
+    pub fn resolveMessage(t: *const Translator, locale: []const u8, key: []const u8) Resolved {
+        return @import("translator.zig").resolveMessage(t, locale, key);
+    }
+
+    /// TypeScript `translate` (messageformat/translator.ts).
+    pub fn translate(t: *Translator, gpa: Allocator, locale: []const u8, key: []const u8, named: []const ev.NamedArg) Error![]u8 {
+        return @import("translator.zig").translate(gpa, t, locale, key, named);
+    }
+
+    /// TypeScript `isMessageKey` (messageformat/translator.ts).
+    pub fn isMessageKey(t: *const Translator, key: []const u8) bool {
+        return @import("translator.zig").isMessageKey(t, key);
+    }
+
+    /// TypeScript `checkCatalogs` (messageformat/translator.ts).
+    pub fn checkCatalogs(t: *Translator, gpa: Allocator, options: CheckCatalogsOptions) Allocator.Error![]CatalogIssue {
+        return @import("translator.zig").checkCatalogs(gpa, t, options);
     }
 };
 
@@ -338,7 +363,8 @@ pub const Problem = enum {
     no_other,
 
     /// The TypeScript name: 'missing', ..., 'no-other'.
-    pub fn name(self: Problem) []const u8 {
+    /// Zig string form of the TypeScript problem.
+    pub fn toString(self: Problem) []const u8 {
         return if (self == .no_other) "no-other" else @tagName(self);
     }
 };

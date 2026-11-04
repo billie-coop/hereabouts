@@ -94,7 +94,7 @@ fn describeFull(a: Allocator, t: LanguageTag) !DescFull {
         .extlangs = d.extlangs,
         .compact = d.compact,
         .expanded = d.expanded,
-        .get = .{ t.getLanguage(), t.getScript(), t.getRegion(), t.getVariant() },
+        .get = .{ t.tagLanguage(), t.tagScript(), t.tagRegion(), t.tagVariant() },
         .has = .{ t.hasLanguage(), t.hasScript(), t.hasRegion() },
     };
 }
@@ -156,7 +156,7 @@ fn expectTag(a: Allocator, want: Value, t: LanguageTag) !void {
 
 fn input(a: Allocator, v: Value) !Loc.Input {
     if (v == .string) return .{ .id = v.string };
-    return .{ .tag = try L.init(a, try fieldsFromArgs(a, v.object.get("tag").?.array.items)) };
+    return .{ .tag = try L.LanguageTag.init(a, try fieldsFromArgs(a, v.object.get("tag").?.array.items)) };
 }
 
 fn expectOptString(want: Value, got: ?[]const u8) !void {
@@ -194,7 +194,7 @@ fn run(a: Allocator, fname: []const u8, args: []const Value, want: Value) !void 
     if (eql(fname, "subdivisionFlag")) return expectOptString(want, Loc.subdivisionFlag(args[0].string));
     if (eql(fname, "flagRegion")) return expectOptString(want, Loc.flagRegion(args[0].string));
     if (eql(fname, "returnTag")) {
-        const real = try L.parse(a, args[0].string);
+        const real = try L.parseLanguageTag(a, args[0].string);
         const fast = Loc.fastTag((try input(a, args[1])).tag);
         return expectTag(a, want, try Loc.returnTag(a, real, fast));
     }
@@ -233,7 +233,7 @@ test "no leaks" {
     const gpa = std.testing.allocator;
     const long = "en-u-ca-gregory-nu-latn-co-phonebk-cu-usd-tz-usnyc-va-posix-t-ja-latn-x-0123456789-abcdefgh-ijklmnop-qrstuvwx-yz012345-6789abcd-efghijkl-mnopqrst-uvwxyz01-23456789-abcdefgh-ijklmnop-qrstuvwx-yz012345-6789abcd-efghijkl-mnopqrst-uvwxyz01-23456789-abcdefgh-ijklmnop-qrstuvwx-yz012345-6789abcd-efghijkl-mnopqrst-uvwxyz01-23456789-abcdefgh-ijklmnop-qrstuvwx-yz012345-6789abcd-efghijkl";
     for ([_][]const u8{ "en", "iw-u-ca-hebrew", "zh-yue", long }) |id| {
-        const tag = try L.parse(gpa, id);
+        const tag = try L.parseLanguageTag(gpa, id);
         defer tag.deinit(gpa);
         for ([_]Loc.Input{ .{ .id = id }, .{ .tag = tag } }) |in| {
             inline for (resolvers) |r| {

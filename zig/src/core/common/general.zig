@@ -18,7 +18,8 @@ pub const AltType = enum {
         if (std.mem.eql(u8, s, "stand-alone")) return .stand_alone;
         return std.meta.stringToEnum(AltType, s);
     }
-    pub fn string(self: AltType) []const u8 {
+    /// Zig string form of the TypeScript alternate-name option.
+    pub fn toString(self: AltType) []const u8 {
         return if (self == .stand_alone) "stand-alone" else @tagName(self);
     }
 };

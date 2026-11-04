@@ -108,7 +108,7 @@ pub fn daysInMonth(y: f64, m: usize) f64 {
     return MONTH_COUNT[m][if (leapGregorian(y)) 1 else 0];
 }
 
-/// `CalendarSystem.daysInMonth` for the Gregorian-based calendars.
+/// `CalendarSystem.days_in_month` for the Gregorian-based calendars.
 pub fn daysInMonthInt(y: i64, m: i64) i64 {
     if (m < 0 or m > 11) return 0;
     return @intFromFloat(daysInMonth(@floatFromInt(y), @intCast(m)));

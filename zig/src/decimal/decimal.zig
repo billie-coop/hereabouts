@@ -360,7 +360,8 @@ pub fn integerDigits(d: Decimal) i64 {
 
 /// Adjusted exponent for alignment. Two numbers with the same aligned exponent are aligned for
 /// arithmetic; otherwise one must be shifted.
-pub fn alignexp(d: Decimal) i64 {
+/// TypeScript `decimalAlignexp` (capitalization normalized).
+pub fn alignExp(d: Decimal) i64 {
     return if (d.flag != .none) 0 else d.exp + precision(d) - 1;
 }
 
@@ -428,8 +429,8 @@ fn compareImpl(a: Allocator, un: Decimal, vn: Decimal, abs_: bool) Allocator.Err
         return if (us == -1) (if (uz) 1 else -1) else (if (uz) -1 else 1);
     }
 
-    const ue = alignexp(u);
-    const ve = alignexp(v);
+    const ue = alignExp(u);
+    const ve = alignExp(v);
     if (ue != ve) {
         if (abs_) return if (ue < ve) -1 else 1;
         return if (ue < ve) -us else us;
@@ -628,7 +629,8 @@ pub const DivMod = struct {
 };
 
 /// Quotient and remainder of u / v.
-pub fn divmod(gpa: Allocator, u: Decimal, v: Decimal) Allocator.Error!DivMod {
+/// TypeScript `decimalDivmod` (capitalization normalized).
+pub fn divMod(gpa: Allocator, u: Decimal, v: Decimal) Allocator.Error!DivMod {
     var arena = ArenaAllocator.init(gpa);
     defer arena.deinit();
     const r = try divmodImpl(arena.allocator(), u, v);
@@ -772,7 +774,8 @@ pub fn movePoint(gpa: Allocator, d: Decimal, places: i64) Error!Decimal {
 }
 
 /// Shift all digits left, increasing the precision.
-pub fn shiftleft(gpa: Allocator, d: Decimal, shift: i64) Error!Decimal {
+/// TypeScript `decimalShiftleft` (capitalization normalized).
+pub fn shiftLeft(gpa: Allocator, d: Decimal, shift: i64) Error!Decimal {
     _ = try checkExponent(shift);
     var arena = ArenaAllocator.init(gpa);
     defer arena.deinit();
@@ -787,7 +790,8 @@ fn shiftleftImpl(a: Allocator, d: Decimal, shift: i64) Allocator.Error!Decimal {
 }
 
 /// Shift all digits right, reducing the precision, rounding with `mode`.
-pub fn shiftright(gpa: Allocator, d: Decimal, shift: i64, mode: RoundingMode) Error!Decimal {
+/// TypeScript `decimalShiftright` (capitalization normalized).
+pub fn shiftRight(gpa: Allocator, d: Decimal, shift: i64, mode: RoundingMode) Error!Decimal {
     if (d.flag == .none) _ = try checkExponent(@as(i128, d.exp) + @max(shift, 0));
     if (d.flag != .none) return clone(gpa, d);
     var arena = ArenaAllocator.init(gpa);
@@ -1148,7 +1152,7 @@ fn shiftrightDraft(a: Allocator, w: *Draft, shift: i64, mode: RoundingMode) Allo
 
     // Round only with a free zero integer digit to the left: the number is < 0 or not every
     // digit shifts out.
-    const round = alignexp(w.view()) < 0 or prec != shift;
+    const round = alignExp(w.view()) < 0 or prec != shift;
     const qr = math.divword(shift, RDIGITS);
     const q = qr.q;
     const r = qr.r;

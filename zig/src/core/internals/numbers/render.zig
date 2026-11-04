@@ -44,13 +44,13 @@ pub const NumberRenderer = struct {
         const decimal = if (decimal_symbol.len > 0)
             decimal_symbol
         else if (currency)
-            (if (symbols.currencyDecimal.len > 0) symbols.currencyDecimal else symbols.decimal)
+            (if (symbols.currency_decimal.len > 0) symbols.currency_decimal else symbols.decimal)
         else
             symbols.decimal;
         var group: []const u8 = "";
         if (grouping orelse true) {
             group = symbols.group;
-            if (currency and symbols.currencyGroup.len > 0) group = symbols.currencyGroup;
+            if (currency and symbols.currency_group.len > 0) group = symbols.currency_group;
         }
 
         var pri_group = pattern.pri_group;
@@ -78,8 +78,8 @@ pub const NumberRenderer = struct {
                     // After the number, i > 0.
                     currency_idx = if (currency_before) j else if (i == 0) null else i - 1;
                 },
-                .minus => try res.add("minus", symbols.minusSign),
-                .plus => try res.add("plus", symbols.plusSign),
+                .minus => try res.add("minus", symbols.minus_sign),
+                .plus => try res.add("plus", symbols.plus_sign),
                 .number => {
                     try res.append(formatted);
                     have_number = true;
@@ -90,9 +90,9 @@ pub const NumberRenderer = struct {
                     if (exponent != 0) {
                         try res.add("exponent", symbols.exponential);
                         if (exponent < 0) {
-                            try res.add("minus", symbols.minusSign);
+                            try res.add("minus", symbols.minus_sign);
                         } else {
-                            try res.add("plus", symbols.plusSign);
+                            try res.add("plus", symbols.plus_sign);
                         }
                         var buf: [24]u8 = undefined;
                         const e = std.fmt.bufPrint(&buf, "{d}", .{exponent}) catch unreachable;
@@ -108,11 +108,11 @@ pub const NumberRenderer = struct {
             const curr = res.get(idx);
             if (currency_before) {
                 if (insertBetween(sp.after, lastUnit(currency_symbol), firstUnit(curr))) {
-                    try res.insert(idx, "spacer", sp.after.insertBetween);
+                    try res.insert(idx, "spacer", sp.after.insert_between);
                 }
             } else {
                 if (insertBetween(sp.before, firstUnit(currency_symbol), lastUnit(curr))) {
-                    try res.insert(idx + 1, "spacer", sp.before.insertBetween);
+                    try res.insert(idx + 1, "spacer", sp.before.insert_between);
                 }
             }
         }
@@ -182,5 +182,5 @@ pub fn spacingMatch(matcher: []const u8, c: ?u16) bool {
 }
 
 fn insertBetween(sp: CurrencySpacingPatterns, currency: ?u16, surrounding: ?u16) bool {
-    return spacingMatch(sp.currencyMatch, currency) and spacingMatch(sp.surroundingMatch, surrounding);
+    return spacingMatch(sp.currency_match, currency) and spacingMatch(sp.surrounding_match, surrounding);
 }

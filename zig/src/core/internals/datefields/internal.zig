@@ -21,7 +21,7 @@ pub fn renderRelativeTimeField(a: A, data: *const LocaleData, value: D.Decimal, 
         if ((try D.compare(a, n, try D.fromInt(a, 2), false)) == 0) res = (if (negative) format.previous2 else format.next2).get(b, &.{field}) else if ((try D.compare(a, n, try D.fromInt(a, 1), false)) == 0) res = (if (negative) format.previous else format.next).get(b, &.{field});
     }
     if (res.len > 0) return general.contextTransform(a, res, data, o.context, "relative");
-    const plural = plurals.cardinal(b.plurals, n, 0).name();
+    const plural = plurals.cardinal(b.plurals, n, 0).toString();
     const raw = (if (negative) format.past else format.future).get(b, &.{ plural, field });
     const transformed = try general.contextTransform(a, raw, data, o.context, "relative");
     const num = try @import("../../systems/numbering/decimal.zig").formatString(a, params.system, n, o.group orelse true, 1);

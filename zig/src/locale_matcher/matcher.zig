@@ -85,7 +85,7 @@ pub fn parse(arena: Allocator, locales: []const Input, options: Options) Allocat
             .string => |s| {
                 var it: Splitter = .{ .s = s };
                 while (it.next()) |id| {
-                    const tag = try lt.parse(arena, id);
+                    const tag = try lt.parseLanguageTag(arena, id);
                     try result.append(arena, try entryFor(arena, try arena.dupe(u8, id), tag, options));
                 }
             },
@@ -122,7 +122,7 @@ fn entryFor(arena: Allocator, id: []const u8, tag: LanguageTag, options: Options
         return entry(arena, id, if (options.resolve) try locale.resolveLanguageTag(arena, .{ .tag = tag }) else try tag.clone(arena));
     }
     // Preserve undefined core fields, but include input's extensions
-    return entry(arena, id, try lt.init(arena, .{ .extensions = tag.extensions, .private_use = tag.private_use }));
+    return entry(arena, id, try lt.LanguageTag.init(arena, .{ .extensions = tag.extensions, .private_use = tag.private_use }));
 }
 
 fn paradigmRank(e: Entry) usize {
@@ -160,6 +160,16 @@ pub const Matcher = struct {
             if (std.mem.eql(u8, e.compact, compact)) return e;
         }
         return null;
+    }
+
+    /// TypeScript `createLocaleMatcher` (locale-matcher/matcher.ts).
+    pub fn init(gpa: Allocator, supported_locales: []const Input, options: Options) Error!Matcher {
+        return @import("matcher.zig").create(gpa, supported_locales, options);
+    }
+
+    /// TypeScript `matchLocale` (locale-matcher/matcher.ts).
+    pub fn matchLocale(matcher: Matcher, gpa: Allocator, desired_locales: []const []const u8, threshold: i32) Allocator.Error!Match {
+        return @import("matcher.zig").match(gpa, matcher, desired_locales, threshold);
     }
 };
 
@@ -226,11 +236,11 @@ pub fn match(gpa: Allocator, matcher: Matcher, desired_locales: []const []const 
     }
 
     const m = best_match orelse matcher.default_entry;
-    const tag = try lt.init(gpa, .{
-        .language = m.tag.getLanguage(),
-        .script = m.tag.getScript(),
-        .region = m.tag.getRegion(),
-        .variant = m.tag.getVariant(),
+    const tag = try lt.LanguageTag.init(gpa, .{
+        .language = m.tag.tagLanguage(),
+        .script = m.tag.tagScript(),
+        .region = m.tag.tagRegion(),
+        .variant = m.tag.tagVariant(),
         .extensions = best_desired.tag.extensions,
         .private_use = best_desired.tag.private_use,
     });

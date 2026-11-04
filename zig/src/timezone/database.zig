@@ -82,7 +82,7 @@ pub const ZoneRef = struct {
     zone: *const Zone,
 };
 
-pub const DecodeError = error{InvalidTimeZoneData} || Allocator.Error;
+pub const Error = error{InvalidTimeZoneData} || Allocator.Error;
 
 pub const WallResult = struct { utc: i64, info: ZoneInfo };
 fn makeZoneInfo(zoneid: []const u8, rec: LocalTime) ZoneInfo {
@@ -127,7 +127,7 @@ pub const Database = struct {
     /// Decode raw data. The raw data is copied, so it need not outlive the result. Free the
     /// result with `deinit`. Malformed data is an error (the TypeScript decodes it into
     /// garbage records instead).
-    pub fn decode(gpa: Allocator, raw: RawData) DecodeError!Database {
+    pub fn decode(gpa: Allocator, raw: RawData) Error!Database {
         var arena = std.heap.ArenaAllocator.init(gpa);
         errdefer arena.deinit();
         const a = arena.allocator();
@@ -220,12 +220,12 @@ fn lower(a: Allocator, s: []const u8) Allocator.Error![]const u8 {
 }
 
 /// `parseInt(s, 36)` for well-formed input: an optional sign and base-36 digits.
-fn parse36(s: []const u8) DecodeError!i64 {
+fn parse36(s: []const u8) Error!i64 {
     return std.fmt.parseInt(i64, s, 36) catch error.InvalidTimeZoneData;
 }
 
 /// Space-separated base-36 numbers; empty text is an empty list.
-fn numarray(a: Allocator, s: []const u8) DecodeError![]i64 {
+fn numarray(a: Allocator, s: []const u8) Error![]i64 {
     var out: std.ArrayList(i64) = .empty;
     if (s.len == 0) return out.items;
     var it = std.mem.splitScalar(u8, s, ' ');
@@ -233,7 +233,7 @@ fn numarray(a: Allocator, s: []const u8) DecodeError![]i64 {
     return out.items;
 }
 
-fn decodeInfo(raw: []const u8) DecodeError!LocalTime {
+fn decodeInfo(raw: []const u8) Error!LocalTime {
     var it = std.mem.splitScalar(u8, raw, ':');
     const abbr = it.next().?;
     const dst = std.fmt.parseInt(u8, it.next() orelse return error.InvalidTimeZoneData, 10) catch
@@ -243,7 +243,7 @@ fn decodeInfo(raw: []const u8) DecodeError!LocalTime {
 }
 
 /// Decode the packed data for a single zone.
-fn decodeZone(a: Allocator, raw: []const u8, index: []const i64) DecodeError!Zone {
+fn decodeZone(a: Allocator, raw: []const u8, index: []const i64) Error!Zone {
     var fields: [7][]const u8 = undefined;
     var it = std.mem.splitScalar(u8, raw, '_');
     for (&fields) |*f| f.* = it.next() orelse return error.InvalidTimeZoneData;

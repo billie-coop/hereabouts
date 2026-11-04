@@ -37,7 +37,7 @@ pub const General = struct {
         return @import("../framework.zig").resolveLocaleTag(gpa, tag);
     }
     pub fn parseLanguageTag(_: General, gpa: Allocator, code: []const u8) Allocator.Error!@import("../../language_tag/language_tag.zig").LanguageTag {
-        return @import("../../language_tag/language_tag.zig").parse(gpa, code);
+        return @import("../../language_tag/language_tag.zig").parseLanguageTag(gpa, code);
     }
     pub fn characterOrder(self: General) gen_options.CharacterOrder {
         return gen.characterOrder(self.data);

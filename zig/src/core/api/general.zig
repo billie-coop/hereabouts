@@ -44,7 +44,7 @@ pub fn messageFormatter(data: *const LocaleData) Allocator.Error!*mf.MessageForm
 pub fn createMessageFormatter(gpa: Allocator, data: *const LocaleData, opts: mf.MessageFormatterOptions) Allocator.Error!mf.MessageFormatter {
     var o = opts;
     o.plurals = data.bundle.plurals;
-    return mf.createMessageFormatter(gpa, o);
+    return mf.MessageFormatter.init(gpa, o);
 }
 
 fn listParts(a: Allocator, data: *const LocaleData, items: []const []const u8, t: ?ListPatternType) Allocator.Error![]Part {
@@ -70,17 +70,17 @@ pub fn formatListToParts(gpa: Allocator, data: *const LocaleData, items: []const
 }
 
 fn getAlt(data: *const LocaleData, arrow: VectorArrow, code: []const u8, alt: options.AltType) []const u8 {
-    const s = arrow.get(&data.bundle, &.{ alt.string(), code });
+    const s = arrow.get(&data.bundle, &.{ alt.toString(), code });
     return if (s.len > 0) s else arrow.get(&data.bundle, &.{ "none", code });
 }
 fn inputTag(a: Allocator, input: NameInput) Allocator.Error!tags.LanguageTag {
     return switch (input) {
-        .code => |s| tags.parse(a, s),
+        .code => |s| tags.parseLanguageTag(a, s),
         .tag => |t| t,
     };
 }
 fn compound(a: Allocator, data: *const LocaleData, arrow: VectorArrow, tag: tags.LanguageTag, region: bool, alt: options.AltType) Allocator.Error![]const u8 {
-    const code = try std.fmt.allocPrint(a, "{s}-{s}", .{ tag.getLanguage(), if (region) tag.getRegion() else tag.getScript() });
+    const code = try std.fmt.allocPrint(a, "{s}-{s}", .{ tag.tagLanguage(), if (region) tag.tagRegion() else tag.tagScript() });
     return getAlt(data, arrow, code, alt);
 }
 /// Owned display name. The input distinguishes a raw code from a parsed language tag.
@@ -93,12 +93,12 @@ pub fn getLanguageDisplayName(gpa: Allocator, data: *const LocaleData, input: Na
     var s: []const u8 = if (input == .code) getAlt(data, arrow, input.code, o.type) else "";
     if (s.len == 0 and tag.hasLanguage() and tag.hasRegion()) s = try compound(a, data, arrow, tag, true, o.type);
     if (s.len == 0 and tag.hasLanguage() and tag.hasScript()) s = try compound(a, data, arrow, tag, false, o.type);
-    if (s.len == 0 and !tag.hasScript() and !tag.hasRegion()) s = getAlt(data, arrow, tag.getLanguage(), o.type);
+    if (s.len == 0 and !tag.hasScript() and !tag.hasRegion()) s = getAlt(data, arrow, tag.tagLanguage(), o.type);
     if (s.len == 0) {
         tag = try locales.resolveLanguageTag(a, .{ .tag = tag });
         s = try compound(a, data, arrow, tag, true, o.type);
         if (s.len == 0) s = try compound(a, data, arrow, tag, false, o.type);
-        if (s.len == 0) s = getAlt(data, arrow, tag.getLanguage(), o.type);
+        if (s.len == 0) s = getAlt(data, arrow, tag.tagLanguage(), o.type);
     }
     return internal.contextTransform(gpa, s, data, o.context, "languages");
 }
@@ -111,12 +111,12 @@ pub fn getScriptDisplayName(gpa: Allocator, data: *const LocaleData, input: Name
     switch (input) {
         .code => |c| s = getAlt(data, arrow, c, o.type),
         .tag => |t| if (!t.hasLanguage() or t.hasScript()) {
-            s = getAlt(data, arrow, t.getScript(), o.type);
+            s = getAlt(data, arrow, t.tagScript(), o.type);
         },
     }
     if (s.len == 0) {
         const tag = try locales.resolveLanguageTag(a, .{ .tag = try inputTag(a, input) });
-        s = getAlt(data, arrow, tag.getScript(), o.type);
+        s = getAlt(data, arrow, tag.tagScript(), o.type);
     }
     return internal.contextTransform(gpa, s, data, o.context, "script");
 }
@@ -129,12 +129,12 @@ pub fn getRegionDisplayName(gpa: Allocator, data: *const LocaleData, input: Name
     switch (input) {
         .code => |c| s = getAlt(data, arrow, c, o.type),
         .tag => |t| if (!t.hasLanguage() or t.hasRegion()) {
-            s = getAlt(data, arrow, t.getRegion(), o.type);
+            s = getAlt(data, arrow, t.tagRegion(), o.type);
         },
     }
     if (s.len == 0) {
         const tag = try locales.resolveLanguageTag(a, .{ .tag = try inputTag(a, input) });
-        s = getAlt(data, arrow, tag.getRegion(), o.type);
+        s = getAlt(data, arrow, tag.tagRegion(), o.type);
     }
     return gpa.dupe(u8, s);
 }

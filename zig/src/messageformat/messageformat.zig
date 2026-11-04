@@ -2,9 +2,9 @@
 //! message catalogs. Port of `packages/hereabouts/src/messageformat`.
 //!
 //! ```zig
-//! var f = try messageformat.createMessageFormatter(gpa, .{ .language = "en" });
+//! var f = try messageformat.MessageFormatter.init(gpa, .{ .language = "en" });
 //! defer f.deinit();
-//! const s = try messageformat.formatMessage(gpa, &f,
+//! const s = try f.formatMessage(gpa,
 //!     "{count, plural, one {# item} other {# items}}", &.{}, &.{.{ .name = "count", .value = .{ .number = 3 } }});
 //! defer gpa.free(s); // "3 items"
 //! ```
@@ -31,12 +31,10 @@ pub const Plural = types.Plural;
 pub const Select = types.Select;
 pub const Simple = types.Simple;
 pub const MessageCode = types.MessageCode;
-pub const cloneMessageCode = types.clone;
 
 // Matching and parsing
 pub const MessageState = matcher.MessageState;
 pub const MessageMatcher = matcher.MessageMatcher;
-pub const buildMessageMatcher = matcher.buildMessageMatcher;
 pub const ApostropheMode = parser.ApostropheMode;
 pub const parseMessagePattern = parser.parseMessagePattern;
 
@@ -55,27 +53,19 @@ pub const numberToString = evaluation.numberToString;
 // Formatter
 pub const MessageFormatterOptions = formatter.MessageFormatterOptions;
 pub const MessageFormatter = formatter.MessageFormatter;
-pub const createMessageFormatter = formatter.createMessageFormatter;
-pub const formatMessage = formatter.formatMessage;
-pub const messageFormatterToString = formatter.messageFormatterToString;
 
 // Translator
 pub const Message = translator.Message;
 pub const Catalog = translator.Catalog;
 pub const TranslatorOptions = translator.TranslatorOptions;
 pub const Translator = translator.Translator;
-pub const createTranslator = translator.createTranslator;
 pub const Resolved = translator.Resolved;
-pub const resolveMessage = translator.resolveMessage;
-pub const translate = translator.translate;
-pub const isMessageKey = translator.isMessageKey;
 pub const ArgNamesOptions = translator.ArgNamesOptions;
 pub const messageArgNames = translator.messageArgNames;
 pub const freeStrings = translator.freeStrings;
 pub const Problem = translator.Problem;
 pub const CatalogIssue = translator.CatalogIssue;
 pub const CheckCatalogsOptions = translator.CheckCatalogsOptions;
-pub const checkCatalogs = translator.checkCatalogs;
 pub const freeCatalogIssues = translator.freeCatalogIssues;
 pub const comptimeArgNames = translator.comptimeArgNames;
 pub const toArg = translator.toArg;

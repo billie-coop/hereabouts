@@ -43,6 +43,16 @@ pub const NumberOperands = struct {
     f: i64 = 0,
     t: i64 = 0,
     c: i64 = 0,
+
+    /// TypeScript `numberOperands` (plurals/operands.ts).
+    pub fn init(d: Decimal, c_: i64) NumberOperands {
+        return @import("operands.zig").numberOperands(d, c_);
+    }
+
+    /// TypeScript `numberOperandsToString` (plurals/operands.ts).
+    pub fn toString(o: NumberOperands, gpa: Allocator) Allocator.Error![]u8 {
+        return @import("operands.zig").numberOperandsToString(gpa, o);
+    }
 };
 
 /// Compute the plural operands for the Decimal `d` with compact exponent `c` (0 for none).

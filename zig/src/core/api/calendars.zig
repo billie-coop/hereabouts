@@ -40,7 +40,7 @@ fn epoch(input: DateInput) f64 {
 }
 fn zoneId(input: DateInput) []const u8 {
     return switch (input) {
-        .calendar => |d| cal.dateTimeZoneId(&d),
+        .calendar => |d| cal.CalendarDate.timeZoneId(&d),
         .zoned => |d| if (d.zone_id.len > 0) d.zone_id else "UTC",
     };
 }
@@ -48,11 +48,11 @@ pub fn toCalendarDate(data: *const LocaleData, c: CalendarType, input: DateInput
     return @import("../systems/calendars/core.zig").newDate(if (input == .calendar) input.calendar.database else data.timezone_database, cal.calendarSystem(c), epoch(input), zoneId(input), firstDayOfWeek(data), minDaysInFirstWeek(data));
 }
 pub fn convertDateTo(data: *const LocaleData, c: CalendarType, input: DateInput) cal.CalendarDate {
-    if (input == .calendar and cal.dateType(&input.calendar) == c) return input.calendar;
+    if (input == .calendar and cal.CalendarDate.type(&input.calendar) == c) return input.calendar;
     return toCalendarDate(data, if (c == .iso8601) .gregory else c, input);
 }
 pub fn newCalendarDate(data: *const LocaleData, c: CalendarType, fields: cal.CalendarDateFields) cal.Error!cal.CalendarDate {
-    return cal.dateFromFields(data.timezone_database, cal.calendarSystem(c), fields, firstDayOfWeek(data), minDaysInFirstWeek(data));
+    return cal.CalendarDate.fromFields(data.timezone_database, cal.calendarSystem(c), fields, firstDayOfWeek(data), minDaysInFirstWeek(data));
 }
 pub fn toBuddhistDate(data: *const LocaleData, date: DateInput) cal.CalendarDate {
     return toCalendarDate(data, .buddhist, date);
@@ -106,12 +106,12 @@ pub fn nowPersian(io: std.Io, data: *const LocaleData, zone: []const u8) cal.Cal
     return nowCalendar(io, data, .persian, zone);
 }
 pub fn fieldOfVisualDifference(data: *const LocaleData, a: DateInput, b: DateInput) ?u8 {
-    const c = if (a == .calendar) cal.dateType(&a.calendar) else if (b == .calendar) cal.dateType(&b.calendar) else internal.selectCalendar(data, null);
+    const c = if (a == .calendar) cal.CalendarDate.type(&a.calendar) else if (b == .calendar) cal.CalendarDate.type(&b.calendar) else internal.selectCalendar(data, null);
     const start = convertDateTo(data, c, a);
     var end = convertDateTo(data, c, b);
     // The TypeScript conversion ignores the zone override when rebuilding a different zone.
-    if (!std.mem.eql(u8, cal.dateTimeZoneId(&start), cal.dateTimeZoneId(&end))) end = toCalendarDate(data, c, b);
-    return cal.dateFieldOfVisualDifference(&start, &end);
+    if (!std.mem.eql(u8, cal.CalendarDate.timeZoneId(&start), cal.CalendarDate.timeZoneId(&end))) end = toCalendarDate(data, c, b);
+    return cal.CalendarDate.fieldOfVisualDifference(&start, &end);
 }
 fn dateParts(a: A, data: *const LocaleData, input: DateInput, opt: ?DateFormatOptions) A.Error![]Part {
     const options: DateFormatOptions = opt orelse .{ .date = "full" };
@@ -215,13 +215,13 @@ pub fn formatRelativeTime(gpa: A, data: *const LocaleData, start: DateInput, end
     const c = internal.selectCalendar(data, opt.ca);
     const d = convertDateTo(data, c, start);
     const e = convertDateTo(data, c, end);
-    var r = cal.dateRelativeTime(&d, &e, opt.field, .{ .rollupFractional = true, .includeWeeks = opt.allow_weeks });
+    var r = cal.CalendarDate.relativeTime(&d, &e, opt.field, .{ .rollup_fractional = true, .include_weeks = opt.allow_weeks });
     if (r.field == .millis) {
         r.field = .second;
         r.value /= 1000;
     }
     var field: []const u8 = @tagName(r.field);
-    if (opt.day_of_week and r.field == .week and cal.dateDayOfWeek(&d) == cal.dateDayOfWeek(&e)) field = ([_][]const u8{ "sun", "mon", "tue", "wed", "thu", "fri", "sat" })[@intCast(cal.dateDayOfWeek(&e) - 1)];
+    if (opt.day_of_week and r.field == .week and cal.CalendarDate.dayOfWeek(&d) == cal.CalendarDate.dayOfWeek(&e)) field = ([_][]const u8{ "sun", "mon", "tue", "wed", "thu", "fri", "sat" })[@intCast(cal.CalendarDate.dayOfWeek(&e) - 1)];
     const num = try decimalFromFloat(a, r.value);
     return formatRelativeTimeField(gpa, data, num, field, opt);
 }

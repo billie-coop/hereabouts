@@ -325,7 +325,7 @@ fn byteToJs(s: []const u8, i: usize) usize {
 // ---------------------------------------------------------------------------
 
 fn runMatcher(a: Allocator, args: []const Value, want: Value) !void {
-    const m = try M.buildMessageMatcher(a, try strings(a, args[0]), args[1].bool);
+    const m = try M.MessageMatcher.init(a, try strings(a, args[0]), args[1].bool);
     const text = args[2].string;
     const e = args[4].integer;
     var r: M.MessageState = .{
@@ -376,7 +376,7 @@ fn runFormatter(a: Allocator, args: []const Value, want: Value) !void {
     if (field(spec, "cacheSize")) |c| {
         if (c.integer > 0) cache_size = @intCast(c.integer); // TS zero selects the default.
     }
-    var f = try M.createMessageFormatter(a, .{
+    var f = try M.MessageFormatter.init(a, .{
         .language = if (field(spec, "language")) |l| l.string else null,
         .region = if (field(spec, "region")) |r| r.string else null,
         .formatters = if (field(spec, "formatters")) |n| try formatters(a, try strings(a, n)) else &.{},
@@ -387,13 +387,13 @@ fn runFormatter(a: Allocator, args: []const Value, want: Value) !void {
     const results = want.object.get("results").?.array.items;
     for (args[1].array.items, results) |call, w| {
         const c = call.array.items;
-        const got = try M.formatMessage(a, &f, c[0].string, try positionalArgs(a, c[1]), try namedArgs(a, c[2]));
+        const got = try M.MessageFormatter.formatMessage(&f, a, c[0].string, try positionalArgs(a, c[1]), try namedArgs(a, c[2]));
         expectStr(w, got) catch |err| {
             std.debug.print("    message: \"{s}\" args {f} {f}\n", .{ c[0].string, std.json.fmt(c[1], .{}), std.json.fmt(c[2], .{}) });
             return err;
         };
     }
-    try expectStr(want.object.get("toString").?, try M.messageFormatterToString(a, &f));
+    try expectStr(want.object.get("toString").?, try M.MessageFormatter.toString(&f, a));
 }
 
 fn pairs(a: Allocator, v: Value) ![]M.Message {
@@ -413,7 +413,7 @@ fn runTranslator(a: Allocator, args: []const Value, want: Value) !void {
             o.* = .{ .id = y[0].string, .messages = if (y[1] == .null) null else try pairs(a, y[1]) };
         }
     }
-    var t = try M.createTranslator(a, .{
+    var t = try M.Translator.init(a, .{
         .source = try pairs(a, field(spec, "source").?),
         .source_language = if (field(spec, "sourceLanguage")) |l| l.string else null,
         .catalogs = catalogs,
@@ -424,24 +424,24 @@ fn runTranslator(a: Allocator, args: []const Value, want: Value) !void {
         const op = op_v.array.items;
         const name = op[0].string;
         if (eql(name, "translate")) {
-            try expectStr(w, try M.translate(a, &t, op[1].string, op[2].string, try namedArgs(a, op[3])));
+            try expectStr(w, try M.Translator.translate(&t, a, op[1].string, op[2].string, try namedArgs(a, op[3])));
         } else if (eql(name, "resolveMessage")) {
-            const r = M.resolveMessage(&t, op[1].string, op[2].string);
+            const r = M.Translator.resolveMessage(&t, op[1].string, op[2].string);
             try expectStr(w.array.items[0], r.message);
             try expectStr(w.array.items[1], r.language);
         } else if (eql(name, "isMessageKey")) {
-            try expectBool(w, M.isMessageKey(&t, op[1].string));
+            try expectBool(w, M.Translator.isMessageKey(&t, op[1].string));
         } else if (eql(name, "checkCatalogs")) {
-            const issues = try M.checkCatalogs(a, &t, .{ .complete = op[1].bool });
+            const issues = try M.Translator.checkCatalogs(&t, a, .{ .complete = op[1].bool });
             const items = w.array.items;
             if (items.len != issues.len) {
-                for (issues) |i| std.debug.print("    got: {s} {s} {s} {s}\n", .{ i.language, i.problem.name(), i.key, i.detail });
+                for (issues) |i| std.debug.print("    got: {s} {s} {s} {s}\n", .{ i.language, i.problem.toString(), i.key, i.detail });
                 return fail("issues: want {d}, got {d}", .{ items.len, issues.len });
             }
             for (items, issues) |x, i| {
                 try expectStr(x.object.get("language").?, i.language);
                 try expectStr(x.object.get("key").?, i.key);
-                try expectStr(x.object.get("problem").?, i.problem.name());
+                try expectStr(x.object.get("problem").?, i.problem.toString());
                 try expectStr(x.object.get("detail").?, i.detail);
             }
         } else {
@@ -455,7 +455,7 @@ fn runTranslator(a: Allocator, args: []const Value, want: Value) !void {
 fn run(a: Allocator, fname: []const u8, args: []const Value, want: Value) !void {
     if (eql(fname, "matcher")) return runMatcher(a, args, want);
     if (eql(fname, "parseMessagePattern")) {
-        const m = try M.buildMessageMatcher(a, try strings(a, args[1]), args[2].bool);
+        const m = try M.MessageMatcher.init(a, try strings(a, args[1]), args[2].bool);
         const code = try M.parseMessagePattern(a, args[0].string, m, args[3].bool, apostropheMode(args[4]));
         return expectCode(want, code);
     }
@@ -520,7 +520,7 @@ test "no leaks" {
     const gpa = std.testing.allocator;
     const fs = [_]M.Formatter{ .{ .name = "upper", .func = upper }, .{ .name = "list", .func = list } };
 
-    var f = try M.createMessageFormatter(gpa, .{ .language = "en", .formatters = &fs, .cache_size = 2 });
+    var f = try M.MessageFormatter.init(gpa, .{ .language = "en", .formatters = &fs, .cache_size = 2 });
     defer f.deinit();
     const msgs = [_][]const u8{
         "{0, plural, offset:1 =0 {none} one {# item} other {# items}} {name upper} {0;name list a}",
@@ -530,21 +530,21 @@ test "no leaks" {
         "{0, plural, offset:1 =0 {none} one {# item} other {# items}} {name upper} {0;name list a}",
     };
     for (msgs) |m| {
-        const s = try M.formatMessage(gpa, &f, m, &.{.{ .number = 3 }}, &.{
+        const s = try M.MessageFormatter.formatMessage(&f, gpa, m, &.{.{ .number = 3 }}, &.{
             .{ .name = "name", .value = .{ .string = "ada" } },
             .{ .name = "g", .value = .{ .decimal = D.ONE } },
         });
         gpa.free(s);
     }
-    const ts = try M.messageFormatterToString(gpa, &f);
+    const ts = try M.MessageFormatter.toString(&f, gpa);
     defer gpa.free(ts);
     try std.testing.expectEqualStrings("MessageFormatter(formatters=[\"upper\",\"list\"] cached=2)", ts);
 
-    const m = try M.buildMessageMatcher(gpa, &.{ "upper", "list" }, true);
+    const m = try M.MessageMatcher.init(gpa, &.{ "upper", "list" }, true);
     defer m.deinit(gpa);
     const code = try M.parseMessagePattern(gpa, msgs[0], m, false, .double_optional);
     defer code.deinit(gpa);
-    const copy = try M.cloneMessageCode(gpa, code);
+    const copy = try M.MessageCode.clone(code, gpa);
     copy.deinit(gpa);
     const s = try M.evaluateMessage(gpa, P.getPluralRules("fr", null), M.default_converter, &fs, code, &.{.{ .number = 1.5 }}, &.{});
     defer gpa.free(s);
@@ -556,14 +556,14 @@ test "no leaks" {
         .{ .key = "c", .message = "{x" },
     };
     const de = [_]M.Message{ .{ .key = "a", .message = "{n, plural, one {# y}} {wer}" }, .{ .key = "z", .message = "z" } };
-    var t = try M.createTranslator(gpa, .{ .source = &en, .catalogs = &.{.{ .id = "de", .messages = &de }} });
+    var t = try M.Translator.init(gpa, .{ .source = &en, .catalogs = &.{.{ .id = "de", .messages = &de }} });
     defer t.deinit();
-    const out = try M.translate(gpa, &t, "de-AT", "a", &.{.{ .name = "n", .value = .{ .number = 1 } }});
+    const out = try M.Translator.translate(&t, gpa, "de-AT", "a", &.{.{ .name = "n", .value = .{ .number = 1 } }});
     defer gpa.free(out);
     try std.testing.expectEqualStrings("1 y {wer}", out);
-    const plain = try M.translate(gpa, &t, "de", "b", &.{});
+    const plain = try M.Translator.translate(&t, gpa, "de", "b", &.{});
     defer gpa.free(plain);
-    const issues = try M.checkCatalogs(gpa, &t, .{});
+    const issues = try M.Translator.checkCatalogs(&t, gpa, .{});
     defer M.freeCatalogIssues(gpa, issues);
     try std.testing.expectEqual(@as(usize, 6), issues.len);
     const names = try M.messageArgNames(gpa, en[0].message, .{});

@@ -41,6 +41,41 @@ pub const UnitConverter = struct {
         }
         return null;
     }
+
+    /// TypeScript `createUnitConverter` (unit-converter/converter.ts).
+    pub fn init(gpa: Allocator, categories_: []const UnitConverter.Entry) Error!UnitConverter {
+        return @import("converter.zig").create(gpa, categories_);
+    }
+
+    /// TypeScript `unitConverterHas` (unit-converter/converter.ts).
+    pub fn has(converter: UnitConverter, category: []const u8) bool {
+        return @import("converter.zig").has(converter, category);
+    }
+
+    /// TypeScript `unitConverterAdd` (unit-converter/converter.ts).
+    pub fn add(converter: UnitConverter, gpa: Allocator, category: []const u8, map: *const UnitFactors) Error!UnitConverter {
+        return @import("converter.zig").add(gpa, converter, category, map);
+    }
+
+    /// TypeScript `unitConverterFactors` (unit-converter/converter.ts).
+    pub fn factors(converter: UnitConverter, category: []const u8) ?*const UnitFactors {
+        return @import("converter.zig").factors(converter, category);
+    }
+
+    /// TypeScript `unitConverterCategories` (unit-converter/converter.ts).
+    pub fn categories(converter: UnitConverter, gpa: Allocator) Allocator.Error![]const []const u8 {
+        return @import("converter.zig").categories(gpa, converter);
+    }
+
+    /// TypeScript `unitConverterGet` (unit-converter/converter.ts).
+    pub fn get(converter: UnitConverter, gpa: Allocator, category: []const u8, src: []const u8, dst: []const u8) R.Error!?UnitConversion {
+        return @import("converter.zig").get(gpa, converter, category, src, dst);
+    }
+
+    /// TypeScript `convertUnits` (unit-converter/converter.ts).
+    pub fn convertUnits(converter: UnitConverter, gpa: Allocator, category: []const u8, n: Decimal, src: []const u8, dst: []const u8, ctx: MathContext) R.Error!?Decimal {
+        return @import("converter.zig").convertUnits(gpa, converter, category, n, src, dst, ctx);
+    }
 };
 
 /// Create a unit converter, optionally with an initial set of categories (pass `&.{}` for

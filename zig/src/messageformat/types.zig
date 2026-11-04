@@ -116,6 +116,11 @@ pub const MessageCode = union(MessageOpType) {
             .noop, .argsub => {},
         }
     }
+
+    /// Zig-only deep copy of TypeScript MessageCode.
+    pub fn clone(code: MessageCode, gpa: Allocator) Allocator.Error!MessageCode {
+        return @import("types.zig").clone(gpa, code);
+    }
 };
 
 fn freeArg(gpa: Allocator, a: Argument) void {

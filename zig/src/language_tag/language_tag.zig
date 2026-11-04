@@ -10,7 +10,8 @@ const parser = @import("parser.zig");
 const util = @import("util.zig");
 const block = @import("block.zig");
 
-pub const parse = parser.parse;
+/// TypeScript parseLanguageTag.
+pub const parseLanguageTag = parser.parse;
 pub const FastTag = util.FastTag;
 pub const substituteRegionAliases = util.substituteRegionAliases;
 
@@ -83,22 +84,22 @@ pub const LanguageTag = struct {
     }
 
     /// Language subtag, or 'und' if undefined (`tagLanguage`).
-    pub fn getLanguage(self: LanguageTag) []const u8 {
+    pub fn tagLanguage(self: LanguageTag) []const u8 {
         return orUndefined(self.language, .language);
     }
 
     /// Script subtag, or 'Zzzz' if undefined (`tagScript`).
-    pub fn getScript(self: LanguageTag) []const u8 {
+    pub fn tagScript(self: LanguageTag) []const u8 {
         return orUndefined(self.script, .script);
     }
 
     /// Region subtag, or 'ZZ' if undefined (`tagRegion`).
-    pub fn getRegion(self: LanguageTag) []const u8 {
+    pub fn tagRegion(self: LanguageTag) []const u8 {
         return orUndefined(self.region, .region);
     }
 
     /// Variant subtag, or '' if undefined (`tagVariant`).
-    pub fn getVariant(self: LanguageTag) []const u8 {
+    pub fn tagVariant(self: LanguageTag) []const u8 {
         return orUndefined(self.variant, .variant);
     }
 
@@ -199,6 +200,11 @@ pub const LanguageTag = struct {
             try sink.put(self.private_use);
         }
     }
+
+    /// TypeScript `languageTag` (language-tag/languagetag.ts).
+    pub fn init(gpa: Allocator, fields: Fields) Allocator.Error!LanguageTag {
+        return initImpl(gpa, fields);
+    }
 };
 
 fn orUndefined(v: ?[]const u8, field: Field) []const u8 {
@@ -272,7 +278,7 @@ fn utf16Weight(c: u21) u32 {
 /// Construct a language tag (`languageTag`). Core subtags are canonicalized (case, and the
 /// undefined values 'und' / 'root' / 'Zzzz' / 'ZZ' / '' are treated as not set). The other
 /// fields are copied as given. Case folding is ASCII only.
-pub fn init(gpa: Allocator, fields: Fields) Allocator.Error!LanguageTag {
+fn initImpl(gpa: Allocator, fields: Fields) Allocator.Error!LanguageTag {
     var f = fields;
     f.language = block.canonical(.language, f.language);
     f.script = block.canonical(.script, f.script);
@@ -319,7 +325,7 @@ fn build(gpa: Allocator, f: Fields, case: bool) Allocator.Error!LanguageTag {
 
 test "construct and render" {
     const gpa = std.testing.allocator;
-    const t = try init(gpa, .{
+    const t = try LanguageTag.init(gpa, .{
         .language = "EN",
         .script = "latn",
         .region = "us",

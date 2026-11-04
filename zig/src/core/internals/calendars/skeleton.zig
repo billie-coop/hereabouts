@@ -10,18 +10,18 @@ pub const DateSkeleton = struct {
     info: [16]?SkeletonField = @splat(null),
     skeleton: []const u8 = "",
     pattern: ?[]const u8 = null,
-    isDate: bool = false,
-    isTime: bool = false,
+    is_date: bool = false,
+    is_time: bool = false,
 };
-pub const DateSkeletonParser = struct { preferredFlex: []const dates.DateTimeNode, allowedFlex: []const dates.DateTimeNode };
+pub const DateSkeletonParser = struct { preferred_flex: []const dates.DateTimeNode, allowed_flex: []const dates.DateTimeNode };
 pub fn dateSkeleton() DateSkeleton {
     return .{};
 }
 pub fn dateSkeletonParser(preferred: []const dates.DateTimeNode, allowed: []const dates.DateTimeNode) DateSkeletonParser {
-    return .{ .preferredFlex = preferred, .allowedFlex = allowed };
+    return .{ .preferred_flex = preferred, .allowed_flex = allowed };
 }
 pub fn skeletonCompound(s: DateSkeleton) bool {
-    return s.isDate and s.isTime;
+    return s.is_date and s.is_time;
 }
 pub fn skeletonHas(s: DateSkeleton, field: usize) bool {
     return s.type[field] != 0;
@@ -45,9 +45,9 @@ pub fn skeletonSplit(a: A, s: *DateSkeleton) A.Error!DateSkeleton {
         s.type[i] = 0;
         s.info[i] = null;
     };
-    s.isTime = false;
+    s.is_time = false;
     s.skeleton = try skeletonCanonical(a, s.*);
-    r.isTime = true;
+    r.is_time = true;
     r.skeleton = try skeletonCanonical(a, r);
     return r;
 }
@@ -56,12 +56,12 @@ fn setField(s: *DateSkeleton, input: u8, field: u8, width: usize) void {
     const idx = row.field;
     s.type[idx] = row.sub + if (row.sub > 0) @as(i32, @intCast(width)) else @as(i32, 0);
     s.info[idx] = .{ .input = input, .field = field, .type = idx, .width = width, .repeat = row.repeat };
-    s.isDate = s.isDate or idx < F.DAYPERIOD;
-    s.isTime = s.isTime or idx >= F.DAYPERIOD;
+    s.is_date = s.is_date or idx < F.DAYPERIOD;
+    s.is_time = s.is_time or idx >= F.DAYPERIOD;
 }
 fn setPeriod(p: DateSkeletonParser, s: *DateSkeleton, ch: u8, width: usize, no: bool) bool {
     if (std.mem.indexOfScalar(u8, "jJC", ch) != null) {
-        for (if (ch == 'C') p.allowedFlex else p.preferredFlex) |n| if (n == .field) {
+        for (if (ch == 'C') p.allowed_flex else p.preferred_flex) |n| if (n == .field) {
             setField(s, ch, n.field.char, n.field.width);
         };
         return ch == 'J';

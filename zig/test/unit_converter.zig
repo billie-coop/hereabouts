@@ -56,7 +56,7 @@ const Sets = struct {
     fn get(self: *Sets, gpa: Allocator, name: []const u8) !*U.UnitFactors {
         if (self.map.get(name)) |m| return m;
         const m = try gpa.create(U.UnitFactors);
-        m.* = try U.unitFactors(gpa, table(name) orelse return fail("unknown table {s}", .{name}));
+        m.* = try U.UnitFactors.init(gpa, table(name) orelse return fail("unknown table {s}", .{name}));
         try self.map.put(gpa, name, m);
         return m;
     }
@@ -91,7 +91,7 @@ fn factorSet(a: Allocator, v: Value) !*const U.UnitFactors {
         if (f.len > 3) d.offset = try factorValue(a, f[3]);
     }
     const m = try a.create(U.UnitFactors);
-    m.* = try U.unitFactors(a, defs);
+    m.* = try U.UnitFactors.init(a, defs);
     return m;
 }
 
@@ -228,8 +228,8 @@ fn expectResult(want: Value, got: anytype, comptime check: anytype) !void {
 // ---------------------------------------------------------------------------
 
 fn convertWith(a: Allocator, m: *const U.UnitFactors, n: []const u8, src: []const u8, dst: []const u8, ctx: D.MathContext) !?Decimal {
-    const c = try U.create(a, &.{.{ .category = "x", .factors = m }});
-    return U.convertUnits(a, c, "x", try D.parse(a, n), src, dst, ctx);
+    const c = try U.UnitConverter.init(a, &.{.{ .category = "x", .factors = m }});
+    return U.UnitConverter.convertUnits(c, a, "x", try D.parse(a, n), src, dst, ctx);
 }
 
 fn checkNull(want: Value, _: U.UnitConverter) !void {
@@ -249,27 +249,27 @@ fn runScript(a: Allocator, ops: []const Value, want: []const Value) !void {
             for (items, entries) |x, *e| {
                 e.* = .{ .category = x.array.items[0].string, .factors = try factorSet(a, x.array.items[1]) };
             }
-            const r = U.create(a, entries);
+            const r = U.UnitConverter.init(a, entries);
             try expectResult(w, r, checkNull);
             c = r catch c;
         } else if (eql(name, "add")) {
-            const r = U.add(a, c, op[1].string, try factorSet(a, op[2]));
+            const r = U.UnitConverter.add(c, a, op[1].string, try factorSet(a, op[2]));
             try expectResult(w, r, checkNull);
             const keep = op.len <= 3 or op[3] != .bool or op[3].bool;
             if (keep) c = r catch c;
         } else if (eql(name, "has")) {
-            if (w.bool != U.has(c, op[1].string)) return fail("has: want {}", .{w.bool});
+            if (w.bool != U.UnitConverter.has(c, op[1].string)) return fail("has: want {}", .{w.bool});
         } else if (eql(name, "factors")) {
-            if (U.factors(c, op[1].string)) |m| {
+            if (U.UnitConverter.factors(c, op[1].string)) |m| {
                 if (w == .null) return fail("factors: want null", .{});
                 try expectStrings(w, m.units);
             } else if (w != .null) return fail("factors: want a set, got null", .{});
         } else if (eql(name, "categories")) {
-            try expectStrings(w, try U.categories(a, c));
+            try expectStrings(w, try U.UnitConverter.categories(c, a));
         } else if (eql(name, "get")) {
-            try expectResult(w, U.get(a, c, op[1].string, op[2].string, op[3].string), expectConversion);
+            try expectResult(w, U.UnitConverter.get(c, a, op[1].string, op[2].string, op[3].string), expectConversion);
         } else if (eql(name, "convert")) {
-            const r = U.convertUnits(a, c, op[1].string, try D.parse(a, op[2].string), op[3].string, op[4].string, argContext(op[5]));
+            const r = U.UnitConverter.convertUnits(c, a, op[1].string, try D.parse(a, op[2].string), op[3].string, op[4].string, argContext(op[5]));
             try expectResult(w, r, expectOptDecimal);
         } else return fail("unknown op {s}", .{name});
     }
@@ -284,7 +284,7 @@ fn run(a: Allocator, fname: []const u8, args: []const Value, want: Value) !void 
     if (eql(fname, "unitFactors")) return expectStrings(want, m.units);
 
     if (eql(fname, "unitFactorsGet")) {
-        return expectResult(want, U.unitFactorsGet(a, m, args[1].string, args[2].string), expectConversion);
+        return expectResult(want, U.UnitFactors.get(m, a, args[1].string, args[2].string), expectConversion);
     }
 
     if (eql(fname, "convertUnits")) {
@@ -300,7 +300,7 @@ fn run(a: Allocator, fname: []const u8, args: []const Value, want: Value) !void 
             const w = pairs[i * m.units.len + j];
             errdefer std.debug.print("    pair {s} -> {s}\n", .{ u, v });
             if (eql(fname, "unitFactorsGetPaths")) {
-                try expectPath(w, try U.unitFactorsGet(a, m, u, v));
+                try expectPath(w, try U.UnitFactors.get(m, a, u, v));
             } else if (eql(fname, "convertUnitsAll")) {
                 try expectOptDecimal(w, try convertWith(a, m, args[1].string, u, v, .{}));
             } else return fail("unknown function {s}", .{fname});
@@ -340,59 +340,59 @@ test "unit-converter conformance" {
 test "no leaks" {
     const gpa = std.testing.allocator;
 
-    var length = try U.unitFactors(gpa, &U.LENGTH);
+    var length = try U.UnitFactors.init(gpa, &U.LENGTH);
     defer length.deinit(gpa);
-    var temp = try U.unitFactors(gpa, &U.TEMPERATURE);
+    var temp = try U.UnitFactors.init(gpa, &U.TEMPERATURE);
     defer temp.deinit(gpa);
     const bad_defs = [_]U.FactorDef{.{ .src = "a", .factor = .{ .string = "x" }, .dst = "b" }};
-    var bad = try U.unitFactors(gpa, &bad_defs);
+    var bad = try U.UnitFactors.init(gpa, &bad_defs);
     defer bad.deinit(gpa);
 
     const empty: U.UnitConverter = .{};
-    const c1 = try U.add(gpa, empty, "length", &length);
+    const c1 = try U.UnitConverter.add(empty, gpa, "length", &length);
     defer c1.deinit(gpa);
-    try std.testing.expectError(error.CategoryExists, U.add(gpa, c1, "length", &length));
-    const c = try U.create(gpa, &.{
+    try std.testing.expectError(error.CategoryExists, U.UnitConverter.add(c1, gpa, "length", &length));
+    const c = try U.UnitConverter.init(gpa, &.{
         .{ .category = "temperature", .factors = &temp },
         .{ .category = "length", .factors = &length },
         .{ .category = "bad", .factors = &bad },
     });
     defer c.deinit(gpa);
-    try std.testing.expectError(error.CategoryExists, U.create(gpa, &.{
+    try std.testing.expectError(error.CategoryExists, U.UnitConverter.init(gpa, &.{
         .{ .category = "length", .factors = &length },
         .{ .category = "length", .factors = &length },
     }));
 
-    const cats = try U.categories(gpa, c);
+    const cats = try U.UnitConverter.categories(c, gpa);
     defer gpa.free(cats);
     try std.testing.expectEqualStrings("bad", cats[0]);
-    try std.testing.expect(U.has(c, "length"));
-    try std.testing.expect(U.factors(c, "temperature") == &temp);
+    try std.testing.expect(U.UnitConverter.has(c, "length"));
+    try std.testing.expect(U.UnitConverter.factors(c, "temperature") == &temp);
 
-    const conv = (try U.get(gpa, c, "temperature", "celsius", "fahrenheit")).?;
+    const conv = (try U.UnitConverter.get(c, gpa, "temperature", "celsius", "fahrenheit")).?;
     defer conv.deinit(gpa);
     try std.testing.expect(conv.offset != null);
-    const same = (try U.unitFactorsGet(gpa, &length, "nope", "nope")).?;
+    const same = (try U.UnitFactors.get(&length, gpa, "nope", "nope")).?;
     same.deinit(gpa);
-    try std.testing.expectError(error.UnexpectedCharacter, U.get(gpa, c, "bad", "a", "b"));
+    try std.testing.expectError(error.UnexpectedCharacter, U.UnitConverter.get(c, gpa, "bad", "a", "b"));
 
     const n = try D.parse(gpa, "1.5");
     defer n.deinit(gpa);
-    const yards = (try U.convertUnits(gpa, c, "length", n, "mile", "yard", .{})).?;
+    const yards = (try U.UnitConverter.convertUnits(c, gpa, "length", n, "mile", "yard", .{})).?;
     defer yards.deinit(gpa);
     const s = try D.toString(gpa, yards);
     defer gpa.free(s);
     try std.testing.expectEqualStrings("2640", s);
-    const f = (try U.convertUnits(gpa, c, "temperature", n, "celsius", "fahrenheit", .{ .precision = 10 })).?;
+    const f = (try U.UnitConverter.convertUnits(c, gpa, "temperature", n, "celsius", "fahrenheit", .{ .precision = 10 })).?;
     f.deinit(gpa);
-    try std.testing.expect((try U.convertUnits(gpa, c, "length", n, "mile", "kelvin", .{})) == null);
+    try std.testing.expect((try U.UnitConverter.convertUnits(c, gpa, "length", n, "mile", "kelvin", .{})) == null);
 
     // Every pair of the largest table, for leaks on the path search.
-    var volume = try U.unitFactors(gpa, &U.VOLUME);
+    var volume = try U.UnitFactors.init(gpa, &U.VOLUME);
     defer volume.deinit(gpa);
     for (volume.units) |u| {
         for (volume.units) |v| {
-            if (try U.unitFactorsGet(gpa, &volume, u, v)) |x| x.deinit(gpa);
+            if (try U.UnitFactors.get(&volume, gpa, u, v)) |x| x.deinit(gpa);
         }
     }
 }
