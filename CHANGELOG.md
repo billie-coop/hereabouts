@@ -6,17 +6,18 @@ The first entry describes hereabouts relative to cldr-engine 1.16.0. The entries
 cldr-engine's (`@phensley/cldr`), kept as history; they used a modified semantic versioning
 scheme in which packs must come from the same `major.minor` version as the library.
 
-## [Unreleased] hereabouts
+## [0.1.0] hereabouts (unreleased)
 
 hereabouts is a port of [cldr-engine](https://github.com/phensley/cldr-engine) 1.16.0 by
-Patrick Hensley, published as one package, `@billie-coop/hereabouts` (the version is decided at
-release; the sources are still at 1.16.0). The full log of the port, with measurements and
-every deviation from 1.x, is [notes/functional-rewrite.md](notes/functional-rewrite.md). A
-migration guide from `@phensley/cldr` 1.x is still to be written.
+Patrick Hensley, published as one package, `@billie-coop/hereabouts`. Versions restart at
+0.1.0: until 1.0, a minor version may change the API, and packs must come from the same
+`major.minor`. The full log of the port, with measurements and every deviation from 1.x, is
+[notes/functional-rewrite.md](notes/functional-rewrite.md). A migration guide from
+`@phensley/cldr` 1.x is still to be written.
 
-Unchanged: CLDR data (48.2.0), the resource pack format (packs are byte-identical to
-1.16.0's) and formatting results with the same tz data (differential runs against 1.16.0 over
-all 429 locales found no differences).
+Unchanged: CLDR data (48.2.0), the resource pack format (packs hold the same data as
+1.16.0's; only their `version` and `checksum` fields differ) and formatting results with the
+same tz data (differential runs against 1.16.0 over all 429 locales found no differences).
 
 ### Added
 

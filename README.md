@@ -11,8 +11,8 @@ functions you import, and bundlers drop the rest: formatting numbers for one loc
 hereabouts is a port of [cldr-engine](https://github.com/phensley/cldr-engine) by Patrick
 Hensley. See [A port of cldr-engine](#a-port-of-cldr-engine).
 
-**Status:** not published yet. It will be published to npm as `@billie-coop/hereabouts`; the
-version is decided at the first release.
+**Status:** not published yet. The first release will be `@billie-coop/hereabouts` 0.1.0;
+until 1.0, a minor version (0.2, 0.3) may change the API.
 
 Live examples: [billie-coop.github.io/hereabouts](https://billie-coop.github.io/hereabouts/)
 ([source](https://github.com/billie-coop/hereabouts/tree/main/apps/website)).
@@ -495,7 +495,8 @@ and [NOTICE](https://github.com/billie-coop/hereabouts/blob/main/NOTICE) records
 ### What didn't change
 
 - CLDR data (48.2.0).
-- The resource pack format: packs built here are byte-identical to 1.16.0's.
+- The resource pack format: packs hold the same data as 1.16.0's; only their `version` and
+  `checksum` fields differ.
 - Formatting results: differential runs against 1.16.0 over all 429 locales (2.2 million locale
   API calls, plus the value types and engines) found no differences. The 1.x test suite runs
   with its assertions unchanged.

@@ -1,0 +1,14 @@
+{
+  "name": "hereabouts",
+  "version": "0.0.1",
+  "description": "Placeholder: the maintained package is @billie-coop/hereabouts",
+  "license": "Apache-2.0",
+  "author": "Billie Co-op",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/billie-coop/hereabouts.git",
+    "directory": "placeholders/hereabouts"
+  },
+  "homepage": "https://billie-coop.github.io/hereabouts/",
+  "files": ["README.md"]
+}

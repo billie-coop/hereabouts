@@ -1,6 +1,6 @@
 {
   "name": "@billie-coop/hereabouts",
-  "version": "1.16.0",
+  "version": "0.1.0",
   "description": "Internationalization for JavaScript and TypeScript, built on Unicode CLDR: numbers, decimal math, currencies, dates and time zones, units, plurals, messages and translations",
   "license": "Apache-2.0",
   "author": "Billie Co-op",

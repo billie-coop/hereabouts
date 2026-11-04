@@ -1,6 +1,6 @@
 {
   "name": "cldr-compiler",
-  "version": "1.16.0",
+  "version": "0.1.0",
   "description": "Build-time tool for hereabouts: turns CLDR JSON into resource packs and generated code. Runs from its TypeScript sources with tsx; not published.",
   "author": "Billie Co-op",
   "contributors": [
