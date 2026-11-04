@@ -11,8 +11,8 @@ functions you import, and bundlers drop the rest: formatting numbers for one loc
 hereabouts is a port of [cldr-engine](https://github.com/phensley/cldr-engine) by Patrick
 Hensley. See [A port of cldr-engine](#a-port-of-cldr-engine).
 
-**Status:** not published yet. The first release will be `@billie-coop/hereabouts` 0.1.0;
-until 1.0, a minor version (0.2, 0.3) may change the API.
+**Status:** early releases (0.x) on npm as `@billie-coop/hereabouts`. Until 1.0, a minor
+version (0.2, 0.3) may change the API.
 
 Live examples: [billie-coop.github.io/hereabouts](https://billie-coop.github.io/hereabouts/)
 ([source](https://github.com/billie-coop/hereabouts/tree/main/apps/website)).

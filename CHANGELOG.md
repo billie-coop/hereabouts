@@ -6,7 +6,16 @@ The first entry describes hereabouts relative to cldr-engine 1.16.0. The entries
 cldr-engine's (`@phensley/cldr`), kept as history; they used a modified semantic versioning
 scheme in which packs must come from the same `major.minor` version as the library.
 
-## [0.1.0] hereabouts (unreleased)
+## [0.1.1] 2026-11-03
+
+First release through the release workflow (npm trusted publishing, with provenance). No code
+changes; packs built for 0.1.0 still load (same `major.minor`).
+
+### Changed
+
+- README: the status line says the package is published.
+
+## [0.1.0] hereabouts 2026-11-03
 
 hereabouts is a port of [cldr-engine](https://github.com/phensley/cldr-engine) 1.16.0 by
 Patrick Hensley, published as one package, `@billie-coop/hereabouts`. Versions restart at
