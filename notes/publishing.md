@@ -26,8 +26,8 @@ created. Nothing here is published yet; update this file as things are decided o
   their bare names; they get the same treatment if they move under `@billie-coop` later.
 - **Docs and the example site deploy to GitHub Pages** at
   `https://billie-coop.github.io/hereabouts/`, as seaq and serenity-now do. The package
-  manifests already point `homepage` there and `repository` / `bugs` at
-  `github.com/billie-coop/hereabouts`, which doesn't exist yet.
+  manifests point `homepage` there and `repository` / `bugs` at
+  `github.com/billie-coop/hereabouts`. Live since 2026-11-03.
 - **CODEOWNERS** is `@stephenlaughton` (no `@billie-coop` team exists).
 - **Releases are dry runs unless unticked.** The release workflow's `dry-run` input defaults to
   true (seaq's defaults to false), so running it by accident only checks.
@@ -39,9 +39,16 @@ created. Nothing here is published yet; update this file as things are decided o
 npm only lets a package's trusted publisher be set once the package exists, so the first
 version is published from Stephen's machine; every later one goes through the release workflow.
 
-1. Create `github.com/billie-coop/hereabouts` (public, empty) and push `main`. CI runs on the
-   push. In Settings → Pages, set the source to "GitHub Actions"; the docs workflow then deploys
-   the site.
+1. Done 2026-11-03. Created `github.com/billie-coop/hereabouts` (public, with topics), pushed
+   `main`, and set Pages to deploy from GitHub Actions
+   (`gh api -X POST repos/billie-coop/hereabouts/pages -f build_type=workflow`). Pages was on
+   before the first docs run reached its deploy step, so that run deployed. If Pages is ever
+   turned off, re-run "Deploy docs". CI ("Build and Test", Node 22 and 24), the docs deploy
+   and a Release dry run all passed. The dry run reached `npm publish --dry-run`: npm 11,
+   729 files, 4.0 MB packed, README / LICENSE / NOTICE included. The site at
+   `https://billie-coop.github.io/hereabouts/` loads its assets and locale packs under
+   `/hereabouts/`, and the locale and time zone pickers work. Its only 404 is the browser's own
+   `/favicon.ico` (the site has no favicon).
 2. Publish 0.1.0 by hand, mirroring the workflow's steps, from a clean checkout of `main`:
 
    ```sh
@@ -56,8 +63,10 @@ version is published from Stephen's machine; every later one goes through the re
 
 3. Add the trusted publisher: on npmjs.com, `@billie-coop/hereabouts` → Settings → Trusted
    publishing → GitHub Actions: owner `billie-coop`, repository `hereabouts`, workflow
-   `release.yml`, no environment (`npm trust github` does the same from the command line). Then,
-   under publishing access, require 2FA and disallow tokens, so only the workflow can publish.
+   `release.yml`, no environment. The same from the command line (npm 11, logged in):
+   `npm trust github @billie-coop/hereabouts --file release.yml --repo billie-coop/hereabouts --allow-publish`.
+   Then, under Settings → Publishing access, choose "Require two-factor authentication and
+   disallow tokens", so only the workflow can publish.
 4. Publish the placeholder: `cd placeholders/hereabouts && npm publish`.
 5. Later releases: bump `packages/hereabouts/package.json` on `main`, run the Release workflow
    once as a dry run, then again with `dry-run` unticked. It publishes with provenance and
@@ -107,6 +116,9 @@ version is published from Stephen's machine; every later one goes through the re
 - `.github/workflows/docs.yml` builds `apps/website` with base `/hereabouts/` and deploys it to
   GitHub Pages on pushes to `main` that touch the site or the library (or by hand).
 - The old `release` / `prerelease` scripts (`pnpm publish -r`, one package each) are removed.
+- The workflows use action versions that run on Node 24 (`checkout@v6`, `setup-node@v6`,
+  `cache@v5`, `configure-pages@v6`, `upload-pages-artifact@v5`, `deploy-pages@v5`); the earlier
+  ones ran on Node 20, which GitHub has deprecated.
 
 ## Dependency pins
 
