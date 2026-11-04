@@ -60,6 +60,7 @@ fn run(fw: *core.CLDRFramework, a: Allocator, name: []const u8, args: []const Va
     if (eql(name, "contextTransform")) return string(try internal.contextTransformWithFlag(a, args[0].string, args[1].string, context(args[2])));
     const api = try fw.get(.{ .id = args[0].string });
     const data = api.data;
+    if (std.mem.startsWith(u8, name, "boundCalendar")) return runCalendar(a, api.Calendars, name, args);
     if (eql(name, "characterOrder")) return string(@tagName(gen.characterOrder(data)));
     if (eql(name, "lineOrder")) return string(@tagName(gen.lineOrder(data)));
     if (eql(name, "measurementSystem")) return string(@tagName(gen.measurementSystem(data, if (args[1] == .null) null else .temperature)));
@@ -214,8 +215,141 @@ test "public declarations" {
     std.testing.refAllDecls(core.bound_api.General);
     std.testing.refAllDecls(core.bound_api.Numbers);
     std.testing.refAllDecls(core.bound_api.Units);
+    std.testing.refAllDecls(core.bound_api.Calendars);
     std.testing.refAllDecls(core.cldr);
     try std.testing.expectEqual(opts.AltType.stand_alone, opts.AltType.fromString("stand-alone").?);
     try std.testing.expectEqualStrings("stand-alone", opts.AltType.stand_alone.string());
     try std.testing.expect(opts.AltType.fromString("INVALID") == null);
+}
+fn calendarSnapshot(a: Allocator, d: core.calendars.CalendarDate) !Value {
+    const C = core.calendars;
+    return value(a, .{ .type = C.dateType(&d).toString(), .fields = C.dateFields(&d), .epoch = C.dateUnixEpoch(&d), .firstDay = C.dateFirstDayOfWeek(&d), .minDays = C.dateMinDaysInFirstWeek(&d) });
+}
+fn runCalendar(a: Allocator, c: core.bound_api.Calendars, family: []const u8, args: []const Value) !Value {
+    const epoch = 1109934428000;
+    const zone = "America/New_York";
+    const start: core.dates.DateInput = .{ .zoned = .{ .date = epoch, .zone_id = zone } };
+    const end: core.dates.DateInput = .{ .zoned = .{ .date = epoch + 3 * 86400000, .zone_id = zone } };
+    const day: h.datetime.Day = .{ .year = 2005, .month = 3, .day = 4 };
+    const next_day: h.datetime.Day = .{ .year = 2005, .month = 3, .day = 7 };
+    const time: h.datetime.TimeOfDay = .{ .hour = 6, .minute = 7, .second = 8, .millis = 0 };
+    if (eql(family, "boundCalendarRules")) return value(a, .{ c.firstDayOfWeek(), c.minDaysInFirstWeek() });
+    const name = args[1].string;
+    if (eql(family, "boundCalendarConstruct")) {
+        inline for (.{ "toBuddhistDate", "toGregorianDate", "toISO8601Date", "toJapaneseDate", "toPersianDate" }) |method| {
+            if (eql(name, method)) return calendarSnapshot(a, @field(core.bound_api.Calendars, method)(c, start));
+        }
+        inline for (.{ "newBuddhistDate", "newGregorianDate", "newISO8601Date", "newJapaneseDate", "newPersianDate" }) |method| {
+            if (eql(name, method)) return calendarSnapshot(a, try @field(core.bound_api.Calendars, method)(c, .{ .year = if (eql(method, "newBuddhistDate")) 2548 else if (eql(method, "newPersianDate")) 1383 else 2005, .month = 3, .day = 4, .hour = 6, .minute = 7, .second = 8, .millis = 0, .zoneId = zone }));
+        }
+    }
+    if (eql(family, "boundCalendarNow")) {
+        inline for (.{ "now", "nowBuddhist", "nowGregorian", "nowISO8601", "nowJapanese", "nowPersian" }) |method| {
+            if (eql(name, method)) {
+                const d = @field(core.bound_api.Calendars, method)(c, std.testing.io, zone);
+                const C = core.calendars;
+                return value(a, .{ C.dateType(&d).toString(), C.dateTimeZoneId(&d), C.dateFirstDayOfWeek(&d), C.dateMinDaysInFirstWeek(&d) });
+            }
+        }
+    }
+    if (eql(name, "formatDate")) return string(try c.formatDate(a, start, .{ .datetime = "medium" }));
+    if (eql(name, "formatDateToParts")) return value(a, try c.formatDateToParts(a, start, .{ .datetime = "medium" }));
+    if (eql(name, "formatDateRaw")) return string(try c.formatDateRaw(a, start, .{ .pattern = "yyyy-MM-dd HH:mm" }));
+    if (eql(name, "formatDateRawToParts")) return value(a, try c.formatDateRawToParts(a, start, .{ .pattern = "yyyy-MM-dd HH:mm" }));
+    if (eql(name, "formatDateInterval")) return string(try c.formatDateInterval(a, start, end, .{ .skeleton = "yMMMd" }));
+    if (eql(name, "formatDateIntervalToParts")) return value(a, try c.formatDateIntervalToParts(a, start, end, .{ .skeleton = "yMMMd" }));
+    if (eql(name, "formatDateWrapper")) return string(try c.formatDateWrapper(a, "DATE", "TIME", .{ .width = "long" }));
+    if (eql(name, "formatDateWrapperToParts")) return value(a, try c.formatDateWrapperToParts(a, &.{.{ .type = "date", .value = "DATE" }}, &.{.{ .type = "time", .value = "TIME" }}, .{ .width = "long" }));
+    if (eql(name, "formatRelativeTimeField")) return string(try c.formatRelativeTimeField(a, try D.fromInt(a, 3), "day", .{ .numeric_only = true }));
+    if (eql(name, "formatRelativeTime")) return string(try c.formatRelativeTime(a, start, end, .{ .field = .day, .numeric_only = true }));
+    if (eql(name, "dateField")) return string(try c.dateField(a, "month", .{ .width = "short", .context = .begin_sentence }));
+    if (eql(name, "fieldOfVisualDifference")) {
+        const d = c.toGregorianDate(start);
+        const e = c.toGregorianDate(end);
+        const ch = c.fieldOfVisualDifference(.{ .calendar = d }, .{ .calendar = e });
+        return if (ch) |x| string(try a.dupe(u8, &.{x})) else .null;
+    }
+    inline for (.{ .{ "months", "abbreviated" }, .{ "weekdays", "short" }, .{ "quarters", "narrow" }, .{ "dayPeriods", "wide" } }) |entry| {
+        if (eql(name, entry[0])) {
+            const fields = try @field(core.bound_api.Calendars, entry[0])(c, a, .{ .width = entry[1] });
+            defer fields.deinit();
+            return value(a, fields.value);
+        }
+    }
+    if (eql(name, "eras")) {
+        const fields = try c.eras(a, .{ .width = "abbr" });
+        defer fields.deinit();
+        return value(a, fields.value);
+    }
+    if (eql(name, "timeData")) return value(a, try c.timeData(a));
+    if (eql(name, "timeZoneInfo")) return value(a, c.timeZoneInfo(zone));
+    if (eql(name, "resolveTimeZoneId")) return value(a, c.resolveTimeZoneId("US/Eastern"));
+    if (eql(name, "timeZoneIds")) return value(a, c.timeZoneIds().len);
+    if (eql(name, "timeZoneFromUTC")) return value(a, c.timeZoneFromUTC(epoch, zone));
+    if (eql(name, "timeZoneFromWall")) {
+        const wall = c.timeZoneFromWall(epoch, zone).?;
+        return value(a, .{ wall.utc, wall.info });
+    }
+    if (eql(name, "timePeriodToQuantity")) {
+        const qs = try c.timePeriodToQuantity(a, .{ .year = 1, .day = 3, .millis = 25 });
+        var out: std.array_list.Managed(Value) = .init(a);
+        for (qs) |q| try out.append(try value(a, .{ .unit = q.unit.?, .value = try std.fmt.parseFloat(f64, try D.toString(a, q.value)) }));
+        return .{ .array = out };
+    }
+    if (eql(name, "formatDay")) return string(try c.formatDay(a, day, null));
+    if (eql(name, "formatDayToParts")) return value(a, try c.formatDayToParts(a, day, null));
+    if (eql(name, "formatDayInterval")) return string(try c.formatDayInterval(a, day, next_day, null));
+    if (eql(name, "formatDayIntervalToParts")) return value(a, try c.formatDayIntervalToParts(a, day, next_day, null));
+    if (eql(name, "formatTimeOfDay")) return string(try c.formatTimeOfDay(a, time, null));
+    if (eql(name, "formatTimeOfDayToParts")) return value(a, try c.formatTimeOfDayToParts(a, time, null));
+    if (eql(name, "formatDayRelative")) return string(try c.formatDayRelative(a, next_day, day, null));
+    if (eql(name, "formatInstant")) return string(try c.formatInstant(a, epoch, zone, .{ .date = "short" }));
+    if (eql(name, "formatInstantToParts")) return value(a, try c.formatInstantToParts(a, epoch, zone, .{ .date = "short" }));
+    if (eql(name, "formatInstantRelative")) return string(try c.formatInstantRelative(a, epoch + 3 * 86400000, epoch, zone, .{ .field = .day, .numeric_only = true }));
+    return error.UnknownCalendarFunction;
+}
+
+test "bound calendar ownership" {
+    const a = std.testing.allocator;
+    var fw = core.CLDRFramework.init(a, .{ .loader = .{ .load = loadPack } });
+    defer fw.deinit();
+    const en = try fw.get(.{ .id = "en" });
+    const c = en.Calendars;
+    try std.testing.expect(core.bindCalendars(en.data).data == c.data);
+    const start: core.dates.DateInput = .{ .zoned = .{ .date = 1109934428000, .zone_id = "America/New_York" } };
+    const end: core.dates.DateInput = .{ .zoned = .{ .date = 1110193628000, .zone_id = "America/New_York" } };
+    a.free(try c.formatDate(a, start, null));
+    D.freeParts(a, try c.formatDateToParts(a, start, null));
+    a.free(try c.formatDateRaw(a, start, .{ .pattern = "yyyy-MM-dd" }));
+    D.freeParts(a, try c.formatDateRawToParts(a, start, .{ .pattern = "yyyy-MM-dd" }));
+    a.free(try c.formatDateInterval(a, start, end, .{ .skeleton = "yMMMd" }));
+    D.freeParts(a, try c.formatDateIntervalToParts(a, start, end, .{ .skeleton = "yMMMd" }));
+    a.free(try c.formatDateWrapper(a, "date", "time", null));
+    D.freeParts(a, try c.formatDateWrapperToParts(a, &.{.{ .type = "date", .value = "date" }}, &.{.{ .type = "time", .value = "time" }}, null));
+    a.free(try c.formatRelativeTimeField(a, D.ONE, "day", null));
+    a.free(try c.formatRelativeTime(a, start, end, null));
+    a.free(try c.dateField(a, "year", null));
+    inline for (.{ "months", "weekdays", "quarters", "dayPeriods", "eras" }) |name| {
+        const fields = try @field(core.bound_api.Calendars, name)(c, a, null);
+        fields.deinit();
+    }
+    const td = try c.timeData(a);
+    a.free(td.allowed);
+    var period_arena = std.heap.ArenaAllocator.init(a);
+    defer period_arena.deinit();
+    const qs = try c.timePeriodToQuantity(period_arena.allocator(), .{ .year = 1, .day = 3, .millis = 25 });
+    try std.testing.expectEqual(@as(usize, 3), qs.len);
+    const day: h.datetime.Day = .{ .year = 2005, .month = 3, .day = 4 };
+    const next_day: h.datetime.Day = .{ .year = 2005, .month = 3, .day = 7 };
+    const time: h.datetime.TimeOfDay = .{ .hour = 6, .minute = 7, .second = 8, .millis = 0 };
+    a.free(try c.formatDay(a, day, null));
+    D.freeParts(a, try c.formatDayToParts(a, day, null));
+    a.free(try c.formatDayInterval(a, day, next_day, null));
+    D.freeParts(a, try c.formatDayIntervalToParts(a, day, next_day, null));
+    a.free(try c.formatTimeOfDay(a, time, null));
+    D.freeParts(a, try c.formatTimeOfDayToParts(a, time, null));
+    a.free(try c.formatDayRelative(a, next_day, day, null));
+    a.free(try c.formatInstant(a, 1109934428000, "America/New_York", null));
+    D.freeParts(a, try c.formatInstantToParts(a, 1109934428000, "America/New_York", null));
+    a.free(try c.formatInstantRelative(a, 1110193628000, 1109934428000, "America/New_York", null));
 }

@@ -114,6 +114,7 @@ pub const cldr = @import("cldr.zig");
 pub const CLDR = cldr.CLDR;
 pub const CLDRFramework = cldr.CLDRFramework;
 pub const bindCLDR = cldr.bindCLDR;
+pub const bindCalendars = cldr.bindCalendars;
 pub const bindGeneral = cldr.bindGeneral;
 pub const bindNumbers = cldr.bindNumbers;
 pub const bindUnits = cldr.bindUnits;

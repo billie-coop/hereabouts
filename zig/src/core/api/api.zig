@@ -134,3 +134,174 @@ pub const Units = struct {
         return uni.formatQuantitySequenceToParts(gpa, self.data, qs, options);
     }
 };
+
+// Bound calendar and plain-day methods. Return values keep the underlying API's ownership.
+const dates = @import("calendars.zig");
+const days = @import("days.zig");
+const calendar_systems = @import("../systems/calendars/calendars.zig");
+const date_options = @import("../common/calendars.zig");
+const datetime = @import("../../datetime/datetime.zig");
+const timezones = @import("../../timezone/timezone.zig");
+
+pub const Calendars = struct {
+    data: *const LocaleData,
+    pub fn timeZoneIds(_: Calendars) []const []const u8 {
+        return dates.timeZoneIds();
+    }
+    pub fn firstDayOfWeek(self: Calendars) i64 {
+        return dates.firstDayOfWeek(self.data);
+    }
+    pub fn minDaysInFirstWeek(self: Calendars) i64 {
+        return dates.minDaysInFirstWeek(self.data);
+    }
+    pub fn toBuddhistDate(self: Calendars, date: dates.DateInput) calendar_systems.CalendarDate {
+        return dates.toBuddhistDate(self.data, date);
+    }
+    pub fn toGregorianDate(self: Calendars, date: dates.DateInput) calendar_systems.CalendarDate {
+        return dates.toGregorianDate(self.data, date);
+    }
+    pub fn toISO8601Date(self: Calendars, date: dates.DateInput) calendar_systems.CalendarDate {
+        return dates.toISO8601Date(self.data, date);
+    }
+    pub fn toJapaneseDate(self: Calendars, date: dates.DateInput) calendar_systems.CalendarDate {
+        return dates.toJapaneseDate(self.data, date);
+    }
+    pub fn toPersianDate(self: Calendars, date: dates.DateInput) calendar_systems.CalendarDate {
+        return dates.toPersianDate(self.data, date);
+    }
+    pub fn newBuddhistDate(self: Calendars, fields: calendar_systems.CalendarDateFields) calendar_systems.Error!calendar_systems.CalendarDate {
+        return dates.newBuddhistDate(self.data, fields);
+    }
+    pub fn newGregorianDate(self: Calendars, fields: calendar_systems.CalendarDateFields) calendar_systems.Error!calendar_systems.CalendarDate {
+        return dates.newGregorianDate(self.data, fields);
+    }
+    pub fn newISO8601Date(self: Calendars, fields: calendar_systems.CalendarDateFields) calendar_systems.Error!calendar_systems.CalendarDate {
+        return dates.newISO8601Date(self.data, fields);
+    }
+    pub fn newJapaneseDate(self: Calendars, fields: calendar_systems.CalendarDateFields) calendar_systems.Error!calendar_systems.CalendarDate {
+        return dates.newJapaneseDate(self.data, fields);
+    }
+    pub fn newPersianDate(self: Calendars, fields: calendar_systems.CalendarDateFields) calendar_systems.Error!calendar_systems.CalendarDate {
+        return dates.newPersianDate(self.data, fields);
+    }
+    pub fn now(self: Calendars, io: std.Io, zone: []const u8) calendar_systems.CalendarDate {
+        return dates.now(io, self.data, zone);
+    }
+    pub fn nowGregorian(self: Calendars, io: std.Io, zone: []const u8) calendar_systems.CalendarDate {
+        return dates.nowGregorian(io, self.data, zone);
+    }
+    pub fn nowBuddhist(self: Calendars, io: std.Io, zone: []const u8) calendar_systems.CalendarDate {
+        return dates.nowBuddhist(io, self.data, zone);
+    }
+    pub fn nowISO8601(self: Calendars, io: std.Io, zone: []const u8) calendar_systems.CalendarDate {
+        return dates.nowISO8601(io, self.data, zone);
+    }
+    pub fn nowJapanese(self: Calendars, io: std.Io, zone: []const u8) calendar_systems.CalendarDate {
+        return dates.nowJapanese(io, self.data, zone);
+    }
+    pub fn nowPersian(self: Calendars, io: std.Io, zone: []const u8) calendar_systems.CalendarDate {
+        return dates.nowPersian(io, self.data, zone);
+    }
+    pub fn fieldOfVisualDifference(self: Calendars, a: dates.DateInput, b: dates.DateInput) ?u8 {
+        return dates.fieldOfVisualDifference(self.data, a, b);
+    }
+    pub fn formatDate(self: Calendars, gpa: Allocator, date: dates.DateInput, options: ?dates.DateFormatOptions) Allocator.Error![]u8 {
+        return dates.formatDate(gpa, self.data, date, options);
+    }
+    pub fn formatDateToParts(self: Calendars, gpa: Allocator, date: dates.DateInput, options: ?dates.DateFormatOptions) Allocator.Error![]Part {
+        return dates.formatDateToParts(gpa, self.data, date, options);
+    }
+    pub fn formatDateRaw(self: Calendars, gpa: Allocator, date: dates.DateInput, options: ?dates.DateRawFormatOptions) Allocator.Error![]u8 {
+        return dates.formatDateRaw(gpa, self.data, date, options);
+    }
+    pub fn formatDateRawToParts(self: Calendars, gpa: Allocator, date: dates.DateInput, options: ?dates.DateRawFormatOptions) Allocator.Error![]Part {
+        return dates.formatDateRawToParts(gpa, self.data, date, options);
+    }
+    pub fn formatDateInterval(self: Calendars, gpa: Allocator, start: dates.DateInput, end: dates.DateInput, options: ?dates.DateIntervalFormatOptions) Allocator.Error![]u8 {
+        return dates.formatDateInterval(gpa, self.data, start, end, options);
+    }
+    pub fn formatDateIntervalToParts(self: Calendars, gpa: Allocator, start: dates.DateInput, end: dates.DateInput, options: ?dates.DateIntervalFormatOptions) Allocator.Error![]Part {
+        return dates.formatDateIntervalToParts(gpa, self.data, start, end, options);
+    }
+    pub fn formatDateWrapper(self: Calendars, gpa: Allocator, date: []const u8, time: []const u8, options: ?dates.DateWrapperFormatOptions) Allocator.Error![]u8 {
+        return dates.formatDateWrapper(gpa, self.data, date, time, options);
+    }
+    pub fn formatDateWrapperToParts(self: Calendars, gpa: Allocator, date: []const Part, time: []const Part, options: ?dates.DateWrapperFormatOptions) Allocator.Error![]Part {
+        return dates.formatDateWrapperToParts(gpa, self.data, date, time, options);
+    }
+    pub fn formatRelativeTimeField(self: Calendars, gpa: Allocator, value: Decimal, field: []const u8, options: ?dates.RelativeTimeFieldFormatOptions) Allocator.Error![]u8 {
+        return dates.formatRelativeTimeField(gpa, self.data, value, field, options);
+    }
+    pub fn formatRelativeTime(self: Calendars, gpa: Allocator, start: dates.DateInput, end: dates.DateInput, options: ?dates.RelativeTimeFormatOptions) Allocator.Error![]u8 {
+        return dates.formatRelativeTime(gpa, self.data, start, end, options);
+    }
+    pub fn dateField(self: Calendars, gpa: Allocator, field: []const u8, options: ?dates.DateFieldFormatOptions) Allocator.Error![]u8 {
+        return dates.dateField(gpa, self.data, field, options);
+    }
+    /// Field maps own an arena; release with .deinit().
+    pub fn months(self: Calendars, gpa: Allocator, options: ?dates.CalendarFieldsOptions) Allocator.Error!dates.FieldMap {
+        return dates.months(gpa, self.data, options);
+    }
+    pub fn weekdays(self: Calendars, gpa: Allocator, options: ?dates.CalendarFieldsOptions) Allocator.Error!dates.FieldMap {
+        return dates.weekdays(gpa, self.data, options);
+    }
+    pub fn quarters(self: Calendars, gpa: Allocator, options: ?dates.CalendarFieldsOptions) Allocator.Error!dates.FieldMap {
+        return dates.quarters(gpa, self.data, options);
+    }
+    pub fn dayPeriods(self: Calendars, gpa: Allocator, options: ?dates.CalendarFieldsOptions) Allocator.Error!dates.FieldMap {
+        return dates.dayPeriods(gpa, self.data, options);
+    }
+    pub fn eras(self: Calendars, gpa: Allocator, options: ?dates.EraFieldOptions) Allocator.Error!dates.FieldMap {
+        return dates.eras(gpa, self.data, options);
+    }
+    /// Only the returned allowed slice is owned by gpa; its strings are borrowed.
+    pub fn timeData(self: Calendars, gpa: Allocator) Allocator.Error!date_options.TimeData {
+        return dates.timeData(gpa, self.data);
+    }
+    pub fn resolveTimeZoneId(_: Calendars, id: []const u8) ?[]const u8 {
+        return dates.resolveTimeZoneId(id);
+    }
+    pub fn timeZoneFromUTC(_: Calendars, utc: i64, id: []const u8) ?timezones.ZoneInfo {
+        return dates.timeZoneFromUTC(utc, id);
+    }
+    pub fn timeZoneFromWall(_: Calendars, wall: i64, id: []const u8) ?timezones.WallResult {
+        return dates.timeZoneFromWall(wall, id);
+    }
+    pub fn timeZoneInfo(self: Calendars, zone: []const u8) date_options.TimeZoneInfo {
+        return dates.timeZoneInfo(self.data, zone);
+    }
+    /// Use an arena: quantities, Decimal values, and conversion temporaries use a.
+    pub fn timePeriodToQuantity(_: Calendars, a: Allocator, period: calendar_systems.TimePeriod) Allocator.Error![]@import("../common/units.zig").Quantity {
+        return dates.timePeriodToQuantity(a, period);
+    }
+    pub fn formatDay(self: Calendars, a: Allocator, d: datetime.Day, options: ?days.DayFormatOptions) days.Error![]u8 {
+        return days.formatDay(a, self.data, d, options);
+    }
+    pub fn formatDayToParts(self: Calendars, a: Allocator, d: datetime.Day, options: ?days.DayFormatOptions) days.Error![]Part {
+        return days.formatDayToParts(a, self.data, d, options);
+    }
+    pub fn formatDayInterval(self: Calendars, a: Allocator, start: datetime.Day, end: datetime.Day, options: ?days.DayIntervalFormatOptions) days.Error![]u8 {
+        return days.formatDayInterval(a, self.data, start, end, options);
+    }
+    pub fn formatDayIntervalToParts(self: Calendars, a: Allocator, start: datetime.Day, end: datetime.Day, options: ?days.DayIntervalFormatOptions) days.Error![]Part {
+        return days.formatDayIntervalToParts(a, self.data, start, end, options);
+    }
+    pub fn formatTimeOfDay(self: Calendars, a: Allocator, t: datetime.TimeOfDay, options: ?days.TimeOfDayFormatOptions) days.Error![]u8 {
+        return days.formatTimeOfDay(a, self.data, t, options);
+    }
+    pub fn formatTimeOfDayToParts(self: Calendars, a: Allocator, t: datetime.TimeOfDay, options: ?days.TimeOfDayFormatOptions) days.Error![]Part {
+        return days.formatTimeOfDayToParts(a, self.data, t, options);
+    }
+    pub fn formatDayRelative(self: Calendars, a: Allocator, d: datetime.Day, relative_to: datetime.Day, options: ?date_options.RelativeTimeFieldFormatOptions) days.Error![]u8 {
+        return days.formatDayRelative(a, self.data, d, relative_to, options);
+    }
+    pub fn formatInstant(self: Calendars, a: Allocator, instant: datetime.Instant, zone: []const u8, options: ?date_options.DateFormatOptions) days.Error![]u8 {
+        return days.formatInstant(a, self.data, instant, zone, options);
+    }
+    pub fn formatInstantToParts(self: Calendars, a: Allocator, instant: datetime.Instant, zone: []const u8, options: ?date_options.DateFormatOptions) days.Error![]Part {
+        return days.formatInstantToParts(a, self.data, instant, zone, options);
+    }
+    pub fn formatInstantRelative(self: Calendars, a: Allocator, instant: datetime.Instant, relative_to: datetime.Instant, zone: []const u8, options: ?date_options.RelativeTimeFormatOptions) days.Error![]u8 {
+        return days.formatInstantRelative(a, self.data, instant, relative_to, zone, options);
+    }
+};

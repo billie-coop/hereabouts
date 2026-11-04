@@ -10,10 +10,14 @@ const api = @import("api/api.zig");
 pub const CLDR = struct {
     data: *const LocaleData,
     Schema: *const @import("types/schema.zig").Schema,
+    Calendars: api.Calendars,
     General: api.General,
     Numbers: api.Numbers,
     Units: api.Units,
 };
+pub fn bindCalendars(data: *const LocaleData) api.Calendars {
+    return .{ .data = data };
+}
 pub fn bindGeneral(data: *const LocaleData) api.General {
     return .{ .data = data };
 }
@@ -24,7 +28,7 @@ pub fn bindUnits(data: *const LocaleData) api.Units {
     return .{ .data = data };
 }
 pub fn bindCLDR(data: *const LocaleData) CLDR {
-    return .{ .data = data, .Schema = data.schema, .General = bindGeneral(data), .Numbers = bindNumbers(data), .Units = bindUnits(data) };
+    return .{ .data = data, .Schema = data.schema, .Calendars = bindCalendars(data), .General = bindGeneral(data), .Numbers = bindNumbers(data), .Units = bindUnits(data) };
 }
 
 /// Owns the loader and caches. get returns a small bound value; repeated calls share data.

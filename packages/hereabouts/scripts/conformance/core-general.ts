@@ -1,4 +1,6 @@
 /** Lists, names, layout, context transforms and the bound convenience API. */
+
+import * as plainDays from '../../src/core/api/days';
 import * as gen from '../../src/core/api/general';
 import { getContextTransformInfo } from '../../src/core/api/private/api';
 import { bindCLDR } from '../../src/core/cldr';
@@ -8,6 +10,15 @@ import {
   formatWrapper,
   parseWrapper,
 } from '../../src/core/internals/general/internal';
+import {
+  type CalendarDate,
+  dateFields,
+  dateFirstDayOfWeek,
+  dateMinDaysInFirstWeek,
+  dateTimeZoneId,
+  dateType,
+  dateUnixEpoch,
+} from '../../src/core/systems/calendars';
 import { parseLanguageTag } from '../../src/language-tag';
 import { createMessageFormatter, formatMessage } from '../../src/messageformat';
 import { load, PACK_LANGUAGES } from './_core';
@@ -224,5 +235,123 @@ export const cases = (): ConformanceCase[] => {
       add('formatWrapper', [pattern, args], () => formatWrapper(pattern, args));
     }
   }
+  calendarCases(add);
   return cases;
+};
+
+/** Exercise the bound group against the TypeScript convenience API and plain-day functions. */
+const calendarCases = (add: ReturnType<typeof collector>['add']): void => {
+  const epoch = 1109934428000;
+  const zoneId = 'America/New_York';
+  const day = { year: 2005, month: 3, day: 4 };
+  const nextDay = { year: 2005, month: 3, day: 7 };
+  const time = { hour: 6, minute: 7, second: 8, millis: 0 };
+  const summarize = (d: CalendarDate) => ({
+    type: dateType(d),
+    fields: dateFields(d),
+    epoch: dateUnixEpoch(d),
+    firstDay: dateFirstDayOfWeek(d),
+    minDays: dateMinDaysInFirstWeek(d),
+  });
+  for (const id of [
+    'en',
+    'en-GB',
+    'de',
+    'fr',
+    'es',
+    'ar',
+    'fa',
+    'ja',
+    'ja-u-ca-japanese',
+    'th',
+    'zh-Hant',
+  ]) {
+    const data = load(id);
+    const c = bindCLDR(data).Calendars;
+    const start = { date: epoch, zoneId };
+    const end = { date: epoch + 3 * 86400000, zoneId };
+    const fields = { ...day, ...time, zoneId };
+    add('boundCalendarRules', [id], () => [c.firstDayOfWeek(), c.minDaysInFirstWeek()]);
+    const constructors = {
+      toBuddhistDate: () => c.toBuddhistDate(start),
+      toGregorianDate: () => c.toGregorianDate(start),
+      toISO8601Date: () => c.toISO8601Date(start),
+      toJapaneseDate: () => c.toJapaneseDate(start),
+      toPersianDate: () => c.toPersianDate(start),
+      newBuddhistDate: () => c.newBuddhistDate({ ...fields, year: 2548 }),
+      newGregorianDate: () => c.newGregorianDate(fields),
+      newISO8601Date: () => c.newISO8601Date(fields),
+      newJapaneseDate: () => c.newJapaneseDate(fields),
+      newPersianDate: () => c.newPersianDate({ ...fields, year: 1383 }),
+    };
+    for (const name of Object.keys(constructors) as (keyof typeof constructors)[]) {
+      add('boundCalendarConstruct', [id, name], () => summarize(constructors[name]()));
+    }
+    const formats = {
+      formatDate: () => c.formatDate(start, { datetime: 'medium' }),
+      formatDateToParts: () => c.formatDateToParts(start, { datetime: 'medium' }),
+      formatDateRaw: () => c.formatDateRaw(start, { pattern: 'yyyy-MM-dd HH:mm' }),
+      formatDateRawToParts: () => c.formatDateRawToParts(start, { pattern: 'yyyy-MM-dd HH:mm' }),
+      formatDateInterval: () => c.formatDateInterval(start, end, { skeleton: 'yMMMd' }),
+      formatDateIntervalToParts: () =>
+        c.formatDateIntervalToParts(start, end, { skeleton: 'yMMMd' }),
+      formatDateWrapper: () => c.formatDateWrapper('DATE', 'TIME', { width: 'long' }),
+      formatDateWrapperToParts: () =>
+        c.formatDateWrapperToParts(
+          [{ type: 'date', value: 'DATE' }],
+          [{ type: 'time', value: 'TIME' }],
+          { width: 'long' },
+        ),
+      formatRelativeTimeField: () => c.formatRelativeTimeField(3, 'day', { numericOnly: true }),
+      formatRelativeTime: () =>
+        c.formatRelativeTime(start, end, { field: 'day', numericOnly: true }),
+      dateField: () => c.dateField('month', { width: 'short', context: 'begin-sentence' }),
+      fieldOfVisualDifference: () =>
+        c.fieldOfVisualDifference(c.toGregorianDate(start), c.toGregorianDate(end)),
+      months: () => c.months({ width: 'abbreviated' }),
+      weekdays: () => c.weekdays({ width: 'short' }),
+      quarters: () => c.quarters({ width: 'narrow' }),
+      dayPeriods: () => c.dayPeriods({ width: 'wide' }),
+      eras: () => c.eras({ width: 'abbr' }),
+      timeData: () => c.timeData(),
+      timeZoneInfo: () => c.timeZoneInfo(zoneId),
+      resolveTimeZoneId: () => c.resolveTimeZoneId('US/Eastern'),
+      timeZoneIds: () => c.timeZoneIds().length,
+      timeZoneFromUTC: () => c.timeZoneFromUTC(epoch, zoneId),
+      timeZoneFromWall: () => c.timeZoneFromWall(epoch, zoneId),
+      timePeriodToQuantity: () => c.timePeriodToQuantity({ year: 1, day: 3, millis: 25 }),
+      formatDay: () => plainDays.formatDay(data, day),
+      formatDayToParts: () => plainDays.formatDayToParts(data, day),
+      formatDayInterval: () => plainDays.formatDayInterval(data, day, nextDay),
+      formatDayIntervalToParts: () => plainDays.formatDayIntervalToParts(data, day, nextDay),
+      formatTimeOfDay: () => plainDays.formatTimeOfDay(data, time),
+      formatTimeOfDayToParts: () => plainDays.formatTimeOfDayToParts(data, time),
+      formatDayRelative: () => plainDays.formatDayRelative(data, nextDay, day),
+      formatInstant: () => plainDays.formatInstant(data, epoch, zoneId, { date: 'short' }),
+      formatInstantToParts: () =>
+        plainDays.formatInstantToParts(data, epoch, zoneId, { date: 'short' }),
+      formatInstantRelative: () =>
+        plainDays.formatInstantRelative(data, epoch + 3 * 86400000, epoch, zoneId, {
+          field: 'day',
+          numericOnly: true,
+        }),
+    };
+    for (const name of Object.keys(formats) as (keyof typeof formats)[]) {
+      add('boundCalendarCall', [id, name], formats[name]);
+    }
+    const clocks = {
+      now: () => c.now(zoneId),
+      nowBuddhist: () => c.nowBuddhist(zoneId),
+      nowGregorian: () => c.nowGregorian(zoneId),
+      nowISO8601: () => c.nowISO8601(zoneId),
+      nowJapanese: () => c.nowJapanese(zoneId),
+      nowPersian: () => c.nowPersian(zoneId),
+    };
+    for (const name of Object.keys(clocks) as (keyof typeof clocks)[]) {
+      add('boundCalendarNow', [id, name], () => {
+        const d = clocks[name]();
+        return [dateType(d), dateTimeZoneId(d), dateFirstDayOfWeek(d), dateMinDaysInFirstWeek(d)];
+      });
+    }
+  }
 };
