@@ -49,7 +49,14 @@ version is published from Stephen's machine; every later one goes through the re
    `https://billie-coop.github.io/hereabouts/` loads its assets and locale packs under
    `/hereabouts/`, and the locale and time zone pickers work. Its only 404 is the browser's own
    `/favicon.ico` (the site has no favicon).
-2. Publish 0.1.0 by hand, mirroring the workflow's steps, from a clean checkout of `main`:
+2. Done 2026-11-03 from Stephen's machine, with these commands: `@billie-coop/hereabouts@0.1.0` is
+   on npm as `latest`, and tag `v0.1.0` is pushed. `npm publish` asked for browser
+   authentication. It returned before the version was live: npm first created a
+   `0.0.0-stage` version ("Temporary package placeholder for staged publishing", two files,
+   tagged `latest`), and 0.1.0 replaced it as `latest` a few minutes later. The `0.0.0-stage`
+   version is still listed; deprecating it is open. An install right after the publish can
+   pick up the placeholder from npm's cache (`--prefer-online` or `@0.1.0` avoids that).
+   The commands:
 
    ```sh
    npm login                       # as a member of the billie-coop npm org
