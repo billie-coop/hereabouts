@@ -1,5 +1,19 @@
 const std = @import("std");
 
+/// Test suites: each has `test/<name>.zig` (dashes become underscores) and runs the shared
+/// cases in `../conformance/<name>.json`, which it imports as `@import("cases").json`.
+const suites = [_][]const u8{
+    "decimal",
+    "timezone",
+    "datetime",
+    "plurals",
+    "messageformat",
+    "language-tag",
+    "locale",
+    "locale-matcher",
+    "unit-converter",
+};
+
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
@@ -10,27 +24,33 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
-    const test_step = b.step("test", "Run unit tests and the shared conformance cases");
+    const test_all = b.step("test", "Run every test suite");
 
-    const unit_tests = b.addTest(.{ .root_module = mod });
-    test_step.dependOn(&b.addRunArtifact(unit_tests).step);
+    for (suites) |name| {
+        const zig_name = b.dupe(name);
+        std.mem.replaceScalar(u8, zig_name, '-', '_');
 
-    // The shared cases live in ../conformance, outside this package. Copy them next to a small
-    // generated file that embeds them, so the test can import them as a module.
-    const cases = b.addWriteFiles();
-    _ = cases.addCopyFile(b.path("../conformance/decimal.json"), "decimal.json");
-    const cases_src = cases.add("cases.zig", "pub const decimal = @embedFile(\"decimal.json\");\n");
+        // The cases live outside this package. Copy them next to a small generated file that
+        // embeds them, so the test can import them as a module.
+        const files = b.addWriteFiles();
+        _ = files.addCopyFile(b.path(b.fmt("../conformance/{s}.json", .{name})), "cases.json");
+        const cases_src = files.add("cases.zig", "pub const json = @embedFile(\"cases.json\");\n");
 
-    const conformance = b.addTest(.{
-        .root_module = b.createModule(.{
-            .root_source_file = b.path("test/conformance.zig"),
-            .target = target,
-            .optimize = optimize,
-            .imports = &.{
-                .{ .name = "hereabouts", .module = mod },
-                .{ .name = "cases", .module = b.createModule(.{ .root_source_file = cases_src }) },
-            },
-        }),
-    });
-    test_step.dependOn(&b.addRunArtifact(conformance).step);
+        const t = b.addTest(.{
+            .name = zig_name,
+            .root_module = b.createModule(.{
+                .root_source_file = b.path(b.fmt("test/{s}.zig", .{zig_name})),
+                .target = target,
+                .optimize = optimize,
+                .imports = &.{
+                    .{ .name = "hereabouts", .module = mod },
+                    .{ .name = "cases", .module = b.createModule(.{ .root_source_file = cases_src }) },
+                },
+            }),
+        });
+        const run = b.addRunArtifact(t);
+        const step = b.step(b.fmt("test-{s}", .{name}), b.fmt("Run the {s} tests", .{name}));
+        step.dependOn(&run.step);
+        test_all.dependOn(&run.step);
+    }
 }

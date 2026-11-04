@@ -61,12 +61,7 @@ import {
   rationalToString,
   stringDecimalFormatter,
 } from '../../src/decimal';
-
-export interface ConformanceCase {
-  fn: string;
-  args: unknown[];
-  result: unknown;
-}
+import { type ConformanceCase, collector, type Random, random } from './_shared';
 
 const MODES: RoundingModeType[] = [
   'up',
@@ -77,21 +72,6 @@ const MODES: RoundingModeType[] = [
   'half-down',
   'half-even',
 ];
-
-/** Small seeded generator (mulberry32), so the cases never change between runs. */
-const random = (seed: number) => {
-  let s = seed >>> 0;
-  const next = (): number => {
-    s = (s + 0x6d2b79f5) >>> 0;
-    let t = s;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-  const int = (lo: number, hi: number): number => lo + Math.floor(next() * (hi - lo + 1));
-  const pick = <T>(xs: readonly T[]): T => xs[Math.floor(next() * xs.length)];
-  return { next, int, pick };
-};
 
 const SPECIALS = ['NaN', 'Infinity', '-Infinity'];
 const ZEROS = ['0', '-0', '0.000', '0e5', '-0.0', '0e-3'];
@@ -134,7 +114,7 @@ const FIXED = [
 ];
 
 /** A random decimal string: varied lengths, carries (all 9s), powers of ten, halves. */
-const randomDecimal = (r: ReturnType<typeof random>): string => {
+const randomDecimal = (r: Random): string => {
   const x = r.next();
   if (x < 0.03) {
     return r.pick(SPECIALS);
@@ -168,7 +148,7 @@ const randomDecimal = (r: ReturnType<typeof random>): string => {
   return sign + digits + exp;
 };
 
-const randomContext = (r: ReturnType<typeof random>): MathContext => {
+const randomContext = (r: Random): MathContext => {
   const ctx: MathContext = r.next() < 0.5 ? { precision: r.int(0, 40) } : { scale: r.int(-3, 12) };
   if (r.next() < 0.7) {
     ctx.round = r.pick(MODES);
@@ -307,18 +287,9 @@ const RATIONALS = [
   '-1.25 / 0.5',
 ];
 
-export const decimalCases = (): ConformanceCase[] => {
+export const cases = (): ConformanceCase[] => {
   const r = random(20261104);
-  const cases: ConformanceCase[] = [];
-  const add = (fn: string, args: unknown[], f: () => unknown): void => {
-    let result: unknown;
-    try {
-      result = f();
-    } catch (e) {
-      result = { error: (e as Error).message };
-    }
-    cases.push({ fn, args, result });
-  };
+  const { cases, add } = collector();
 
   // Parsing
   for (const s of [...PARSE_VALID, ...PARSE_INVALID]) {
@@ -463,7 +434,3 @@ export const decimalCases = (): ConformanceCase[] => {
 
   return cases;
 };
-
-/** The file contents: one case per line, so diffs stay readable. */
-export const renderCases = (cases: ConformanceCase[]): string =>
-  '[\n' + cases.map((c) => JSON.stringify(c)).join(',\n') + '\n]\n';

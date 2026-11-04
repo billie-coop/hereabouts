@@ -7,6 +7,11 @@ const std = @import("std");
 const h = @import("hereabouts");
 const cases = @import("cases");
 
+test {
+    std.testing.refAllDecls(h.decimal);
+    std.testing.refAllDecls(h.rational);
+}
+
 const D = h.decimal;
 const R = h.rational;
 const Decimal = D.Decimal;
@@ -256,7 +261,7 @@ fn run(a: Allocator, fname: []const u8, args: []const Value, want: Value) !void 
 
 test "decimal conformance" {
     const gpa = std.testing.allocator;
-    const parsed = try std.json.parseFromSlice(Value, gpa, cases.decimal, .{});
+    const parsed = try std.json.parseFromSlice(Value, gpa, cases.json, .{});
     defer parsed.deinit();
 
     var failures: usize = 0;
