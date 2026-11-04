@@ -40,7 +40,7 @@ jobs:
           exit 1
 
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -56,7 +56,7 @@ jobs:
           YARN_ENABLE_GLOBAL_CACHE: 'false'
 
       - name: Restore yarn cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ steps.yarn-config.outputs.CACHE_FOLDER }}
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
@@ -111,7 +111,7 @@ jobs:
 
       # Node 24 ships npm 11, which trusted publishing (OIDC) requires.
       - name: Setup Node.js for publishing
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
