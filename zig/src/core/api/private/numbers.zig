@@ -35,9 +35,8 @@ pub fn getNumberParams(data: *const LocaleData, number_system: ?[]const u8, defa
     // The TypeScript fails here; packs always name a known default system.
     const name = staticName(real) orelse "latn";
 
-    var key_buf: [64]u8 = undefined;
-    const key = std.fmt.bufPrint(&key_buf, "numbers.params.{s}", .{name}) catch unreachable;
-    return data.cached(NumberParams, key, name, build);
+    const names = @import("../../systems/numbering/autogen.names.zig").decimal_numbering_digits;
+    return data.cached(NumberParams, .{ .number_params = @intCast(names.getIndex(name).?) }, name, build);
 }
 
 fn nonEmpty(s: ?[]const u8) ?[]const u8 {
@@ -67,7 +66,7 @@ fn latnInfo(data: *const LocaleData) *const NumberSystemInfo {
 }
 
 fn build(name: []const u8, data: *const LocaleData, a: Allocator) Allocator.Error!NumberParams {
-    const latn_system = (try data.cached(NumberingSystem, "numbers.system.latn", @as([]const u8, "latn"), buildSystem)).*;
+    const latn_system = (try data.cached(NumberingSystem, .latn_system, @as([]const u8, "latn"), buildSystem)).*;
     const system = if (std.mem.eql(u8, name, "latn")) latn_system else try buildSystem(name, data, a);
     const li = latnInfo(data);
     const info = data.schema.Numbers.numberSystem.get(name) orelse li;

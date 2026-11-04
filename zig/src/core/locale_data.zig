@@ -31,9 +31,16 @@ pub const LocaleData = struct {
     /// Derived values, filled on first use. A pointer so functions can take `*const LocaleData`.
     caches: *Caches,
 
+    /// Finite internal key domains. Arbitrary caller strings cannot retain new entries.
+    pub const CacheKey = union(enum) {
+        number_params: u8,
+        latn_system,
+        context_transforms,
+        calendar: @import("systems/calendars/types.zig").CalendarType,
+    };
     pub const Caches = struct {
-        arena: std.heap.ArenaAllocator,
-        map: std.StringHashMapUnmanaged(*anyopaque) = .empty,
+        const Entry = struct { value: *anyopaque, arena: std.heap.ArenaAllocator.State };
+        map: std.AutoHashMapUnmanaged(CacheKey, Entry) = .empty,
         default_formatter: ?*MessageFormatter = null,
     };
 
@@ -41,7 +48,7 @@ pub const LocaleData = struct {
     /// and `locale` (both are freed by `deinit`). (`localeData`)
     pub fn init(gpa: Allocator, locale: Locale, bundle: Bundle, schema: *const Schema, indices: IndexLookup) Allocator.Error!LocaleData {
         const caches = try gpa.create(Caches);
-        caches.* = .{ .arena = .init(gpa) };
+        caches.* = .{};
         return .{
             .gpa = gpa,
             .bundle = bundle,
@@ -62,7 +69,12 @@ pub const LocaleData = struct {
             f.deinit();
             self.gpa.destroy(f);
         }
-        self.caches.arena.deinit();
+        var it = self.caches.map.valueIterator();
+        while (it.next()) |entry| {
+            var arena = entry.arena.promote(self.gpa);
+            arena.deinit();
+        }
+        self.caches.map.deinit(self.gpa);
         self.gpa.destroy(self.caches);
         self.bundle.deinit(self.gpa);
         self.locale.deinit(self.gpa);
@@ -73,23 +85,24 @@ pub const LocaleData = struct {
         return self.bundle.get(offset);
     }
 
-    /// A value derived from this locale data, built by `build` on first use and kept until
-    /// `deinit`. `key` must be unique per kind of value (prefix it with your area, e.g.
-    /// "numbers.params.latn"). `build` allocates the value and anything it points to with the
-    /// given allocator (the cache's arena), and must not free it.
+    /// An immutable internal derived value (`localeData` caches). Each successful build
+    /// owns one arena; a failed build releases all its allocations. Different keys may
+    /// recursively request dependencies; same-key recursion is not supported.
     pub fn cached(
         self: *const LocaleData,
         comptime T: type,
-        key: []const u8,
+        key: CacheKey,
         context: anytype,
         comptime build: fn (@TypeOf(context), *const LocaleData, Allocator) Allocator.Error!T,
     ) Allocator.Error!*const T {
         const c = self.caches;
-        if (c.map.get(key)) |p| return @ptrCast(@alignCast(p));
-        const a = c.arena.allocator();
+        if (c.map.get(key)) |e| return @ptrCast(@alignCast(e.value));
+        var arena = std.heap.ArenaAllocator.init(self.gpa);
+        errdefer arena.deinit();
+        const a = arena.allocator();
         const v = try a.create(T);
         v.* = try build(context, self, a);
-        try c.map.put(a, try a.dupe(u8, key), v);
+        try c.map.put(self.gpa, key, .{ .value = v, .arena = arena.state });
         return v;
     }
 };

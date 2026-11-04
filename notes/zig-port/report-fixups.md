@@ -39,3 +39,37 @@ Validation: final full Debug and ReleaseSafe builds each passed 46/46 steps and 
 including both literal-failure paths. git diff --check is clean. Logs:
 /tmp/hereabouts-step1-debug.log and /tmp/hereabouts-step1-release.log.
 All builds run in visible hc panes.
+
+## Step 2: caches and ownership
+
+Implemented bounded framework LRUs (`pack_cache_size = 2`, `locale_cache_size = 64`; zero
+retains no entries). Framework.loadLocale now returns an owning LocaleHandle with data(),
+clone() and deinit(); CLDRFramework.get returns owning CLDR with clone/deinit. bindCLDR returns
+borrowed CLDRView. Plain reference counts pin the locale and its pack through eviction and
+framework destruction. Each node owns its allocator; caller-held handles account for memory
+outside the resident cache limits. No locks or atomics.
+
+Derived caches now use finite typed keys and one independently reclaimed arena per successful
+build. Failed builds release their arena immediately. The default formatter retains the
+reclaiming allocation/destruction fix from step 1. Packs decode the finite region exception
+maps at load time, making subsequent pack lookup immutable and safe to share with a suitable
+caller allocator. Existing callers now explicitly release all returned handles.
+
+Formatter and translator parse caches are bounded (default 100), with nullable cache_size
+(null = default; zero = disabled) and max_cached_message_bytes (default 64 KiB; larger messages
+format without retention). Translator plural rules use a bounded LRU (default 64, separately
+configurable) rather than removing it, preserving useful cache diagnostics/conformance stats.
+Unknown-key fallback patterns are bounded too. Both formatter and translator evaluate owned
+Code snapshots, permitting same-thread reentrant callbacks even with capacity 1.
+
+TimeData adds deinit(gpa); timePeriodToQuantity now returns owned quantities/Decimals with
+unit_options.freeQuantities; the arena implementation remains an explicit internal helper.
+README documents the new lifetimes/cache/thread contract and releases its example's CLDR.
+
+Added tests for capacities 0/1/2, handle clone/release and surviving framework destruction,
+LRU hit recency, cache count bounds and live-byte plateaus, failed derived builds, oversized
+pattern bypass, disabled formatter caching, unknown-key translator churn, reentrant translator
+eviction, quantity cleanup and allocation-failure sweeps through handle construction.
+
+Validation: full Debug and ReleaseSafe each passed 46/46 steps and 118/118 tests; Zig formatting
+and git diff --check pass. No TS source, generators or conformance JSON changes.

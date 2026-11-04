@@ -10,6 +10,7 @@ const framework_mod = @import("framework.zig");
 
 /// Loads resource packs and locales (`createFramework`, `loadLocale`).
 pub const Framework = framework_mod.Framework;
+pub const LocaleHandle = framework_mod.LocaleHandle;
 pub const FrameworkOptions = framework_mod.Options;
 pub const FrameworkError = framework_mod.Error;
 pub const Loader = framework_mod.Loader;
@@ -112,6 +113,7 @@ pub const bound_api = @import("api/api.zig");
 pub const getContextTransformInfo = @import("api/private/api.zig").getContextTransformInfo;
 pub const cldr = @import("cldr.zig");
 pub const CLDR = cldr.CLDR;
+pub const CLDRView = cldr.CLDRView;
 pub const CLDRFramework = cldr.CLDRFramework;
 pub const bindCLDR = cldr.bindCLDR;
 pub const bindCalendars = cldr.bindCalendars;

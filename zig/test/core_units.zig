@@ -256,7 +256,11 @@ fn quantity(a: Allocator, v: Value) !core.units.Quantity {
 
 fn run(fw: *core.Framework, a: Allocator, fname: []const u8, args: []const Value, want: Value) !void {
     const U = core.units;
-    const d = try fw.loadLocale(.{ .id = str(args[0]) });
+    const d_handle = try fw.loadLocale(.{ .id = str(args[0]) });
+
+    defer d_handle.deinit();
+
+    const d = d_handle.data();
     if (eql(fname, "availableUnits")) {
         const got = U.availableUnits(d);
         if (got.len != want.array.items.len) return fail("count: want {d}, got {d}", .{ want.array.items.len, got.len });
@@ -323,7 +327,11 @@ test "no leaks" {
     var fw = core.Framework.init(gpa, .{ .loader = .{ .load = loadPack } });
     defer fw.deinit();
     const U = core.units;
-    const d = try fw.loadLocale(.{ .id = "de-CH" });
+    const d_handle = try fw.loadLocale(.{ .id = "de-CH" });
+
+    defer d_handle.deinit();
+
+    const d = d_handle.data();
     const n = try D.parse(gpa, "1234.5");
     defer n.deinit(gpa);
     const qs = [_]U.Quantity{

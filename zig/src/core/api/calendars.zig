@@ -309,8 +309,29 @@ pub fn timeZoneInfo(data: *const LocaleData, zone: []const u8) o.TimeZoneInfo {
     };
     return .{ .id = id, .city = .{ .name = if (city.len > 0) city else schema.exemplarCity.get(b, &.{"Etc/Unknown"}) }, .countries = loc.countries, .latitude = loc.latitude, .longitude = loc.longitude, .stdoffset = loc.stdoffset, .metazone = meta, .names = names };
 }
-/// Quantities and their Decimal values are allocated in `a` (use an arena).
-pub fn timePeriodToQuantity(a: A, period: cal.TimePeriod) A.Error![]@import("../common/units.zig").Quantity {
+/// Caller-owned quantities and Decimal values (`timePeriodToQuantity`). Unit strings are
+/// static. Free with unit_options.freeQuantities.
+pub fn timePeriodToQuantity(gpa: A, period: cal.TimePeriod) A.Error![]@import("../common/units.zig").Quantity {
+    const Q = @import("../common/units.zig").Quantity;
+    var arena = std.heap.ArenaAllocator.init(gpa);
+    defer arena.deinit();
+    const values = try timePeriodToQuantityArena(arena.allocator(), period);
+    const out = try gpa.alloc(Q, values.len);
+    var n: usize = 0;
+    errdefer {
+        for (out[0..n]) |q| q.value.deinit(gpa);
+        gpa.free(out);
+    }
+    for (values, out) |q, *dest| {
+        dest.* = q;
+        dest.value = try D.clone(gpa, q.value);
+        n += 1;
+    }
+    return out;
+}
+
+/// Internal arena variant, including conversion temporaries (`timePeriodToQuantity`).
+pub fn timePeriodToQuantityArena(a: A, period: cal.TimePeriod) A.Error![]@import("../common/units.zig").Quantity {
     const Q = @import("../common/units.zig").Quantity;
     var out: std.ArrayList(Q) = .empty;
     for (cal.TIME_PERIOD_FIELDS) |f| {

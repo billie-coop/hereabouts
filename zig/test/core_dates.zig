@@ -135,7 +135,11 @@ fn run(a: A, fw: *core.Framework, name: []const u8, args: []const V) !V {
         for ([_]i64{ @intCast(row.field), row.sub, @intCast(row.repeat), @intCast(row.width) }) |n| try out.append(.{ .integer = n });
         return .{ .array = out };
     }
-    const data = try fw.loadLocale(.{ .id = args[0].string });
+    const data_handle = try fw.loadLocale(.{ .id = args[0].string });
+
+    defer data_handle.deinit();
+
+    const data = data_handle.data();
     if (eq(name, "convert") or eq(name, "newDate") or eq(name, "now")) {
         const c = core.calendars.CalendarType.fromString(args[1].string).?;
         const d: core.calendars.CalendarDate = if (eq(name, "convert")) blk: {
@@ -281,7 +285,11 @@ test "date API compilation and ownership" {
         }
     }.load } });
     defer fw.deinit();
-    const data = try fw.loadLocale(.{ .id = "en" });
+    const data_handle = try fw.loadLocale(.{ .id = "en" });
+
+    defer data_handle.deinit();
+
+    const data = data_handle.data();
     const d: h.core.dates.DateInput = .{ .zoned = .{ .date = 1554263155123, .zone_id = "America/New_York" } };
     const text = try h.core.dates.formatDate(a, data, d, null);
     defer a.free(text);

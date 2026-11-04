@@ -53,7 +53,14 @@ pub const RelativeTimeFieldFormatOptions = struct {
 };
 pub const RelativeTimeFormatOptions = RelativeTimeFieldFormatOptions;
 pub const DateWrapperFormatOptions = struct { ca: ?CalendarType = null, width: []const u8 = "medium", at_time: bool = true };
-pub const TimeData = struct { preferred: []const u8, allowed: []const []const u8 };
+pub const TimeData = struct {
+    preferred: []const u8,
+    allowed: []const []const u8,
+    /// Free the owned allowed-pattern slice; its strings and preferred are static.
+    pub fn deinit(self: TimeData, gpa: @import("std").mem.Allocator) void {
+        gpa.free(self.allowed);
+    }
+};
 pub const ExemplarCity = struct { name: []const u8 };
 pub const MetazoneName = struct { generic: []const u8 = "", standard: []const u8 = "", daylight: []const u8 = "" };
 pub const MetazoneNames = struct { long: MetazoneName = .{}, short: MetazoneName = .{} };

@@ -44,12 +44,13 @@ pub const Loader = struct {
     free: ?*const fn (context: ?*anyopaque, bytes: []const u8) void = null,
 };
 
-/// Options to initialize the library (`CLDROptions`). The TypeScript's cache sizes have no
-/// equivalent: see `Framework`.
+/// Options to initialize the library (`CLDROptions`). Cache capacities count resident
+/// entries, excluding caller-owned handles. Zero disables retention.
 pub const Options = struct {
     loader: ?Loader = null,
-    /// Skip comparing the packs' checksums with the schema's.
     skip_checksum: bool = false,
+    pack_cache_size: usize = 2,
+    locale_cache_size: usize = 64,
 };
 
 /// A locale id to resolve, or a locale already resolved.
@@ -58,52 +59,134 @@ pub const LocaleInput = union(enum) {
     locale: Locale,
 };
 
-/// Loader state: the schema, the loaded packs and the loaded locales.
-///
-/// The TypeScript keeps packs and locale data in size-limited caches and lets the garbage
-/// collector free what is no longer used. Here locale data points into its pack, and callers
-/// hold `*const LocaleData`, so both live until `deinit`: each language's pack is loaded once
-/// and each locale is built once (loading it again returns the same locale data). Not
-/// thread-safe.
+// Small bounded LRUs. The most recently used entry is last. Nodes own their allocator
+// and can survive removal from either cache and destruction of the framework.
+fn Cache(comptime T: type) type {
+    return struct {
+        const Self = @This();
+        const Entry = struct { key: []u8, node: *T };
+        entries: std.ArrayList(Entry) = .empty,
+        capacity: usize,
+
+        fn get(self: *Self, key: []const u8) ?*T {
+            for (self.entries.items, 0..) |e, i| {
+                if (std.mem.eql(u8, e.key, key)) {
+                    _ = self.entries.orderedRemove(i);
+                    self.entries.appendAssumeCapacity(e);
+                    return e.node;
+                }
+            }
+            return null;
+        }
+        fn put(self: *Self, gpa: Allocator, key: []const u8, node: *T) Allocator.Error!void {
+            if (self.capacity == 0) return;
+            const k = try gpa.dupe(u8, key);
+            errdefer gpa.free(k);
+            // Reserve before evicting, so OOM leaves existing entries intact.
+            if (self.entries.items.len < self.capacity) try self.entries.ensureUnusedCapacity(gpa, 1);
+            if (self.get(key)) |_| {
+                const old = self.entries.pop().?;
+                gpa.free(old.key);
+                old.node.release();
+            } else if (self.entries.items.len == self.capacity) {
+                const old = self.entries.orderedRemove(0);
+                gpa.free(old.key);
+                old.node.release();
+            }
+            node.retain();
+            self.entries.appendAssumeCapacity(.{ .key = k, .node = node });
+        }
+        fn deinit(self: *Self, gpa: Allocator) void {
+            for (self.entries.items) |e| {
+                gpa.free(e.key);
+                e.node.release();
+            }
+            self.entries.deinit(gpa);
+        }
+        pub fn count(self: *const Self) usize {
+            return self.entries.items.len;
+        }
+    };
+}
+
+const PackNode = struct {
+    gpa: Allocator,
+    pack: *Pack,
+    refs: usize = 1,
+    fn retain(self: *PackNode) void {
+        self.refs += 1;
+    }
+    fn release(self: *PackNode) void {
+        self.refs -= 1;
+        if (self.refs == 0) {
+            self.pack.deinit();
+            self.gpa.destroy(self);
+        }
+    }
+};
+const LocaleNode = struct {
+    gpa: Allocator,
+    value: LocaleData,
+    pack: *PackNode,
+    refs: usize = 1,
+    fn retain(self: *LocaleNode) void {
+        self.refs += 1;
+    }
+    fn release(self: *LocaleNode) void {
+        self.refs -= 1;
+        if (self.refs == 0) {
+            self.value.deinit();
+            self.pack.release();
+            self.gpa.destroy(self);
+        }
+    }
+};
+
+/// An owning locale reference (`loadLocale`). Single-threaded, including its lazy caches.
+/// Move by convention; ordinary copies do not retain. Use clone for another owner, and
+/// deinit once per owner. Its allocator must outlive it; its framework need not.
+pub const LocaleHandle = struct {
+    node: *LocaleNode,
+    pub fn data(self: LocaleHandle) *const LocaleData {
+        return &self.node.value;
+    }
+    pub fn clone(self: LocaleHandle) LocaleHandle {
+        self.node.retain();
+        return self;
+    }
+    pub fn deinit(self: LocaleHandle) void {
+        self.node.release();
+    }
+};
+
+/// Single-threaded loader and bounded caches. Each returned handle owns its lifetime;
+/// eviction and framework destruction release cache ownership without invalidating handles.
+/// Loader callbacks may reenter, but must not destroy this framework during an operation.
 pub const Framework = struct {
     gpa: Allocator,
     options: Options,
     schema: *const Schema = &autogen.schema,
-    /// Checksum of the schema config, compared with each pack's. Empty when skip_checksum.
     checksum: []const u8,
-    /// Packs by language.
-    packs: std.StringHashMapUnmanaged(*Pack) = .empty,
-    /// Locale data by locale id and resolved tag.
-    locales: std.StringHashMapUnmanaged(*LocaleData) = .empty,
+    packs: Cache(PackNode),
+    locales: Cache(LocaleNode),
 
-    /// Set up the schema and caches (`createFramework`).
+    /// Initialize the framework (`createFramework`).
     pub fn init(gpa: Allocator, options: Options) Framework {
         return .{
             .gpa = gpa,
             .options = options,
             .checksum = if (options.skip_checksum) "" else autogen.checksum,
+            .packs = .{ .capacity = options.pack_cache_size },
+            .locales = .{ .capacity = options.locale_cache_size },
         };
     }
-
     pub fn deinit(self: *Framework) void {
-        var li = self.locales.iterator();
-        while (li.next()) |e| {
-            self.gpa.free(e.key_ptr.*);
-            e.value_ptr.*.deinit();
-            self.gpa.destroy(e.value_ptr.*);
-        }
-        var pi = self.packs.iterator();
-        while (pi.next()) |e| {
-            self.gpa.free(e.key_ptr.*);
-            e.value_ptr.*.deinit();
-        }
         self.locales.deinit(self.gpa);
         self.packs.deinit(self.gpa);
     }
 
-    /// Load the resource pack for a locale (or use the cached one) and return the locale data.
-    /// It belongs to the framework. (`loadLocale`)
-    pub fn loadLocale(self: *Framework, input: LocaleInput) Error!*const LocaleData {
+    /// Load a locale, returning an owning handle. Call handle.deinit (`loadLocale`).
+    pub fn loadLocale(self: *Framework, input: LocaleInput) Error!LocaleHandle {
         const loader = self.options.loader orelse return error.NoLoader;
         const gpa = self.gpa;
         var resolved = switch (input) {
@@ -112,51 +195,51 @@ pub const Framework = struct {
         };
         var owned = true;
         defer if (owned) resolved.deinit(gpa);
-
         const key = try cacheKey(gpa, resolved);
         defer gpa.free(key);
-        if (self.locales.get(key)) |d| return d;
+        if (self.locales.get(key)) |node| {
+            node.retain();
+            return .{ .node = node };
+        }
 
         const language = resolved.tag.getLanguage();
-        var pack = self.packs.get(language);
-        if (pack == null) {
-            const data = loader.load(loader.context, language) orelse return error.PackNotFound;
-            const p = pack_mod.loadPack(gpa, data);
-            if (loader.free) |free| free(loader.context, data);
-            const loaded = try p;
-            errdefer loaded.deinit();
-            if (!self.options.skip_checksum and !std.mem.eql(u8, loaded.checksum, self.checksum)) {
-                return error.ChecksumMismatch;
-            }
-            const lang = try gpa.dupe(u8, language);
-            errdefer gpa.free(lang);
-            try self.packs.put(gpa, lang, loaded);
-            pack = loaded;
-        }
-
-        const bundle = try pack_mod.packGet(gpa, pack.?, resolved.tag);
-        const d = gpa.create(LocaleData) catch |e| {
-            bundle.deinit(gpa);
-            return e;
+        const pack_node = if (self.packs.get(language)) |node| blk: {
+            node.retain();
+            break :blk node;
+        } else blk: {
+            const bytes = loader.load(loader.context, language) orelse return error.PackNotFound;
+            const result = pack_mod.loadPack(gpa, bytes);
+            if (loader.free) |free| free(loader.context, bytes);
+            const pack = try result;
+            errdefer pack.deinit();
+            if (!self.options.skip_checksum and !std.mem.eql(u8, pack.checksum, self.checksum)) return error.ChecksumMismatch;
+            const node = try gpa.create(PackNode);
+            errdefer gpa.destroy(node);
+            node.* = .{ .gpa = gpa, .pack = pack };
+            try self.packs.put(gpa, language, node);
+            break :blk node;
         };
-        d.* = LocaleData.init(gpa, resolved, bundle, self.schema, autogen.index) catch |e| {
+        defer pack_node.release();
+
+        const bundle = try pack_mod.packGet(gpa, pack_node.pack, resolved.tag);
+        const value = LocaleData.init(gpa, resolved, bundle, self.schema, autogen.index) catch |err| {
             bundle.deinit(gpa);
-            gpa.destroy(d);
-            return e;
+            return err;
         };
         owned = false;
-        errdefer {
-            d.deinit();
-            gpa.destroy(d);
-        }
-        const k = try gpa.dupe(u8, key);
-        errdefer gpa.free(k);
-        try self.locales.put(gpa, k, d);
-        return d;
+        const node = gpa.create(LocaleNode) catch |err| {
+            var cleanup = value;
+            cleanup.deinit();
+            return err;
+        };
+        pack_node.retain();
+        node.* = .{ .gpa = gpa, .value = value, .pack = pack_node };
+        errdefer node.release();
+        try self.locales.put(gpa, key, node);
+        return .{ .node = node };
     }
 
-    /// Number of resource packs currently cached, as a string for diagnostics
-    /// (`frameworkInfo`). Free with `gpa.free`.
+    /// Resident pack count (`frameworkInfo`). The caller owns the returned string.
     pub fn info(self: *const Framework, gpa: Allocator) Allocator.Error![]u8 {
         return std.fmt.allocPrint(gpa, "packs loaded: {d}", .{self.packs.count()});
     }

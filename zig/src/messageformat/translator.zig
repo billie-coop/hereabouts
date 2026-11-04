@@ -38,6 +38,9 @@ const MessageCode = types.MessageCode;
 const PluralRules = plurals.PluralRules;
 const ApostropheMode = parser.ApostropheMode;
 const Error = ev.Error;
+const Cache = @import("formatter.zig").Cache;
+const RuleCache = @import("lru.zig").LRU(PluralRules, freeRules);
+fn freeRules(_: PluralRules, _: Allocator) void {}
 
 /// A message in a catalog: its key and its pattern.
 pub const Message = struct {
@@ -59,6 +62,12 @@ pub const Catalog = struct {
 pub const TranslatorOptions = struct {
     /// Messages in the source language, by key. Its keys are the keys `translate` accepts.
     source: []const Message,
+    /// Parsed pattern capacity: null uses 100; zero disables caching.
+    cache_size: ?usize = null,
+    /// Plural-rule capacity: null uses 64; zero disables caching.
+    plural_cache_size: ?usize = null,
+    /// Larger patterns format normally without entering the cache.
+    max_cached_message_bytes: usize = 64 * 1024,
     /// Language of the source messages, for their plural rules. Default (or empty) 'en'.
     source_language: ?[]const u8 = null,
     /// Translated catalogs. A message missing from a catalog falls back to the less specific
@@ -74,7 +83,8 @@ pub const TranslatorOptions = struct {
 };
 
 /// A translator: the catalogs plus caches of parsed messages and plural rules, shared by every
-/// `translate` call. Create one per app (or per set of catalogs), keep it, and `deinit` it.
+/// `translate` call. Single-threaded; callbacks may reenter. Keep one per thread/catalog set
+/// and deinit it when done.
 pub const Translator = struct {
     gpa: Allocator,
     source: []const Message,
@@ -84,22 +94,14 @@ pub const Translator = struct {
     converter: ev.MessageArgConverter,
     matcher: matcher_.MessageMatcher,
     apostrophe_mode: ApostropheMode,
-    /// Parsed patterns, by pattern. Patterns come from the catalogs, so this is bounded by
-    /// their size.
-    parsed: std.StringHashMapUnmanaged(MessageCode) = .empty,
-    /// Plural rules, by catalog id.
-    plurals: std.StringHashMapUnmanaged(PluralRules) = .empty,
+    /// Bounded parsed-pattern and plural-rule caches. Unknown caller keys can be patterns.
+    parsed: Cache,
+    plurals: RuleCache,
+    max_cached_message_bytes: usize,
 
     pub fn deinit(self: *Translator) void {
-        var it = self.parsed.iterator();
-        while (it.next()) |e| {
-            self.gpa.free(e.key_ptr.*);
-            e.value_ptr.deinit(self.gpa);
-        }
-        self.parsed.deinit(self.gpa);
-        var pit = self.plurals.keyIterator();
-        while (pit.next()) |k| self.gpa.free(k.*);
-        self.plurals.deinit(self.gpa);
+        self.parsed.deinit();
+        self.plurals.deinit();
         self.matcher.deinit(self.gpa);
     }
 };
@@ -109,6 +111,12 @@ pub fn createTranslator(gpa: Allocator, options: TranslatorOptions) Allocator.Er
     const names = try ev.formatterNames(gpa, options.formatters);
     defer gpa.free(names);
     const sl = options.source_language orelse "";
+    const matcher = try matcher_.buildMessageMatcher(gpa, names, true);
+    errdefer matcher.deinit(gpa);
+    var parsed = try Cache.init(gpa, options.cache_size orelse 100);
+    errdefer parsed.deinit();
+    var rules = try RuleCache.init(gpa, options.plural_cache_size orelse 64);
+    errdefer rules.deinit();
     return .{
         .gpa = gpa,
         .source = options.source,
@@ -116,7 +124,10 @@ pub fn createTranslator(gpa: Allocator, options: TranslatorOptions) Allocator.Er
         .catalogs = options.catalogs,
         .formatters = options.formatters,
         .converter = options.converter orelse ev.default_converter,
-        .matcher = try matcher_.buildMessageMatcher(gpa, names, true),
+        .matcher = matcher,
+        .parsed = parsed,
+        .plurals = rules,
+        .max_cached_message_bytes = options.max_cached_message_bytes,
         .apostrophe_mode = options.apostrophe_mode orelse .double_optional,
     };
 }
@@ -144,19 +155,19 @@ fn pluralsFor(t: *Translator, id: []const u8) Allocator.Error!PluralRules {
         }
     }
     const rules = plurals.getPluralRules(if (language.len > 0) language else "root", region);
-    const key = try t.gpa.dupe(u8, id);
-    errdefer t.gpa.free(key);
-    try t.plurals.put(t.gpa, key, rules);
+    if (id.len <= t.max_cached_message_bytes) try t.plurals.set(id, rules);
     return rules;
 }
 
-fn parse(t: *Translator, pattern: []const u8) Allocator.Error!MessageCode {
-    if (t.parsed.get(pattern)) |code| return code;
-    const code = try parser.parseMessagePattern(t.gpa, pattern, t.matcher, false, t.apostrophe_mode);
-    errdefer code.deinit(t.gpa);
-    const key = try t.gpa.dupe(u8, pattern);
-    errdefer t.gpa.free(key);
-    try t.parsed.put(t.gpa, key, code);
+// Return an owned snapshot: callbacks may recursively translate and evict cache entries.
+fn parse(gpa: Allocator, t: *Translator, pattern: []const u8) Allocator.Error!MessageCode {
+    if (t.parsed.get(pattern)) |code| return types.clone(gpa, code);
+    const code = try parser.parseMessagePattern(gpa, pattern, t.matcher, false, t.apostrophe_mode);
+    errdefer code.deinit(gpa);
+    if (t.parsed.capacity > 0 and pattern.len <= t.max_cached_message_bytes) {
+        // set takes ownership even on error.
+        try t.parsed.set(pattern, try types.clone(t.gpa, code));
+    }
     return code;
 }
 
@@ -232,7 +243,8 @@ pub fn translate(
     // Text with no braces or apostrophes formats to itself.
     if (std.mem.indexOfAny(u8, r.message, "{'") == null) return gpa.dupe(u8, r.message);
     const rules = try pluralsFor(t, r.language);
-    const code = try parse(t, r.message);
+    const code = try parse(gpa, t, r.message);
+    defer code.deinit(gpa);
     return ev.evaluateMessage(gpa, rules, t.converter, t.formatters, code, &.{}, named);
 }
 
@@ -437,7 +449,8 @@ const Checker = struct {
     fn check(self: *Checker, language: []const u8, key: []const u8, message: []const u8, expected: ?[]const []const u8) Allocator.Error!void {
         const mode = self.t.apostrophe_mode;
         if (!depthOk(message, mode)) return self.add(language, key, .unbalanced, message);
-        const code = try parse(self.t, message);
+        const code = try parse(self.a, self.t, message);
+        defer code.deinit(self.a);
         if (missingOther(code)) try self.add(language, key, .no_other, message);
         if (expected) |exp| {
             const names = try argNames(self.a, message, .{ .formatters = self.formatters, .apostrophe_mode = mode });

@@ -59,6 +59,8 @@ fn run(fw: *core.CLDRFramework, a: Allocator, name: []const u8, args: []const Va
     }
     if (eql(name, "contextTransform")) return string(try internal.contextTransformWithFlag(a, args[0].string, args[1].string, context(args[2])));
     const api = try fw.get(.{ .id = args[0].string });
+
+    defer api.deinit();
     const data = api.data;
     if (std.mem.startsWith(u8, name, "boundCalendar")) return runCalendar(a, api.Calendars, name, args);
     if (eql(name, "characterOrder")) return string(@tagName(gen.characterOrder(data)));
@@ -157,7 +159,11 @@ test "bound API and ownership" {
     var fw = core.CLDRFramework.init(a, .{ .loader = .{ .load = loadPack } });
     defer fw.deinit();
     const en = try fw.get(.{ .id = "en" });
-    try std.testing.expect(en.data == (try fw.get(.{ .id = "en" })).data);
+
+    defer en.deinit();
+    const again = try fw.get(.{ .id = "en" });
+    defer again.deinit();
+    try std.testing.expect(en.data == again.data);
     try std.testing.expect(en.Schema == fw.config());
     try std.testing.expect(en.General.bundle() == en.data);
     try std.testing.expectEqualStrings("en", en.General.locale().id);
@@ -314,6 +320,8 @@ test "bound calendar ownership" {
     var fw = core.CLDRFramework.init(a, .{ .loader = .{ .load = loadPack } });
     defer fw.deinit();
     const en = try fw.get(.{ .id = "en" });
+
+    defer en.deinit();
     const c = en.Calendars;
     try std.testing.expect(core.bindCalendars(en.data).data == c.data);
     const start: core.dates.DateInput = .{ .zoned = .{ .date = 1109934428000, .zone_id = "America/New_York" } };

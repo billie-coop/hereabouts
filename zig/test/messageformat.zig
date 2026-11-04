@@ -372,8 +372,10 @@ fn runMatcher(a: Allocator, args: []const Value, want: Value) !void {
 
 fn runFormatter(a: Allocator, args: []const Value, want: Value) !void {
     const spec = args[0];
-    var cache_size: usize = 0;
-    if (field(spec, "cacheSize")) |c| cache_size = @intCast(c.integer);
+    var cache_size: ?usize = null;
+    if (field(spec, "cacheSize")) |c| {
+        if (c.integer > 0) cache_size = @intCast(c.integer); // TS zero selects the default.
+    }
     var f = try M.createMessageFormatter(a, .{
         .language = if (field(spec, "language")) |l| l.string else null,
         .region = if (field(spec, "region")) |r| r.string else null,
@@ -443,8 +445,8 @@ fn runTranslator(a: Allocator, args: []const Value, want: Value) !void {
                 try expectStr(x.object.get("detail").?, i.detail);
             }
         } else {
-            try expectInt(w.array.items[0], t.parsed.count());
-            try expectInt(w.array.items[1], t.plurals.count());
+            try expectInt(w.array.items[0], t.parsed.size());
+            try expectInt(w.array.items[1], t.plurals.size());
         }
     }
 }

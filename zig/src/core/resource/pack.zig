@@ -15,7 +15,7 @@ pub const Error = error{InvalidPack} || Allocator.Error;
 const DELIM = '_';
 
 /// Layer in the pack that supports all regions for a single language + script. Region
-/// exception indices are decoded on first use and cached.
+/// exception indices are decoded at pack load, so subsequent lookups are immutable.
 pub const PackScript = struct {
     strings: []const []const u8,
     exceptions: []const []const u8,
@@ -115,6 +115,9 @@ pub fn loadPack(gpa: Allocator, data: []const u8) Error!*Pack {
             .default_region = s.defaultRegion,
         });
     }
+    for (pack.scripts.values()) |*script| {
+        for (script.regions.keys()) |region| _ = try decodeRegion(pack, script, region);
+    }
     return pack;
 }
 
@@ -159,8 +162,8 @@ fn decodeRegion(pack: *Pack, script: *PackScript, region: []const u8) Allocator.
 }
 
 fn cachedRegion(pack: *Pack, script: *PackScript, region: []const u8) Allocator.Error!?*ExceptionIndex {
-    if (script.cache.get(region)) |index| return index;
-    return decodeRegion(pack, script, region);
+    _ = pack;
+    return script.cache.get(region);
 }
 
 fn packScriptGet(gpa: Allocator, pack: *Pack, script: *PackScript, tag_in: LanguageTag) Allocator.Error!Bundle {

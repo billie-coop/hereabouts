@@ -7,7 +7,7 @@ const LocaleData = @import("locale_data.zig").LocaleData;
 const api = @import("api/api.zig");
 
 /// A bound locale. It stays valid until its framework or standalone locale data is freed.
-pub const CLDR = struct {
+pub const CLDRView = struct {
     data: *const LocaleData,
     Schema: *const @import("types/schema.zig").Schema,
     Calendars: api.Calendars,
@@ -15,6 +15,29 @@ pub const CLDR = struct {
     Numbers: api.Numbers,
     Units: api.Units,
 };
+/// Owning locale convenience object (`CLDR`). Single-threaded lazy caches. The groups
+/// borrow this owner's data. Clone explicitly for an independent owner; deinit once.
+pub const CLDR = struct {
+    handle: framework.LocaleHandle,
+    data: *const LocaleData,
+    Schema: *const @import("types/schema.zig").Schema,
+    Calendars: api.Calendars,
+    General: api.General,
+    Numbers: api.Numbers,
+    Units: api.Units,
+    pub fn deinit(self: CLDR) void {
+        self.handle.deinit();
+    }
+    pub fn clone(self: CLDR) CLDR {
+        var result = self;
+        result.handle = self.handle.clone();
+        return result;
+    }
+};
+fn own(handle: framework.LocaleHandle) CLDR {
+    const data = handle.data();
+    return .{ .handle = handle, .data = data, .Schema = data.schema, .Calendars = bindCalendars(data), .General = bindGeneral(data), .Numbers = bindNumbers(data), .Units = bindUnits(data) };
+}
 pub fn bindCalendars(data: *const LocaleData) api.Calendars {
     return .{ .data = data };
 }
@@ -27,7 +50,7 @@ pub fn bindNumbers(data: *const LocaleData) api.Numbers {
 pub fn bindUnits(data: *const LocaleData) api.Units {
     return .{ .data = data };
 }
-pub fn bindCLDR(data: *const LocaleData) CLDR {
+pub fn bindCLDR(data: *const LocaleData) CLDRView {
     return .{ .data = data, .Schema = data.schema, .Calendars = bindCalendars(data), .General = bindGeneral(data), .Numbers = bindNumbers(data), .Units = bindUnits(data) };
 }
 
@@ -41,7 +64,7 @@ pub const CLDRFramework = struct {
         self.framework.deinit();
     }
     pub fn get(self: *CLDRFramework, input: framework.LocaleInput) framework.Error!CLDR {
-        return bindCLDR(try self.framework.loadLocale(input));
+        return own(try self.framework.loadLocale(input));
     }
     /// The generated schema represents the shipped config. Custom configs aren't supported.
     pub fn config(self: *const CLDRFramework) *const @import("types/schema.zig").Schema {

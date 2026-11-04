@@ -72,13 +72,11 @@ pub fn calendarPatterns(a: A, data: *const LocaleData, schema: *const CalendarSc
     return p;
 }
 pub fn getCalendarPatterns(data: *const LocaleData, c: CalendarType) A.Error!*const CalendarPatterns {
-    const key = switch (c) {
-        .buddhist => "dates.patterns.buddhist",
-        .japanese => "dates.patterns.japanese",
-        .persian => "dates.patterns.persian",
-        else => "dates.patterns.gregory",
+    const calendar: CalendarType = switch (c) {
+        .iso8601 => .gregory,
+        else => c,
     };
-    return data.cached(CalendarPatterns, key, c, build);
+    return data.cached(CalendarPatterns, .{ .calendar = calendar }, c, build);
 }
 pub fn patternsDatePattern(a: A, p: *const CalendarPatterns, width: []const u8) A.Error![]const dates.DateTimeNode {
     return dates.parseDatePattern(a, p.schema.dateFormats.get(&p.data.bundle, &.{width}));

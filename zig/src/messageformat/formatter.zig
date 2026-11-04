@@ -37,8 +37,10 @@ pub const MessageFormatterOptions = struct {
     converter: ?ev.MessageArgConverter = null,
     /// Custom formatting functions. Borrowed: they must outlive the formatter.
     formatters: []const ev.Formatter = &.{},
-    /// Number of parsed messages to cache internally (0 means the default, 100).
-    cache_size: usize = 0,
+    /// Parsed-message capacity (`cacheSize`): null uses 100; zero disables retention.
+    cache_size: ?usize = null,
+    /// Larger patterns format normally without entering the cache.
+    max_cached_message_bytes: usize = 64 * 1024,
     /// Disables the escaping of text between matching apostrophes.
     disable_escapes: bool = false,
     /// How apostrophes quote text. Default (null) 'double_required' (1.x behaviour);
@@ -48,7 +50,7 @@ pub const MessageFormatterOptions = struct {
 };
 
 /// Message formatter that caches parsed messages, as returned by `createMessageFormatter`.
-/// Free it with `deinit`.
+/// Single-threaded; callbacks may reenter formatMessage. Free with `deinit`.
 pub const MessageFormatter = struct {
     gpa: Allocator,
     plurals: PluralRules,
@@ -56,6 +58,7 @@ pub const MessageFormatter = struct {
     formatters: []const ev.Formatter,
     matcher: matcher_.MessageMatcher,
     cache: Cache,
+    max_cached_message_bytes: usize,
     disable_escapes: bool,
     apostrophe_mode: ?parser.ApostropheMode,
 
@@ -78,7 +81,8 @@ pub fn createMessageFormatter(gpa: Allocator, options: MessageFormatterOptions) 
         .converter = options.converter orelse ev.default_converter,
         .formatters = options.formatters,
         .matcher = matcher,
-        .cache = try Cache.init(gpa, if (options.cache_size == 0) DEFAULT_CACHE_SIZE else options.cache_size),
+        .cache = try Cache.init(gpa, options.cache_size orelse DEFAULT_CACHE_SIZE),
+        .max_cached_message_bytes = options.max_cached_message_bytes,
         .disable_escapes = options.disable_escapes,
         .apostrophe_mode = options.apostrophe_mode,
     };
@@ -86,7 +90,7 @@ pub fn createMessageFormatter(gpa: Allocator, options: MessageFormatterOptions) 
 
 /// The parsed code for a message, from the cache or parsed and cached. It stays valid until
 /// the next call.
-pub fn cacheGet(formatter: *MessageFormatter, message: []const u8) Allocator.Error!MessageCode {
+fn cacheGet(formatter: *MessageFormatter, message: []const u8) Allocator.Error!MessageCode {
     if (formatter.cache.get(message)) |code| return code;
     const code = try parser.parseMessagePattern(
         formatter.gpa,
@@ -110,7 +114,10 @@ pub fn formatMessage(
     named: []const ev.NamedArg,
 ) ev.Error![]u8 {
     // User callbacks can reenter and evict this message from the cache.
-    const code = try types.clone(gpa, try cacheGet(formatter, message));
+    const code = if (formatter.cache.capacity == 0 or message.len > formatter.max_cached_message_bytes)
+        try parser.parseMessagePattern(gpa, message, formatter.matcher, formatter.disable_escapes, formatter.apostrophe_mode)
+    else
+        try types.clone(gpa, try cacheGet(formatter, message));
     defer code.deinit(gpa);
     return ev.evaluateMessage(gpa, formatter.plurals, formatter.converter, formatter.formatters, code, positional, named);
 }

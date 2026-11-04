@@ -341,7 +341,7 @@ fn joinDigits(a: Allocator, d: *const [10][]const u8) ![]u8 {
 const Runner = struct {
     fw: *core.Framework,
 
-    fn data(self: Runner, id: []const u8) !*const LocaleData {
+    fn data(self: Runner, id: []const u8) !core.LocaleHandle {
         return self.fw.loadLocale(.{ .id = id });
     }
 
@@ -354,7 +354,9 @@ const Runner = struct {
             return expectString(want, try core.checksum.checksumIndices(a, str(args[0]), named));
         }
         if (eql(fname, "loadLocale")) {
-            const d = try self.data(str(args[0]));
+            const handle = try self.data(str(args[0]));
+            defer handle.deinit();
+            const d = handle.data();
             const b = d.bundle;
             const w = want.object;
             try expectString(w.get("id").?, b.id);
@@ -384,12 +386,16 @@ const Runner = struct {
             return;
         }
         if (eql(fname, "bundleGet")) {
-            const d = try self.data(str(args[0]));
+            const handle = try self.data(str(args[0]));
+            defer handle.deinit();
+            const d = handle.data();
             for (args[1].array.items, want.array.items) |off, w| try expectString(w, d.bundle.get(@intCast(int(off))));
             return;
         }
         if (eql(fname, "fieldGet") or eql(fname, "vectorExists")) {
-            const d = try self.data(str(args[0]));
+            const handle = try self.data(str(args[0]));
+            defer handle.deinit();
+            const d = handle.data();
             for (args[1].array.items, want.array.items) |p, w| {
                 const arrow = try resolvePath(a, str(p));
                 if (eql(fname, "fieldGet")) {
@@ -401,12 +407,16 @@ const Runner = struct {
             return;
         }
         if (eql(fname, "vectorMapping")) {
-            const d = try self.data(str(args[0]));
+            const handle = try self.data(str(args[0]));
+            defer handle.deinit();
+            const d = handle.data();
             const arrow = try resolvePath(a, str(args[1]));
             return expectJson(a, want, try arrow.vector.mapping(a, &d.bundle));
         }
         if (eql(fname, "vectorGet")) {
-            const d = try self.data(str(args[0]));
+            const handle = try self.data(str(args[0]));
+            defer handle.deinit();
+            const d = handle.data();
             const arrow = try resolvePath(a, str(args[1]));
             return expectString(want, arrow.vector.getAlt(&d.bundle, try vectorKeys(a, args[2])));
         }
@@ -415,7 +425,9 @@ const Runner = struct {
             return expectBool(want, arrow.vector.valid(try vectorKeys(a, args[1])));
         }
         if (eql(fname, "digitsGet")) {
-            const d = try self.data(str(args[0]));
+            const handle = try self.data(str(args[0]));
+            defer handle.deinit();
+            const d = handle.data();
             const arrow = try resolvePath(a, str(args[1]));
             const r = arrow.digits.get(&d.bundle, str(args[2]), float(args[3]));
             try expectString(want.array.items[0], r.pattern);
@@ -454,7 +466,9 @@ const Runner = struct {
             return expectJson(a, want, .{ .array = arr });
         }
         if (eql(fname, "numberingFormatString")) {
-            const d = try self.data(str(args[0]));
+            const handle = try self.data(str(args[0]));
+            defer handle.deinit();
+            const d = handle.data();
             const params = try core.getNumberParams(d, str(args[1]), null);
             const group = args[3].bool;
             const min_int = int(args[4]);
@@ -469,7 +483,9 @@ const Runner = struct {
             return expectString(want, try core.numbering.fastFormatDecimal(a, str(args[0]), digits, int(args[2])));
         }
         if (eql(fname, "getNumberParams")) {
-            const d = try self.data(str(args[0]));
+            const handle = try self.data(str(args[0]));
+            defer handle.deinit();
+            const d = handle.data();
             const p = try core.getNumberParams(d, optStr(args[1]), optStr(args[2]));
             const w = want.object;
             try expectString(w.get("numberSystemName").?, p.number_system_name);
@@ -495,12 +511,16 @@ const Runner = struct {
             return expectString(want, N.getCurrencyForRegion(str(args[0])));
         }
         if (eql(fname, "contextTransform")) {
-            const d = try self.data(str(args[0]));
+            const handle = try self.data(str(args[0]));
+            defer handle.deinit();
+            const d = handle.data();
             const ctx = if (args[2] == .null) null else try enumArg(core.types.general.ContextType, args[2]);
             return expectString(want, try core.internals.general.contextTransform(a, str(args[1]), d, ctx, optStr(args[3])));
         }
         if (eql(fname, "formatListValue")) {
-            const d = try self.data(str(args[0]));
+            const handle = try self.data(str(args[0]));
+            defer handle.deinit();
+            const d = handle.data();
             const items = try a.alloc([]const Part, args[1].array.items.len);
             for (args[1].array.items, items) |x, *o| {
                 const p = try a.alloc(Part, 1);
@@ -513,7 +533,9 @@ const Runner = struct {
         }
 
         // ----- Numbers -----
-        const d = try self.data(str(args[0]));
+        const handle = try self.data(str(args[0]));
+        defer handle.deinit();
+        const d = handle.data();
         if (eql(fname, "formatDecimal") or eql(fname, "formatDecimalToParts")) {
             const n = try D.parse(a, str(args[1]));
             const o = try options(N.DecimalFormatOptions, args[2]);
@@ -594,7 +616,11 @@ test "no leaks" {
     defer fw.deinit();
     const N = core.numbers;
     for ([_][]const u8{ "en", "ar-EG", "de-CH", "en", "hi-u-nu-deva" }) |id| {
-        const d = try fw.loadLocale(.{ .id = id });
+        const d_handle = try fw.loadLocale(.{ .id = id });
+
+        defer d_handle.deinit();
+
+        const d = d_handle.data();
         const n = try D.parse(gpa, "-1234567.891");
         defer n.deinit(gpa);
         inline for (.{ .decimal, .short, .long, .scientific, .percent, .permille_scaled }) |style| {

@@ -32,6 +32,7 @@ pub fn main() !void {
     var fw = core.CLDRFramework.init(a, .{ .loader = .{ .load = loadPack } });
     defer fw.deinit();
     const de = try fw.get(.{ .id = "de-DE" });
+    defer de.deinit();
 
     const n = try decimal.parse(a, "1234.567");
     const s = try de.Numbers.formatDecimal(a, n, .{ .maximum_fraction_digits = 2 });
@@ -66,7 +67,25 @@ pub fn main() !void {
 Functions that return a value, string or parts take an allocator, and the caller owns the result
 (`deinit`, `gpa.free`, `decimal.freeParts`). An arena is the easy way to skip that. Temporary
 memory inside an operation is freed before it returns. Constants and generated tables are
-static: don't free them. Locale data belongs to its framework and lives until `deinit`.
+static: don't free them. Frameworks retain at most 2 packs and 64 locales by default
+(`pack_cache_size` and `locale_cache_size`; zero disables retention). `loadLocale` returns an
+owning LocaleHandle; `CLDRFramework.get` returns an owning CLDR. Deinit each returned owner.
+Use clone for another owner; ordinary copies do not retain. Handles remain valid after
+cache eviction and framework destruction. Bound groups and data pointers borrow their handle;
+the allocator must outlive every owner. bindCLDR returns a borrowed CLDRView with no deinit.
+
+Cache limits bound retained cache entries, plus data pinned by live handles. Message formatters
+and translators retain at most 100 parsed messages by default; `cache_size = 0` disables
+retention and null selects the default. Patterns over `max_cached_message_bytes` (64 KiB by
+default) format normally without entering the cache. Translators also bound plural-rule entries
+with `plural_cache_size` (default 64). Use a reclaiming allocator for long-lived caches: arena
+allocators intentionally retain their allocations until arena destruction.
+
+Frameworks, lazy locale caches, handles, formatters and translators are single-threaded. Use
+one per thread or add caller-side synchronization; reference counts are non-atomic. Immutable
+tables, loaded packs and plain values can be shared while their backing storage stays alive.
+Same-thread formatter and translator callbacks may reenter formatting safely. Destruction
+requires no active operations on that object.
 
 ## Differences from the TypeScript
 

@@ -271,7 +271,7 @@ pub const Calendars = struct {
     pub fn timeZoneInfo(self: Calendars, zone: []const u8) date_options.TimeZoneInfo {
         return dates.timeZoneInfo(self.data, zone);
     }
-    /// Use an arena: quantities, Decimal values, and conversion temporaries use a.
+    /// Owned quantities and Decimals; free with unit_options.freeQuantities.
     pub fn timePeriodToQuantity(_: Calendars, a: Allocator, period: calendar_systems.TimePeriod) Allocator.Error![]@import("../common/units.zig").Quantity {
         return dates.timePeriodToQuantity(a, period);
     }

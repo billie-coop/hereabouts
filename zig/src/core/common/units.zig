@@ -41,3 +41,9 @@ pub const UnitFormatOptions = struct {
     /// Null: 'long' for the patterns, and the 'unit-long' list.
     length: ?UnitLength = null,
 };
+
+/// Free quantities returned by timePeriodToQuantity. Unit identifiers borrow static data.
+pub fn freeQuantities(gpa: std.mem.Allocator, quantities: []const Quantity) void {
+    for (quantities) |q| q.value.deinit(gpa);
+    gpa.free(quantities);
+}
