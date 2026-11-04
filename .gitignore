@@ -36,3 +36,7 @@ bench-results
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Zig
+zig/.zig-cache/
+zig/zig-out/
