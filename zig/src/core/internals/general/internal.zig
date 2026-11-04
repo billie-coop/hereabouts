@@ -31,8 +31,13 @@ pub fn contextTransformFlag(data: *const LocaleData, field: []const u8) []const 
 /// sentence, or when the locale's flags for the field say so. Owned by `gpa`.
 /// (`contextTransform`, with the flags read from the locale data)
 pub fn contextTransform(gpa: Allocator, value: []const u8, data: *const LocaleData, context: ?ContextType, field: ?[]const u8) Allocator.Error![]u8 {
-    if (value.len == 0) return gpa.dupe(u8, value);
     const flag = if (field) |f| contextTransformFlag(data, f) else "";
+    return contextTransformWithFlag(gpa, value, flag, context);
+}
+
+/// Transform with an explicit field flag (the TypeScript info-map form).
+pub fn contextTransformWithFlag(gpa: Allocator, value: []const u8, flag: []const u8, context: ?ContextType) Allocator.Error![]u8 {
+    if (value.len == 0) return gpa.dupe(u8, value);
     const title = if (context) |c| switch (c) {
         .begin_sentence => true,
         .standalone => flag.len > 0 and flag[0] == 'T',
