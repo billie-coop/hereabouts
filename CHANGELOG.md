@@ -6,6 +6,14 @@ The first entry describes hereabouts relative to cldr-engine 1.16.0. The entries
 cldr-engine's (`@phensley/cldr`), kept as history; they used a modified semantic versioning
 scheme in which packs must come from the same `major.minor` version as the library.
 
+## Unreleased
+
+### Fixed
+
+- `decimal()` accepted a sign in the middle of a number and moved it to the front: `'1-2'`
+  parsed as -12. A sign is now only allowed at the start of the number or of its exponent;
+  anywhere else throws `Misplaced sign character at <index>`.
+
 ## [0.1.1] 2026-11-03
 
 First release through the release workflow (npm trusted publishing, with provenance). No code

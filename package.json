@@ -31,6 +31,8 @@
     "build:watch": "yarn workspaces foreach -Api --exclude hereabouts-monorepo run build:watch",
     "check": "biome check .",
     "check:fix": "biome check --write .",
+    "conformance": "tsx packages/hereabouts/scripts/conformance.ts",
+    "zig-data": "tsx packages/hereabouts/scripts/zig-data.ts",
     "clean": "yarn workspaces foreach -Ap --exclude hereabouts-monorepo run clean && rimraf ./coverage",
     "clean:full": "yarn workspaces foreach -Ap --exclude hereabouts-monorepo run clean:full && rimraf ./node_modules",
     "depgraph": "depcruise --no-config -T dot -x tslib packages/hereabouts/src | dot -T pdf > depgraph.pdf",
