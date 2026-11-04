@@ -12,6 +12,19 @@ const suites = [_][]const u8{
     "locale",
     "locale-matcher",
     "unit-converter",
+    "core-numbers",
+    "core-units",
+    "core-calendars",
+    "core-dates",
+    "core-general",
+};
+
+/// Resource packs the core suites can load, via `@import("packs").get("de")`. They come from
+/// `packages/hereabouts/packs` (run `yarn build` there first). A spread of scripts, number
+/// systems, plural rules and calendars.
+const test_packs = [_][]const u8{
+    "en", "de", "fr", "es", "pt", "ar", "fa", "he", "hi", "bn",
+    "ja", "zh", "ko", "th", "ru", "pl", "sr", "tr", "sw", "my",
 };
 
 pub fn build(b: *std.Build) void {
@@ -25,6 +38,23 @@ pub fn build(b: *std.Build) void {
     });
 
     const test_all = b.step("test", "Run every test suite");
+
+    // Packs for the core suites, embedded in a generated module.
+    const pack_files = b.addWriteFiles();
+    var packs_src: std.ArrayList(u8) = .empty;
+    packs_src.appendSlice(b.allocator, "//! Resource packs for tests.\n\n" ++
+        "pub fn get(language: []const u8) ?[]const u8 {\n") catch @panic("OOM");
+    for (test_packs) |lang| {
+        _ = pack_files.addCopyFile(b.path(b.fmt("../packages/hereabouts/packs/{s}.json", .{lang})), b.fmt("{s}.json", .{lang}));
+        packs_src.appendSlice(b.allocator, b.fmt(
+            "    if (@import(\"std\").mem.eql(u8, language, \"{s}\")) return @embedFile(\"{s}.json\");\n",
+            .{ lang, lang },
+        )) catch @panic("OOM");
+    }
+    packs_src.appendSlice(b.allocator, "    return null;\n}\n\npub const languages = [_][]const u8{") catch @panic("OOM");
+    for (test_packs) |lang| packs_src.appendSlice(b.allocator, b.fmt(" \"{s}\",", .{lang})) catch @panic("OOM");
+    packs_src.appendSlice(b.allocator, " };\n") catch @panic("OOM");
+    const packs_mod = b.createModule(.{ .root_source_file = pack_files.add("packs.zig", packs_src.items) });
 
     for (suites) |name| {
         const zig_name = b.dupe(name);
@@ -45,6 +75,7 @@ pub fn build(b: *std.Build) void {
                 .imports = &.{
                     .{ .name = "hereabouts", .module = mod },
                     .{ .name = "cases", .module = b.createModule(.{ .root_source_file = cases_src }) },
+                    .{ .name = "packs", .module = packs_mod },
                 },
             }),
         });

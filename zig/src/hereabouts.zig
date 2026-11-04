@@ -13,3 +13,4 @@ pub const language_tag = @import("language_tag/language_tag.zig");
 pub const locale = @import("locale/locale.zig");
 pub const locale_matcher = @import("locale_matcher/locale_matcher.zig");
 pub const unit_converter = @import("unit_converter/unit_converter.zig");
+pub const core = @import("core/core.zig");
