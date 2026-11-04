@@ -68,13 +68,22 @@ version is published from Stephen's machine; every later one goes through the re
    git tag v0.1.0 && git push origin v0.1.0
    ```
 
-3. Add the trusted publisher: on npmjs.com, `@billie-coop/hereabouts` → Settings → Trusted
+3. Trusted publisher done 2026-11-03 with `npm trust github` (below), after confirming and
+   approving 2FA in the browser. npm gave it "publish, stage publish" permissions. Still to do:
+   the publishing access setting on the website. Original step:
+   Add the trusted publisher: on npmjs.com, `@billie-coop/hereabouts` → Settings → Trusted
    publishing → GitHub Actions: owner `billie-coop`, repository `hereabouts`, workflow
    `release.yml`, no environment. The same from the command line (npm 11, logged in):
    `npm trust github @billie-coop/hereabouts --file release.yml --repo billie-coop/hereabouts --allow-publish`.
    Then, under Settings → Publishing access, choose "Require two-factor authentication and
    disallow tokens", so only the workflow can publish.
-4. Publish the placeholder: `cd placeholders/hereabouts && npm publish`.
+4. Done 2026-11-03: `hereabouts@0.0.1` is on npm. Like the main package, it also got npm's
+   `0.0.0-stage` version. To deprecate both (needs 2FA):
+
+   ```sh
+   npm deprecate @billie-coop/hereabouts@0.0.0-stage "npm staging placeholder; use 0.1.0 or later"
+   npm deprecate hereabouts@0.0.0-stage "npm staging placeholder; see @billie-coop/hereabouts"
+   ```
 5. Later releases: bump `packages/hereabouts/package.json` on `main`, run the Release workflow
    once as a dry run, then again with `dry-run` unticked. It publishes with provenance and
    creates the GitHub release and tag.
