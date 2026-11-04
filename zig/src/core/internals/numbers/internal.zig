@@ -28,7 +28,7 @@ fn negzero(a: Allocator, n: Decimal, show: bool) Allocator.Error!Decimal {
 }
 
 /// Adjust a decimal with rounding and digit options (`adjustNumber`).
-pub fn adjustNumber(a: Allocator, num: Decimal, o: DecimalAdjustOptions) Allocator.Error!Decimal {
+pub fn adjustNumber(a: Allocator, num: Decimal, o: DecimalAdjustOptions) D.Error!Decimal {
     var ctx = NumberContext.init(opts.numberOptions(o), o.round orelse .half_even, false, false, -1);
     ctx.setPattern(try getNumberPattern(a, "0", false), false);
     return ctx.adjust(a, num, false);
@@ -86,7 +86,7 @@ pub const Rendered = struct {
 };
 
 /// Render a decimal in one of the decimal styles (`renderDecimal`).
-pub fn renderDecimal(a: Allocator, data: *const LocaleData, renderer: NumberRenderer, n_in: Decimal, options: DecimalFormatOptions, params: *const NumberParams) Allocator.Error!Rendered {
+pub fn renderDecimal(a: Allocator, data: *const LocaleData, renderer: NumberRenderer, n_in: Decimal, options: DecimalFormatOptions, params: *const NumberParams) D.Error!Rendered {
     var n = n_in;
     const style = options.style;
     var result: []Part = undefined;
@@ -199,7 +199,7 @@ fn divisorSet(d: ?f64) bool {
 }
 
 /// Render a currency value (`renderCurrency`).
-pub fn renderCurrency(a: Allocator, data: *const LocaleData, renderer: NumberRenderer, n_in: Decimal, code: []const u8, options: CurrencyFormatOptions, params: *const NumberParams) Allocator.Error![]Part {
+pub fn renderCurrency(a: Allocator, data: *const LocaleData, renderer: NumberRenderer, n_in: Decimal, code: []const u8, options: CurrencyFormatOptions, params: *const NumberParams) D.Error![]Part {
     var n = n_in;
     const fractions = util.getCurrencyFractions(code);
     const round = options.round orelse .half_even;
@@ -308,7 +308,7 @@ const Compact = struct { q: Decimal, ndigits: f64 };
 ///
 /// The extra complexity here is to deal with rounding up and selecting the correct pluralized
 /// pattern for the final rounded form.
-fn setupCompact(a: Allocator, data: *const LocaleData, n: Decimal, ctx: *NumberContext, standard_raw: []const u8, pattern_impl: DigitsArrow) Allocator.Error!Compact {
+fn setupCompact(a: Allocator, data: *const LocaleData, n: Decimal, ctx: *NumberContext, standard_raw: []const u8, pattern_impl: DigitsArrow) D.Error!Compact {
     const b = &data.bundle;
     // Select the correct divisor based on the number of integer digits in n.
     var negative = D.isNegative(n);
@@ -369,7 +369,7 @@ fn divisorDigits(divisor: f64) f64 {
     return std.math.log10(divisor) + 1;
 }
 
-fn setupCompactDivisor(a: Allocator, data: *const LocaleData, n_in: Decimal, ctx: *NumberContext, standard_raw: []const u8, divisor: f64, pattern_impl: DigitsArrow) Allocator.Error!Compact {
+fn setupCompactDivisor(a: Allocator, data: *const LocaleData, n_in: Decimal, ctx: *NumberContext, standard_raw: []const u8, divisor: f64, pattern_impl: DigitsArrow) D.Error!Compact {
     var n = n_in;
     const negative = D.isNegative(n);
     const ndigits = divisorDigits(divisor);

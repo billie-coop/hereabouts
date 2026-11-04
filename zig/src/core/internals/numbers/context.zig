@@ -52,7 +52,11 @@ pub const NumberContext = struct {
 
     /// Adjust the scale of the number using the resolved parameters (`numberContextAdjust`).
     /// Allocates in `a` without freeing (use an arena).
-    pub fn adjust(self: *NumberContext, a: Allocator, n_in: Decimal, scientific: bool) Allocator.Error!Decimal {
+    pub fn adjust(self: *NumberContext, a: Allocator, n_in: Decimal, scientific: bool) D.Error!Decimal {
+        // User options participate in scale arithmetic below.
+        inline for (.{ self.min_int, self.min_frac, self.max_frac, self.min_sig, self.max_sig }) |v| {
+            if (v < -D.MAX_EXPONENT or v > D.MAX_EXPONENT) return error.ExponentOutOfRange;
+        }
         var n = n_in;
         if (self.use_significant and scientific) {
             if (self.min_sig <= 0) self.min_sig = 1;

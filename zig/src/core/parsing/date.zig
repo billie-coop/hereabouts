@@ -38,7 +38,10 @@ pub fn parseDatePattern(gpa: A, raw: []const u8) A.Error![]DateTimeNode {
             continue;
         }
         if (patternChar(ch)) {
-            if (buf.items.len > 0) try nodes.append(gpa, .{ .text = try buf.toOwnedSlice(gpa) });
+            if (buf.items.len > 0) {
+                try nodes.ensureUnusedCapacity(gpa, 1);
+                nodes.appendAssumeCapacity(.{ .text = try buf.toOwnedSlice(gpa) });
+            }
             if (ch != field) {
                 if (field != 0) try nodes.append(gpa, .{ .field = .{ .char = field, .width = width } });
                 field = ch;
@@ -55,7 +58,12 @@ pub fn parseDatePattern(gpa: A, raw: []const u8) A.Error![]DateTimeNode {
             } else try buf.append(gpa, ch);
         }
     }
-    if (width > 0 and field != 0) try nodes.append(gpa, .{ .field = .{ .char = field, .width = width } }) else try nodes.append(gpa, .{ .text = try buf.toOwnedSlice(gpa) });
+    if (width > 0 and field != 0) {
+        try nodes.append(gpa, .{ .field = .{ .char = field, .width = width } });
+    } else {
+        try nodes.ensureUnusedCapacity(gpa, 1);
+        nodes.appendAssumeCapacity(.{ .text = try buf.toOwnedSlice(gpa) });
+    }
     return nodes.toOwnedSlice(gpa);
 }
 pub fn freePattern(gpa: A, nodes: []const DateTimeNode) void {

@@ -290,7 +290,10 @@ pub fn messageArgNames(gpa: Allocator, pattern: []const u8, options: ArgNamesOpt
     const names = try argNames(a, pattern, options);
     const out = try gpa.alloc([]u8, names.len);
     var n: usize = 0;
-    errdefer freeStrings(gpa, out[0..n]);
+    errdefer {
+        for (out[0..n]) |s| gpa.free(s);
+        gpa.free(out);
+    }
     for (names) |s| {
         out[n] = try gpa.dupe(u8, s);
         n += 1;
@@ -459,7 +462,14 @@ pub fn checkCatalogs(gpa: Allocator, t: *Translator, options: CheckCatalogsOptio
     const a = arena.allocator();
 
     var c: Checker = .{ .gpa = gpa, .a = a, .t = t, .formatters = try ev.formatterNames(a, t.formatters) };
-    errdefer freeCatalogIssues(gpa, c.issues.items);
+    errdefer {
+        for (c.issues.items) |i| {
+            gpa.free(i.language);
+            gpa.free(i.key);
+            gpa.free(i.detail);
+        }
+        c.issues.deinit(gpa);
+    }
 
     // Source keys in the order Object.keys gives them.
     const source_keys = try a.alloc([]const u8, t.source.len);

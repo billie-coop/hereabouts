@@ -33,10 +33,12 @@ pub fn measurementSystem(data: *const LocaleData, category: ?options.Measurement
 
 /// Cached default formatter, owned by the locale. Do not deinit. Not thread-safe.
 pub fn messageFormatter(data: *const LocaleData) Allocator.Error!*mf.MessageFormatter {
-    return @constCast(try data.cached(mf.MessageFormatter, "general.messageFormatter", {}, buildFormatter));
-}
-fn buildFormatter(_: void, data: *const LocaleData, a: Allocator) Allocator.Error!mf.MessageFormatter {
-    return createMessageFormatter(a, data, .{});
+    if (data.caches.default_formatter) |f| return f;
+    const f = try data.gpa.create(mf.MessageFormatter);
+    errdefer data.gpa.destroy(f);
+    f.* = try createMessageFormatter(data.gpa, data, .{});
+    data.caches.default_formatter = f;
+    return f;
 }
 /// With options, create a caller-owned formatter. Call its deinit when done.
 pub fn createMessageFormatter(gpa: Allocator, data: *const LocaleData, opts: mf.MessageFormatterOptions) Allocator.Error!mf.MessageFormatter {

@@ -65,7 +65,7 @@ pub fn formatInt(gpa: Allocator, system: NumberingSystem, n: i64, group_digits: 
     if (!group_digits) return fastFormatDecimal(gpa, s, system.digits, min_int);
     var arena: std.heap.ArenaAllocator = .init(gpa);
     defer arena.deinit();
-    const d = D.parse(arena.allocator(), s) catch unreachable;
+    const d = try D.fromInt(arena.allocator(), n);
     return formatString(gpa, system, d, group_digits, min_int);
 }
 

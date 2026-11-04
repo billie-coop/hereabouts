@@ -3,6 +3,7 @@ const std = @import("std");
 const Allocator = std.mem.Allocator;
 const LocaleData = @import("../locale_data.zig").LocaleData;
 const Decimal = @import("../../decimal/decimal.zig").Decimal;
+const DecimalError = @import("../../decimal/decimal.zig").Error;
 const Part = @import("../../decimal/decimal.zig").Part;
 const gen = @import("general.zig");
 const num = @import("numbers.zig");
@@ -81,7 +82,7 @@ pub const Numbers = struct {
     pub fn getCurrencyForRegion(_: Numbers, region: []const u8) []const u8 {
         return num.getCurrencyForRegion(region);
     }
-    pub fn adjustDecimal(self: Numbers, gpa: Allocator, n: Decimal, options: DecimalAdjustOptions) Allocator.Error!Decimal {
+    pub fn adjustDecimal(self: Numbers, gpa: Allocator, n: Decimal, options: DecimalAdjustOptions) DecimalError!Decimal {
         return num.adjustDecimal(gpa, self.data, n, options);
     }
     pub fn getCurrencySymbol(self: Numbers, code: []const u8, width: CurrencySymbolWidth) []const u8 {
@@ -93,10 +94,10 @@ pub const Numbers = struct {
     pub fn getCurrencyPluralName(self: Numbers, gpa: Allocator, n: Decimal, code: []const u8, options: CurrencyDisplayNameOptions) Allocator.Error![]u8 {
         return num.getCurrencyPluralName(gpa, self.data, n, code, options);
     }
-    pub fn getPluralCardinal(self: Numbers, gpa: Allocator, n: Decimal, options: ?DecimalAdjustOptions) Allocator.Error![]const u8 {
+    pub fn getPluralCardinal(self: Numbers, gpa: Allocator, n: Decimal, options: ?DecimalAdjustOptions) DecimalError![]const u8 {
         return num.getPluralCardinal(gpa, self.data, n, options);
     }
-    pub fn getPluralOrdinal(self: Numbers, gpa: Allocator, n: Decimal, options: ?DecimalAdjustOptions) Allocator.Error![]const u8 {
+    pub fn getPluralOrdinal(self: Numbers, gpa: Allocator, n: Decimal, options: ?DecimalAdjustOptions) DecimalError![]const u8 {
         return num.getPluralOrdinal(gpa, self.data, n, options);
     }
     pub fn formatDecimal(self: Numbers, gpa: Allocator, n: Decimal, options: DecimalFormatOptions) num.Error![]u8 {
@@ -121,16 +122,16 @@ pub const Units = struct {
     pub fn getUnitDisplayName(self: Units, name: []const u8, length: ?UnitLength) []const u8 {
         return uni.getUnitDisplayName(self.data, name, length);
     }
-    pub fn formatQuantity(self: Units, gpa: Allocator, q: Quantity, options: UnitFormatOptions) Allocator.Error![]u8 {
+    pub fn formatQuantity(self: Units, gpa: Allocator, q: Quantity, options: UnitFormatOptions) DecimalError![]u8 {
         return uni.formatQuantity(gpa, self.data, q, options);
     }
-    pub fn formatQuantityToParts(self: Units, gpa: Allocator, q: Quantity, options: UnitFormatOptions) Allocator.Error![]Part {
+    pub fn formatQuantityToParts(self: Units, gpa: Allocator, q: Quantity, options: UnitFormatOptions) DecimalError![]Part {
         return uni.formatQuantityToParts(gpa, self.data, q, options);
     }
-    pub fn formatQuantitySequence(self: Units, gpa: Allocator, qs: []const Quantity, options: UnitFormatOptions) Allocator.Error![]u8 {
+    pub fn formatQuantitySequence(self: Units, gpa: Allocator, qs: []const Quantity, options: UnitFormatOptions) DecimalError![]u8 {
         return uni.formatQuantitySequence(gpa, self.data, qs, options);
     }
-    pub fn formatQuantitySequenceToParts(self: Units, gpa: Allocator, qs: []const Quantity, options: UnitFormatOptions) Allocator.Error![]Part {
+    pub fn formatQuantitySequenceToParts(self: Units, gpa: Allocator, qs: []const Quantity, options: UnitFormatOptions) DecimalError![]Part {
         return uni.formatQuantitySequenceToParts(gpa, self.data, qs, options);
     }
 };
@@ -229,10 +230,10 @@ pub const Calendars = struct {
     pub fn formatDateWrapperToParts(self: Calendars, gpa: Allocator, date: []const Part, time: []const Part, options: ?dates.DateWrapperFormatOptions) Allocator.Error![]Part {
         return dates.formatDateWrapperToParts(gpa, self.data, date, time, options);
     }
-    pub fn formatRelativeTimeField(self: Calendars, gpa: Allocator, value: Decimal, field: []const u8, options: ?dates.RelativeTimeFieldFormatOptions) Allocator.Error![]u8 {
+    pub fn formatRelativeTimeField(self: Calendars, gpa: Allocator, value: Decimal, field: []const u8, options: ?dates.RelativeTimeFieldFormatOptions) DecimalError![]u8 {
         return dates.formatRelativeTimeField(gpa, self.data, value, field, options);
     }
-    pub fn formatRelativeTime(self: Calendars, gpa: Allocator, start: dates.DateInput, end: dates.DateInput, options: ?dates.RelativeTimeFormatOptions) Allocator.Error![]u8 {
+    pub fn formatRelativeTime(self: Calendars, gpa: Allocator, start: dates.DateInput, end: dates.DateInput, options: ?dates.RelativeTimeFormatOptions) DecimalError![]u8 {
         return dates.formatRelativeTime(gpa, self.data, start, end, options);
     }
     pub fn dateField(self: Calendars, gpa: Allocator, field: []const u8, options: ?dates.DateFieldFormatOptions) Allocator.Error![]u8 {

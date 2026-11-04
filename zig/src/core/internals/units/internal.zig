@@ -41,7 +41,7 @@ pub fn decimalOptions(o: UnitFormatOptions) DecimalFormatOptions {
 
 /// Format a quantity: the number, its pluralized unit pattern, and an optional 'per' or
 /// 'times' unit. (`renderUnit`)
-pub fn renderUnit(a: Allocator, data: *const LocaleData, renderer: NumberRenderer, q: Quantity, options: UnitFormatOptions, params: *const NumberParams) Allocator.Error![]Part {
+pub fn renderUnit(a: Allocator, data: *const LocaleData, renderer: NumberRenderer, q: Quantity, options: UnitFormatOptions, params: *const NumberParams) D.Error![]Part {
     const b = &data.bundle;
     const r = try renderDecimal(a, data, renderer, q.value, decimalOptions(options), params);
     const num = r.parts;

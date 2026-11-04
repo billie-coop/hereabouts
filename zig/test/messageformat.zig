@@ -573,3 +573,7 @@ test "no leaks" {
     defer gpa.free(typed);
     try std.testing.expectEqualStrings("2 xs me", typed);
 }
+
+test {
+    _ = @import("release_regressions.zig");
+}

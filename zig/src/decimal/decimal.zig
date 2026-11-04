@@ -68,7 +68,30 @@ pub const MathContext = struct {
     round: ?RoundingMode = null,
 };
 
-/// Arbitrary precision decimal value.
+/// Errors from operations that change an exponent, scale or precision.
+pub const Error = Allocator.Error || error{ExponentOutOfRange};
+
+/// Supported exponent and scale magnitude. This includes every parsed TS exponent.
+pub const MAX_EXPONENT: i64 = 999_999_999;
+
+fn checkExponent(n: i128) error{ExponentOutOfRange}!i64 {
+    if (n < -MAX_EXPONENT or n > MAX_EXPONENT) return error.ExponentOutOfRange;
+    return @intCast(n);
+}
+
+fn checkContext(context: MathContext) error{ExponentOutOfRange}!void {
+    if (context.scale) |n| _ = try checkExponent(n);
+    if (context.precision) |n| _ = try checkExponent(n);
+}
+
+fn checkedClone(gpa: Allocator, d: Decimal) Error!Decimal {
+    if (d.flag == .none) _ = try checkExponent(d.exp);
+    return clone(gpa, d);
+}
+
+/// Arbitrary precision decimal value. Finite exponents must be in
+/// -MAX_EXPONENT...MAX_EXPONENT. Constructors and exponent-changing operations enforce
+/// this domain; hand-built values must satisfy it too. Coefficients remain allocator-limited.
 pub const Decimal = struct {
     /// Coefficient words, least-significant first. Empty for NaN and infinities.
     data: []const u32,
@@ -248,6 +271,7 @@ fn parseImpl(a: Allocator, str: []const u8) (ParseError || Allocator.Error)!Deci
     }
 
     if (dig == 0) return error.NoDigits;
+    if (exp < -MAX_EXPONENT or exp > MAX_EXPONENT) return error.ExponentTooLarge;
 
     try data.append(a, word(n));
     math.trimLeadingZeros(&data);
@@ -505,10 +529,11 @@ fn parseContext(rounding: RoundingMode, context: MathContext) Ctx {
 }
 
 /// u * v, rounded to the context's precision or scale.
-pub fn multiply(gpa: Allocator, u: Decimal, v: Decimal, context: MathContext) Allocator.Error!Decimal {
+pub fn multiply(gpa: Allocator, u: Decimal, v: Decimal, context: MathContext) Error!Decimal {
     var arena = ArenaAllocator.init(gpa);
     defer arena.deinit();
-    return clone(gpa, try multiplyImpl(arena.allocator(), u, v, context));
+    try checkContext(context);
+    return checkedClone(gpa, try multiplyImpl(arena.allocator(), u, v, context));
 }
 
 fn multiplyImpl(a: Allocator, u: Decimal, v: Decimal, context: MathContext) Allocator.Error!Decimal {
@@ -539,10 +564,11 @@ fn multiplyImpl(a: Allocator, u: Decimal, v: Decimal, context: MathContext) Allo
 }
 
 /// u / v, rounded to the context's precision or scale.
-pub fn divide(gpa: Allocator, u: Decimal, v: Decimal, context: MathContext) Allocator.Error!Decimal {
+pub fn divide(gpa: Allocator, u: Decimal, v: Decimal, context: MathContext) Error!Decimal {
     var arena = ArenaAllocator.init(gpa);
     defer arena.deinit();
-    return clone(gpa, try divideImpl(arena.allocator(), u, v, context));
+    try checkContext(context);
+    return checkedClone(gpa, try divideImpl(arena.allocator(), u, v, context));
 }
 
 fn divideImpl(a: Allocator, un: Decimal, vn: Decimal, context: MathContext) Allocator.Error!Decimal {
@@ -656,7 +682,10 @@ pub fn mod(gpa: Allocator, u: Decimal, v: Decimal) Allocator.Error!Decimal {
 /// The integer part.
 pub fn toInteger(gpa: Allocator, d: Decimal) Allocator.Error!Decimal {
     if (d.flag != .none) return clone(gpa, d);
-    return setScale(gpa, d, 0, .down);
+    return setScale(gpa, d, 0, .down) catch |err| switch (err) {
+        error.ExponentOutOfRange => unreachable, // Zero scale is always in the supported domain.
+        error.OutOfMemory => return error.OutOfMemory,
+    };
 }
 
 /// Add one.
@@ -684,10 +713,10 @@ pub fn decrement(gpa: Allocator, d: Decimal) Allocator.Error!Decimal {
 // ---------------------------------------------------------------------------
 
 /// Remove all trailing zeros.
-pub fn stripTrailingZeros(gpa: Allocator, d: Decimal) Allocator.Error!Decimal {
+pub fn stripTrailingZeros(gpa: Allocator, d: Decimal) Error!Decimal {
     var arena = ArenaAllocator.init(gpa);
     defer arena.deinit();
-    return clone(gpa, try stripTrailingZerosImpl(arena.allocator(), d));
+    return checkedClone(gpa, try stripTrailingZerosImpl(arena.allocator(), d));
 }
 
 fn stripTrailingZerosImpl(a: Allocator, d: Decimal) Allocator.Error!Decimal {
@@ -708,22 +737,23 @@ pub const Scientific = struct {
 
 /// Scientific representation: coefficient and exponent, with value = coefficient * 10^exponent.
 /// `min_int_digits` is the minimum number of integer digits in the coefficient (at least 1).
-pub fn scientific(gpa: Allocator, d: Decimal, min_int_digits: i64) Allocator.Error!Scientific {
-    const s = scientificImpl(d, min_int_digits);
+pub fn scientific(gpa: Allocator, d: Decimal, min_int_digits: i64) Error!Scientific {
+    const s = try scientificImpl(d, min_int_digits);
     return .{ .coefficient = try clone(gpa, s.coefficient), .exponent = s.exponent };
 }
 
-fn scientificImpl(d: Decimal, min_int_digits: i64) Scientific {
+fn scientificImpl(d: Decimal, min_int_digits: i64) error{ExponentOutOfRange}!Scientific {
     if (d.flag != .none) return .{ .coefficient = d, .exponent = 0 };
     const mi = if (min_int_digits <= 1) 1 else min_int_digits;
-    const exp = -(precision(d) - 1) + (mi - 1);
+    const exp = try checkExponent(-@as(i128, precision(d) - 1) + (mi - 1));
     var coeff = d;
     coeff.exp = exp;
     return .{ .coefficient = coeff, .exponent = d.exp - exp };
 }
 
 /// A new number with the given scale, shifting the coefficient as needed.
-pub fn setScale(gpa: Allocator, d: Decimal, new_scale: i64, mode: RoundingMode) Allocator.Error!Decimal {
+pub fn setScale(gpa: Allocator, d: Decimal, new_scale: i64, mode: RoundingMode) Error!Decimal {
+    _ = try checkExponent(new_scale);
     if (d.flag != .none) return clone(gpa, d);
     var arena = ArenaAllocator.init(gpa);
     defer arena.deinit();
@@ -734,14 +764,16 @@ pub fn setScale(gpa: Allocator, d: Decimal, new_scale: i64, mode: RoundingMode) 
 }
 
 /// Move the decimal point -n (left) or +n (right) places. Changes only the exponent.
-pub fn movePoint(gpa: Allocator, d: Decimal, places: i64) Allocator.Error!Decimal {
+pub fn movePoint(gpa: Allocator, d: Decimal, places: i64) Error!Decimal {
+    const exp = if (d.flag == .none) try checkExponent(@as(i128, d.exp) + places) else d.exp;
     var r = try clone(gpa, d);
-    if (d.flag == .none) r.exp += places;
+    r.exp = exp;
     return r;
 }
 
 /// Shift all digits left, increasing the precision.
-pub fn shiftleft(gpa: Allocator, d: Decimal, shift: i64) Allocator.Error!Decimal {
+pub fn shiftleft(gpa: Allocator, d: Decimal, shift: i64) Error!Decimal {
+    _ = try checkExponent(shift);
     var arena = ArenaAllocator.init(gpa);
     defer arena.deinit();
     return clone(gpa, try shiftleftImpl(arena.allocator(), d, shift));
@@ -755,7 +787,8 @@ fn shiftleftImpl(a: Allocator, d: Decimal, shift: i64) Allocator.Error!Decimal {
 }
 
 /// Shift all digits right, reducing the precision, rounding with `mode`.
-pub fn shiftright(gpa: Allocator, d: Decimal, shift: i64, mode: RoundingMode) Allocator.Error!Decimal {
+pub fn shiftright(gpa: Allocator, d: Decimal, shift: i64, mode: RoundingMode) Error!Decimal {
+    if (d.flag == .none) _ = try checkExponent(@as(i128, d.exp) + @max(shift, 0));
     if (d.flag != .none) return clone(gpa, d);
     var arena = ArenaAllocator.init(gpa);
     defer arena.deinit();
@@ -777,9 +810,9 @@ pub fn toString(gpa: Allocator, d: Decimal) Allocator.Error![]u8 {
 
 /// Scientific notation string, owned by gpa. `min_integers` is the minimum number of integer
 /// digits in the coefficient (at least 1).
-pub fn toScientificString(gpa: Allocator, d: Decimal, min_integers: i64) Allocator.Error![]u8 {
+pub fn toScientificString(gpa: Allocator, d: Decimal, min_integers: i64) Error![]u8 {
     if (d.flag != .none) return gpa.dupe(u8, flagString(d));
-    const s = scientificImpl(d, min_integers);
+    const s = try scientificImpl(d, min_integers);
     const r = try formatString(gpa, s.coefficient, min_integers);
     if (isZero(s.coefficient) or s.exponent == 0) return r;
     defer gpa.free(r);
@@ -794,9 +827,9 @@ pub fn toParts(gpa: Allocator, d: Decimal) Allocator.Error![]Part {
 }
 
 /// Scientific notation parts, owned by gpa; free with `freeParts`.
-pub fn toScientificParts(gpa: Allocator, d: Decimal, min_integers: i64) Allocator.Error![]Part {
+pub fn toScientificParts(gpa: Allocator, d: Decimal, min_integers: i64) Error![]Part {
     if (d.flag != .none) return flagParts(gpa, d);
-    const s = scientificImpl(d, min_integers);
+    const s = try scientificImpl(d, min_integers);
     if (isZero(s.coefficient) or s.exponent == 0) {
         return formatParts(gpa, s.coefficient, min_integers, &.{});
     }

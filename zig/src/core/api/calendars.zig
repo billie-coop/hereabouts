@@ -199,7 +199,7 @@ pub fn formatDateWrapperToParts(gpa: A, data: *const LocaleData, date: []const P
     const p = try patterns.getCalendarPatterns(data, c);
     return utils.copyParts(gpa, try render.wrap(arena.allocator(), patterns.patternsWrapperPattern(p, opt.width, opt.at_time), &.{ time, date }));
 }
-pub fn formatRelativeTimeField(gpa: A, data: *const LocaleData, value: D.Decimal, field: []const u8, options: ?RelativeTimeFieldFormatOptions) A.Error![]u8 {
+pub fn formatRelativeTimeField(gpa: A, data: *const LocaleData, value: D.Decimal, field: []const u8, options: ?RelativeTimeFieldFormatOptions) D.Error![]u8 {
     var arena: std.heap.ArenaAllocator = .init(gpa);
     defer arena.deinit();
     const a = arena.allocator();
@@ -207,7 +207,7 @@ pub fn formatRelativeTimeField(gpa: A, data: *const LocaleData, value: D.Decimal
     const params = try numbers.getNumberParams(data, opt.nu, null);
     return gpa.dupe(u8, try @import("../internals/datefields/internal.zig").renderRelativeTimeField(a, data, value, field, opt, params));
 }
-pub fn formatRelativeTime(gpa: A, data: *const LocaleData, start: DateInput, end: DateInput, options: ?RelativeTimeFormatOptions) A.Error![]u8 {
+pub fn formatRelativeTime(gpa: A, data: *const LocaleData, start: DateInput, end: DateInput, options: ?RelativeTimeFormatOptions) D.Error![]u8 {
     var arena: std.heap.ArenaAllocator = .init(gpa);
     defer arena.deinit();
     const a = arena.allocator();

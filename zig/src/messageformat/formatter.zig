@@ -109,7 +109,9 @@ pub fn formatMessage(
     positional: []const ev.MessageArg,
     named: []const ev.NamedArg,
 ) ev.Error![]u8 {
-    const code = try cacheGet(formatter, message);
+    // User callbacks can reenter and evict this message from the cache.
+    const code = try types.clone(gpa, try cacheGet(formatter, message));
+    defer code.deinit(gpa);
     return ev.evaluateMessage(gpa, formatter.plurals, formatter.converter, formatter.formatters, code, positional, named);
 }
 

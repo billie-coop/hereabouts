@@ -18,10 +18,10 @@ pub const DecimalFormatStyle = enum {
     /// or 'permille-scaled'.
     pub fn fromString(s: []const u8) ?DecimalFormatStyle {
         const map = std.StaticStringMap(DecimalFormatStyle).initComptime(.{
-            .{ "decimal", .decimal },               .{ "short", .short },
-            .{ "long", .long },                     .{ "scientific", .scientific },
-            .{ "percent", .percent },               .{ "percent-scaled", .percent_scaled },
-            .{ "permille", .permille },             .{ "permille-scaled", .permille_scaled },
+            .{ "decimal", .decimal },   .{ "short", .short },
+            .{ "long", .long },         .{ "scientific", .scientific },
+            .{ "percent", .percent },   .{ "percent-scaled", .percent_scaled },
+            .{ "permille", .permille }, .{ "permille-scaled", .permille_scaled },
         });
         return map.get(s);
     }

@@ -40,7 +40,7 @@ pub const Error = error{
     InvalidNaN,
     /// 'Invalid argument: Infinity'
     InvalidInfinity,
-} || Allocator.Error;
+} || D.Error;
 
 /// `CurrencyDisplayNameOptions`. Null context is 'begin-sentence'.
 pub const CurrencyDisplayNameOptions = struct {
@@ -48,7 +48,7 @@ pub const CurrencyDisplayNameOptions = struct {
 };
 
 /// Adjust a decimal number using the given options. Owned by `gpa`. (`adjustDecimal`)
-pub fn adjustDecimal(gpa: Allocator, data: *const LocaleData, n: Decimal, options: DecimalAdjustOptions) Allocator.Error!Decimal {
+pub fn adjustDecimal(gpa: Allocator, data: *const LocaleData, n: Decimal, options: DecimalAdjustOptions) D.Error!Decimal {
     _ = data;
     var arena: std.heap.ArenaAllocator = .init(gpa);
     defer arena.deinit();
@@ -77,7 +77,7 @@ pub fn getCurrencyPluralName(gpa: Allocator, data: *const LocaleData, n: Decimal
 
 /// The cardinal plural category of the number ('one', 'other', ...), optionally adjusted
 /// first. (`getPluralCardinal`)
-pub fn getPluralCardinal(gpa: Allocator, data: *const LocaleData, n: Decimal, options: ?DecimalAdjustOptions) Allocator.Error![]const u8 {
+pub fn getPluralCardinal(gpa: Allocator, data: *const LocaleData, n: Decimal, options: ?DecimalAdjustOptions) D.Error![]const u8 {
     var arena: std.heap.ArenaAllocator = .init(gpa);
     defer arena.deinit();
     const d = if (options) |o| try internal.adjustNumber(arena.allocator(), n, o) else n;
@@ -85,7 +85,7 @@ pub fn getPluralCardinal(gpa: Allocator, data: *const LocaleData, n: Decimal, op
 }
 
 /// The ordinal plural category of the number, optionally adjusted first. (`getPluralOrdinal`)
-pub fn getPluralOrdinal(gpa: Allocator, data: *const LocaleData, n: Decimal, options: ?DecimalAdjustOptions) Allocator.Error![]const u8 {
+pub fn getPluralOrdinal(gpa: Allocator, data: *const LocaleData, n: Decimal, options: ?DecimalAdjustOptions) D.Error![]const u8 {
     var arena: std.heap.ArenaAllocator = .init(gpa);
     defer arena.deinit();
     const d = if (options) |o| try internal.adjustNumber(arena.allocator(), n, o) else n;

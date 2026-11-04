@@ -137,7 +137,10 @@ fn cloneArg(gpa: Allocator, a: Argument) Allocator.Error!Argument {
 fn cloneArgs(gpa: Allocator, args: []const Argument) Allocator.Error![]const Argument {
     const out = try gpa.alloc(Argument, args.len);
     var n: usize = 0;
-    errdefer freeArgs(gpa, out[0..n]);
+    errdefer {
+        for (out[0..n]) |a| freeArg(gpa, a);
+        gpa.free(out);
+    }
     for (args) |a| {
         out[n] = try cloneArg(gpa, a);
         n += 1;

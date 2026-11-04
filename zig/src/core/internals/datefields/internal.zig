@@ -7,7 +7,7 @@ const Options = @import("../../common/calendars.zig").RelativeTimeFieldFormatOpt
 const NumberParams = @import("../../common/private.zig").NumberParams;
 const adjust = @import("../numbers/internal.zig").adjustNumber;
 const general = @import("../general/internal.zig");
-pub fn renderRelativeTimeField(a: A, data: *const LocaleData, value: D.Decimal, field: []const u8, o: Options, params: *const NumberParams) A.Error![]u8 {
+pub fn renderRelativeTimeField(a: A, data: *const LocaleData, value: D.Decimal, field: []const u8, o: Options, params: *const NumberParams) D.Error![]u8 {
     const formats = data.schema.DateFields.relativeTimes;
     const format = if (std.mem.eql(u8, o.width, "short")) formats.short else if (std.mem.eql(u8, o.width, "narrow")) formats.narrow else formats.wide;
     const b = &data.bundle;

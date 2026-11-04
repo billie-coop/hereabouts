@@ -29,14 +29,14 @@ pub fn getUnitDisplayName(data: *const LocaleData, name: []const u8, length: ?Un
 }
 
 /// Format a quantity to a string (`formatQuantity`).
-pub fn formatQuantity(gpa: Allocator, data: *const LocaleData, q: Quantity, options: UnitFormatOptions) Allocator.Error![]u8 {
+pub fn formatQuantity(gpa: Allocator, data: *const LocaleData, q: Quantity, options: UnitFormatOptions) D.Error![]u8 {
     var arena: std.heap.ArenaAllocator = .init(gpa);
     defer arena.deinit();
     return render.joinParts(gpa, try quantityParts(arena.allocator(), data, q, options));
 }
 
 /// Format a quantity to parts (`formatQuantityToParts`).
-pub fn formatQuantityToParts(gpa: Allocator, data: *const LocaleData, q: Quantity, options: UnitFormatOptions) Allocator.Error![]Part {
+pub fn formatQuantityToParts(gpa: Allocator, data: *const LocaleData, q: Quantity, options: UnitFormatOptions) D.Error![]Part {
     var arena: std.heap.ArenaAllocator = .init(gpa);
     defer arena.deinit();
     return render.copyParts(gpa, try quantityParts(arena.allocator(), data, q, options));
@@ -44,26 +44,26 @@ pub fn formatQuantityToParts(gpa: Allocator, data: *const LocaleData, q: Quantit
 
 /// Format a sequence of quantities to a string, e.g. "5 feet, 3 inches"
 /// (`formatQuantitySequence`).
-pub fn formatQuantitySequence(gpa: Allocator, data: *const LocaleData, qs: []const Quantity, options: UnitFormatOptions) Allocator.Error![]u8 {
+pub fn formatQuantitySequence(gpa: Allocator, data: *const LocaleData, qs: []const Quantity, options: UnitFormatOptions) D.Error![]u8 {
     var arena: std.heap.ArenaAllocator = .init(gpa);
     defer arena.deinit();
     return render.joinParts(gpa, try sequenceParts(arena.allocator(), data, qs, options));
 }
 
 /// Format a sequence of quantities to parts (`formatQuantitySequenceToParts`).
-pub fn formatQuantitySequenceToParts(gpa: Allocator, data: *const LocaleData, qs: []const Quantity, options: UnitFormatOptions) Allocator.Error![]Part {
+pub fn formatQuantitySequenceToParts(gpa: Allocator, data: *const LocaleData, qs: []const Quantity, options: UnitFormatOptions) D.Error![]Part {
     var arena: std.heap.ArenaAllocator = .init(gpa);
     defer arena.deinit();
     return render.copyParts(gpa, try sequenceParts(arena.allocator(), data, qs, options));
 }
 
 /// Quantity formatting into parts allocated in `a` (an arena), for other formatters.
-pub fn quantityParts(a: Allocator, data: *const LocaleData, q: Quantity, options: UnitFormatOptions) Allocator.Error![]Part {
+pub fn quantityParts(a: Allocator, data: *const LocaleData, q: Quantity, options: UnitFormatOptions) D.Error![]Part {
     const params = try getNumberParams(data, options.nu, null);
     return internal.renderUnit(a, data, .{ .a = a, .params = params }, q, options, params);
 }
 
-fn sequenceParts(a: Allocator, data: *const LocaleData, qs: []const Quantity, options: UnitFormatOptions) Allocator.Error![]Part {
+fn sequenceParts(a: Allocator, data: *const LocaleData, qs: []const Quantity, options: UnitFormatOptions) D.Error![]Part {
     const items = try a.alloc([]const Part, qs.len);
     for (qs, items) |q, *item| item.* = try quantityParts(a, data, q, options);
     return general.formatListValue(a, data, items, selectListType(options));

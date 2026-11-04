@@ -208,7 +208,7 @@ fn decodeInfo(raw: []const u8) DecodeError!LocalTime {
     const dst = std.fmt.parseInt(u8, it.next() orelse return error.InvalidTimeZoneData, 10) catch
         return error.InvalidTimeZoneData;
     const offset = try parse36(it.next() orelse return error.InvalidTimeZoneData);
-    return .{ .abbr = abbr, .dst = dst, .offset = offset * 1000 };
+    return .{ .abbr = abbr, .dst = dst, .offset = std.math.mul(i64, offset, 1000) catch return error.InvalidTimeZoneData };
 }
 
 /// Decode the packed data for a single zone.
@@ -246,7 +246,7 @@ fn decodeZone(a: Allocator, raw: []const u8, index: []const i64) DecodeError!Zon
     }
 
     return .{
-        .stdoff = (try parse36(fields[0])) * 1000,
+        .stdoff = std.math.mul(i64, try parse36(fields[0]), 1000) catch return error.InvalidTimeZoneData,
         .latitude = try parse36(fields[1]),
         .longitude = try parse36(fields[2]),
         .countries = countries.items,

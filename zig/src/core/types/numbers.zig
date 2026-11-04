@@ -4,10 +4,9 @@
 
 /// Number symbol names, in the order of the schema's 'number-symbol' index.
 pub const number_symbol_names = [_][]const u8{
-    "approximatelySign", "currencyDecimal", "currencyGroup", "decimal",  "exponential",
-    "group",             "infinity",        "list",          "minusSign", "nan",
-    "perMille",          "percentSign",     "plusSign",      "superscriptingExponent",
-    "timeSeparator",
+    "approximatelySign", "currencyDecimal", "currencyGroup", "decimal",                "exponential",
+    "group",             "infinity",        "list",          "minusSign",              "nan",
+    "perMille",          "percentSign",     "plusSign",      "superscriptingExponent", "timeSeparator",
 };
 
 /// Number system categories ('default', 'native', 'finance', 'traditional').

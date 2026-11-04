@@ -126,7 +126,7 @@ fn precision(r: Rational) i64 {
 }
 
 /// Build a set of unit conversion factors. `factors` is borrowed and must outlive the set.
-pub fn unitFactors(gpa: Allocator, factors: []const FactorDef) Allocator.Error!UnitFactors {
+pub fn unitFactors(gpa: Allocator, factors: []const FactorDef) D.Error!UnitFactors {
     var arena = ArenaAllocator.init(gpa);
     errdefer arena.deinit();
     const a = arena.allocator();

@@ -7,6 +7,7 @@ const Bundle = @import("resource/bundle.zig").Bundle;
 const Schema = @import("types/schema.zig").Schema;
 const KeyIndex = @import("schema/instructions.zig").KeyIndex;
 const autogen = @import("schema/autogen.schema.zig");
+const MessageFormatter = @import("../messageformat/messageformat.zig").MessageFormatter;
 
 /// Look up a key index of the active schema config by name ('currency-id', 'unit-id', ...).
 pub const IndexLookup = *const fn (name: []const u8) ?*const KeyIndex;
@@ -33,6 +34,7 @@ pub const LocaleData = struct {
     pub const Caches = struct {
         arena: std.heap.ArenaAllocator,
         map: std.StringHashMapUnmanaged(*anyopaque) = .empty,
+        default_formatter: ?*MessageFormatter = null,
     };
 
     /// Combine a bundle with the locale and schema it is used with. Takes ownership of `bundle`
@@ -56,6 +58,10 @@ pub const LocaleData = struct {
     }
 
     pub fn deinit(self: *LocaleData) void {
+        if (self.caches.default_formatter) |f| {
+            f.deinit();
+            self.gpa.destroy(f);
+        }
         self.caches.arena.deinit();
         self.gpa.destroy(self.caches);
         self.bundle.deinit(self.gpa);

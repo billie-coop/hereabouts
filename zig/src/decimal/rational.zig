@@ -20,7 +20,7 @@ pub const Rational = struct {
     }
 };
 
-pub const Error = dec.ParseError || Allocator.Error;
+pub const Error = dec.ParseError || dec.Error;
 
 /// A decimal, or the named constants 'e' and 'pi' (any case).
 fn fromString(a: Allocator, s: []const u8) Error!Decimal {
@@ -61,7 +61,7 @@ pub fn init(gpa: Allocator, numerator: Decimal, denominator: Decimal) Allocator.
 }
 
 /// Compare u to v, returning -1, 0 or 1.
-pub fn compare(gpa: Allocator, u: Rational, v: Rational, context: MathContext) Allocator.Error!i32 {
+pub fn compare(gpa: Allocator, u: Rational, v: Rational, context: MathContext) dec.Error!i32 {
     var arena = ArenaAllocator.init(gpa);
     defer arena.deinit();
     const a = arena.allocator();
@@ -70,7 +70,7 @@ pub fn compare(gpa: Allocator, u: Rational, v: Rational, context: MathContext) A
     return dec.compare(a, x, y, false);
 }
 
-pub fn add(gpa: Allocator, u: Rational, v: Rational, context: MathContext) Allocator.Error!Rational {
+pub fn add(gpa: Allocator, u: Rational, v: Rational, context: MathContext) dec.Error!Rational {
     var arena = ArenaAllocator.init(gpa);
     defer arena.deinit();
     const a = arena.allocator();
@@ -82,7 +82,7 @@ pub fn add(gpa: Allocator, u: Rational, v: Rational, context: MathContext) Alloc
     });
 }
 
-pub fn subtract(gpa: Allocator, u: Rational, v: Rational, context: MathContext) Allocator.Error!Rational {
+pub fn subtract(gpa: Allocator, u: Rational, v: Rational, context: MathContext) dec.Error!Rational {
     var arena = ArenaAllocator.init(gpa);
     defer arena.deinit();
     const a = arena.allocator();
@@ -94,7 +94,7 @@ pub fn subtract(gpa: Allocator, u: Rational, v: Rational, context: MathContext) 
     });
 }
 
-pub fn multiply(gpa: Allocator, u: Rational, v: Rational, context: MathContext) Allocator.Error!Rational {
+pub fn multiply(gpa: Allocator, u: Rational, v: Rational, context: MathContext) dec.Error!Rational {
     var arena = ArenaAllocator.init(gpa);
     defer arena.deinit();
     const a = arena.allocator();
@@ -104,7 +104,7 @@ pub fn multiply(gpa: Allocator, u: Rational, v: Rational, context: MathContext) 
     });
 }
 
-pub fn divide(gpa: Allocator, u: Rational, v: Rational, context: MathContext) Allocator.Error!Rational {
+pub fn divide(gpa: Allocator, u: Rational, v: Rational, context: MathContext) dec.Error!Rational {
     var arena = ArenaAllocator.init(gpa);
     defer arena.deinit();
     const a = arena.allocator();
@@ -127,7 +127,7 @@ pub fn inverse(gpa: Allocator, u: Rational) Allocator.Error!Rational {
 }
 
 /// Divide the numerator by the denominator.
-pub fn toDecimal(gpa: Allocator, u: Rational, context: MathContext) Allocator.Error!Decimal {
+pub fn toDecimal(gpa: Allocator, u: Rational, context: MathContext) dec.Error!Decimal {
     return dec.divide(gpa, u.numerator, u.denominator, context);
 }
 

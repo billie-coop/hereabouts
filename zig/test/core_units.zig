@@ -244,7 +244,6 @@ fn partsCheck(want: Value, got: []Part) !void {
     return expectParts(want, got);
 }
 
-
 fn quantity(a: Allocator, v: Value) !core.units.Quantity {
     const o = v.object;
     return .{

@@ -9,7 +9,7 @@ const LocaleData = @import("../locale_data.zig").LocaleData;
 pub const DayFormatOptions = struct { date: ?[]const u8 = null, skeleton: ?[]const u8 = null, ca: ?opts.CalendarType = null, nu: ?[]const u8 = null, context: ?@import("../types/general.zig").ContextType = null, alt: opts.DateFormatAltOptions = .{} };
 pub const DayIntervalFormatOptions = struct { skeleton: ?[]const u8 = null, ca: ?opts.CalendarType = null, nu: ?[]const u8 = null, context: ?@import("../types/general.zig").ContextType = null, alt: opts.DateFormatAltOptions = .{} };
 pub const TimeOfDayFormatOptions = struct { skeleton: ?[]const u8 = null, nu: ?[]const u8 = null, context: ?@import("../types/general.zig").ContextType = null, alt: opts.DateFormatAltOptions = .{} };
-pub const Error = A.Error || dt.Error || @import("../systems/calendars/types.zig").Error || error{ InvalidSkeleton, DateOutOfRange };
+pub const Error = D.Error || dt.Error || @import("../systems/calendars/types.zig").Error || error{ InvalidSkeleton, DateOutOfRange };
 fn check(s: ?[]const u8, allowed: []const u8) Error!void {
     if (s) |raw| for (raw) |c| {
         if (std.mem.indexOfScalar(u8, allowed, c) == null) return error.InvalidSkeleton;
