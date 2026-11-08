@@ -42,6 +42,22 @@ const NAV = [
 const RTL = new Set(['ar']);
 
 export const App = () => {
+  const [theme, setTheme] = useState<'dark' | 'light'>(() =>
+    document.documentElement.dataset.theme === 'light' ? 'light' : 'dark',
+  );
+  const nextTheme = theme === 'dark' ? 'light' : 'dark';
+  const toggleTheme = () => {
+    const root = document.documentElement;
+    root.dataset.theme = nextTheme;
+    root.classList.toggle('dark', nextTheme === 'dark');
+    root.style.colorScheme = nextTheme;
+    try {
+      localStorage.setItem('billie-coop-theme', nextTheme);
+    } catch {
+      // The switch still works when browser storage is unavailable.
+    }
+    setTheme(nextTheme);
+  };
   const [hash, setHash] = useState(() => window.location.hash);
   const docs = /^#docs(?:\/|$)/.test(hash);
   useEffect(() => {
@@ -110,6 +126,15 @@ export const App = () => {
               Docs
             </a>
             <a href="https://github.com/billie-coop/hereabouts">GitHub ↗</a>
+            <button
+              type="button"
+              className="theme-toggle"
+              onClick={toggleTheme}
+              aria-label={`Switch to ${nextTheme} mode`}
+              title={`Switch to ${nextTheme} mode`}
+            >
+              {theme === 'dark' ? 'Light' : 'Dark'}
+            </button>
           </nav>
         </div>
       </header>
@@ -151,7 +176,7 @@ export const App = () => {
                 ) : (
                   <>
                     <div className="demo-toolbar">
-                      <p className="text-xs text-slate-400 mb-4">
+                      <p className="text-xs text-muted mb-4">
                         {t(
                           'v{version} · CLDR {cldr} · plain functions over plain data · every example runs live',
                           { version: cldrVersion(), cldr: cldrDataVersion },
@@ -192,7 +217,7 @@ export const App = () => {
                         className="flex flex-wrap gap-x-4 gap-y-2 pt-4 text-sm"
                       >
                         {NAV.map(([id, label]) => (
-                          <a key={id} href={`#${id}`} className="text-teal-300 hover:underline">
+                          <a key={id} href={`#${id}`} className="text-accent hover:underline">
                             {t(label)}
                           </a>
                         ))}
@@ -204,8 +229,8 @@ export const App = () => {
                               onClick={() => setLocaleId(id)}
                               className={`rounded-full px-2 py-0.5 text-xs ${
                                 id === localeId
-                                  ? 'bg-teal-700 text-white'
-                                  : 'bg-slate-700 text-slate-100 hover:bg-slate-600'
+                                  ? 'bg-accent text-page'
+                                  : 'bg-surface text-muted hover:text-ink'
                               }`}
                             >
                               {id}
@@ -216,7 +241,7 @@ export const App = () => {
                     </div>
 
                     <div className="feature-mosaic">
-                      <p className="mosaic-intro text-sm text-slate-400">
+                      <p className="mosaic-intro text-sm text-muted">
                         {rich(
                           t(
                             'Locale data is a plain object (`loadLocaleAsync(framework, locale)`) passed to plain functions. Bundlers keep only the functions you import: number formatting alone is about 42 KB gzipped, day math alone about 1.3 KB.',

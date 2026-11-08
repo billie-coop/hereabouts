@@ -50,7 +50,7 @@ const MonthView = ({ cldr, month, today }: { cldr: LocaleData; month: Day; today
   });
   const header = dayRange(weeks[0] as Day, dayAdd(weeks[0] as Day, { days: 6 }));
   return (
-    <div className="inline-block rounded-xl border border-zinc-200 p-3 dark:border-zinc-800">
+    <div className="inline-block rounded-xl border border-edge p-3">
       <div className="mb-2 text-center text-sm font-medium">
         {formatDay(cldr, month, { skeleton: 'yMMMM' })}
       </div>
@@ -58,7 +58,7 @@ const MonthView = ({ cldr, month, today }: { cldr: LocaleData; month: Day; today
         <thead>
           <tr>
             {header.map((d) => (
-              <th key={dayToString(d)} className="px-1.5 pb-1 text-xs font-normal text-zinc-500">
+              <th key={dayToString(d)} className="px-1.5 pb-1 text-xs font-normal text-muted">
                 {formatDay(cldr, d, { skeleton: 'EEEEEE' })}
               </th>
             ))}
@@ -73,8 +73,8 @@ const MonthView = ({ cldr, month, today }: { cldr: LocaleData; month: Day; today
                 return (
                   <td
                     key={dayToString(d)}
-                    className={`h-8 w-8 rounded-full ${inMonth ? '' : 'text-zinc-300 dark:text-zinc-600'} ${
-                      isToday ? 'bg-indigo-600 text-white' : ''
+                    className={`h-8 w-8 rounded-full ${inMonth ? '' : 'text-muted'} ${
+                      isToday ? 'bg-accent text-page' : ''
                     }`}
                   >
                     {formatDay(cldr, d, { skeleton: 'd' })}
@@ -194,13 +194,13 @@ export const Dates = ({ cldr, zone, t }: { cldr: LocaleData; zone: string; t: T 
       {schedule.map(([code, f]) => (
         <Example key={code} code={code} result={attempt(f)} />
       ))}
-      <div className="py-3 text-sm text-zinc-600 dark:text-zinc-400">{change}</div>
+      <div className="py-3 text-sm text-muted">{change}</div>
       <div className="flex flex-wrap gap-4 pt-3">
         <MonthView cldr={cldr} month={today} today={today} />
         {due && (due.month !== today.month || due.year !== today.year) && (
           <MonthView cldr={cldr} month={due} today={today} />
         )}
-        <p className="max-w-xs self-center text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="max-w-xs self-center text-sm text-muted">
           {rich(
             t(
               "The week starts on the locale's first day (`firstDayOfWeek(locale)` is {first}, 1 = Sunday). The grid is `dayRange` over `dayStartOfWeek` in steps of a week. Today in {zone}: {today}.",

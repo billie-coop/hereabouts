@@ -2,28 +2,37 @@
 
 @theme {
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --color-zinc-300: #f1f5f9;
-  --color-zinc-400: #94a3b8;
-  --color-zinc-500: #94a3b8;
-  --color-zinc-700: #334155;
-  --color-zinc-800: #334155;
-  --color-zinc-900: #1e293b;
-  --color-zinc-950: #0f172a;
   --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
 
-/* Shared Billie co-op palette. Dark is the default regardless of system preference. */
+/* Shared Billie co-op neutrals, with hereabouts' indigo accent. */
 :root {
-  --site-page: #0f172a;
-  --site-surface: #1e293b;
-  --site-text: #f1f5f9;
-  --site-muted: #94a3b8;
-  --site-border: #334155;
-  --site-accent: #5eead4;
-}
-@custom-variant dark (&:where(.dark, .dark *));
-html {
   color-scheme: dark;
+  --site-page: #191d24;
+  --site-surface: #252b34;
+  --site-text: #f1f3f5;
+  --site-muted: #a6adb8;
+  --site-border: #3b4350;
+  --site-accent: #a5b4fc;
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --site-page: #fafbfc;
+  --site-surface: #f0f2f5;
+  --site-text: #20252d;
+  --site-muted: #596273;
+  --site-border: #d4d9e1;
+  --site-accent: #4338ca;
+}
+@theme inline {
+  --color-page: var(--site-page);
+  --color-surface: var(--site-surface);
+  --color-ink: var(--site-text);
+  --color-muted: var(--site-muted);
+  --color-edge: var(--site-border);
+  --color-accent: var(--site-accent);
+}
+html {
   scroll-padding-top: 96px;
 }
 body {
@@ -146,8 +155,8 @@ a:hover {
   color: var(--site-accent);
 }
 .primary-link {
-  background: #0f766e;
-  color: #fff;
+  background: var(--site-accent);
+  color: var(--site-page);
   border-radius: 8px;
   padding: 12px 18px;
   font-weight: 600;
@@ -490,5 +499,37 @@ a:hover {
     padding-bottom: 28px;
     margin-bottom: 32px;
     border-bottom: 1px solid var(--site-border);
+  }
+}
+
+.theme-toggle {
+  border: 1px solid var(--site-border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  background: var(--site-surface);
+  color: var(--site-text);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.theme-toggle:hover {
+  border-color: var(--site-accent);
+}
+@media (max-width: 419px) {
+  .header-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .site-brand {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .site-header nav {
+    width: 100%;
+    justify-content: space-between;
+  }
+  html {
+    scroll-padding-top: 140px;
   }
 }

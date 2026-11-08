@@ -51,22 +51,22 @@ export const Messages = ({ cldr, t }: { cldr: LocaleData; t: T }) => {
         )}
       />
       <div className="grid gap-3 pt-4 pb-2 sm:grid-cols-[2fr_1fr]">
-        <label className="flex flex-col gap-1 text-xs font-medium text-zinc-600 dark:text-zinc-400">
+        <label className="flex flex-col gap-1 text-xs font-medium text-muted">
           {t('Message (ICU)')}
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             rows={3}
-            className="rounded-lg border border-zinc-300 bg-white p-2 font-mono text-xs dark:border-zinc-700 dark:bg-zinc-950"
+            className="rounded-lg border border-edge bg-page p-2 font-mono text-xs"
           />
         </label>
-        <label className="flex flex-col gap-1 text-xs font-medium text-zinc-600 dark:text-zinc-400">
+        <label className="flex flex-col gap-1 text-xs font-medium text-muted">
           {t('Arguments (JSON)')}
           <textarea
             value={args}
             onChange={(e) => setArgs(e.target.value)}
             rows={3}
-            className="rounded-lg border border-zinc-300 bg-white p-2 font-mono text-xs dark:border-zinc-700 dark:bg-zinc-950"
+            className="rounded-lg border border-edge bg-page p-2 font-mono text-xs"
           />
         </label>
       </div>

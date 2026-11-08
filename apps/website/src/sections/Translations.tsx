@@ -77,11 +77,11 @@ export const Translations = ({
       />
       <pre
         dir="ltr"
-        className="mt-3 overflow-x-auto rounded-lg bg-zinc-100 p-3 text-xs leading-relaxed text-zinc-700 dark:bg-zinc-950 dark:text-zinc-300"
+        className="mt-3 overflow-x-auto rounded-lg bg-surface p-3 text-xs leading-relaxed text-muted"
       >
         {SOURCE_SAMPLE}
       </pre>
-      <p className="pt-3 text-xs text-zinc-500">
+      <p className="pt-3 text-xs text-muted">
         {t(
           'Translations on this site were written by an AI and have not been reviewed by native speakers.',
         )}
