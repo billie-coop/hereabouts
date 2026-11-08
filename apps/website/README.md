@@ -25,8 +25,8 @@ API and adds the day / time / zone examples.
 
 The overview has a responsive feature mosaic: each card shows two live examples and expands
 with **More examples** to show the rest. The locale and time zone apply to every card. The
-shared Billie co-op shell stays light; the demo content follows the selected locale, including
-right-to-left Arabic. The introduction and documentation are in English.
+shared Billie co-op shell defaults to dark regardless of the system theme (no theme toggle).
+The demo content follows the selected locale, including right-to-left Arabic. The introduction and documentation are in English.
 
 Documentation lives at `#docs` with section links such as `#docs/locale-data`, so direct links
 work on GitHub Pages without a server fallback. The guide in `src/Docs.tsx` follows the root

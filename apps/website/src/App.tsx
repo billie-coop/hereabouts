@@ -151,7 +151,7 @@ export const App = () => {
                 ) : (
                   <>
                     <div className="demo-toolbar">
-                      <p className="text-xs text-slate-500 mb-4">
+                      <p className="text-xs text-slate-400 mb-4">
                         {t(
                           'v{version} · CLDR {cldr} · plain functions over plain data · every example runs live',
                           { version: cldrVersion(), cldr: cldrDataVersion },
@@ -192,7 +192,7 @@ export const App = () => {
                         className="flex flex-wrap gap-x-4 gap-y-2 pt-4 text-sm"
                       >
                         {NAV.map(([id, label]) => (
-                          <a key={id} href={`#${id}`} className="text-teal-700 hover:underline">
+                          <a key={id} href={`#${id}`} className="text-teal-300 hover:underline">
                             {t(label)}
                           </a>
                         ))}
@@ -205,7 +205,7 @@ export const App = () => {
                               className={`rounded-full px-2 py-0.5 text-xs ${
                                 id === localeId
                                   ? 'bg-teal-700 text-white'
-                                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                                  : 'bg-slate-700 text-slate-100 hover:bg-slate-600'
                               }`}
                             >
                               {id}
@@ -216,7 +216,7 @@ export const App = () => {
                     </div>
 
                     <div className="feature-mosaic">
-                      <p className="mosaic-intro text-sm text-slate-600">
+                      <p className="mosaic-intro text-sm text-slate-400">
                         {rich(
                           t(
                             'Locale data is a plain object (`loadLocaleAsync(framework, locale)`) passed to plain functions. Bundlers keep only the functions you import: number formatting alone is about 42 KB gzipped, day math alone about 1.3 KB.',
