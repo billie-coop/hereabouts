@@ -41,6 +41,7 @@ export const Translations = ({
   const issues = checkCatalogs(translator);
   return (
     <Section
+      moreLabel={t('More examples')}
       id="translations"
       title={t('Translations')}
       intro={rich(

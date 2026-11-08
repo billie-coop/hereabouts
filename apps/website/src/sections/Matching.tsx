@@ -23,6 +23,7 @@ export const Matching = ({ cldr, t }: { cldr: LocaleData; t: T }) => {
   }
   return (
     <Section
+      moreLabel={t('More examples')}
       id="matching"
       title={t('Locale matching')}
       intro={t(

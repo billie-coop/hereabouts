@@ -70,6 +70,7 @@ export const Units = ({ cldr, t }: { cldr: LocaleData; t: T }) => {
   ];
   return (
     <Section
+      moreLabel={t('More examples')}
       id="units"
       title={t('Units')}
       intro={rich(

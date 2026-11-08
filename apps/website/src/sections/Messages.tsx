@@ -31,6 +31,7 @@ export const Messages = ({ cldr, t }: { cldr: LocaleData; t: T }) => {
   const plurals = ['0', '1', '2', '5', '11', '1.5'];
   return (
     <Section
+      moreLabel={t('More examples')}
       id="messages"
       title={t('Lists, plurals and messages')}
       intro={t(

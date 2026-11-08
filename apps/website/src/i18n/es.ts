@@ -2,6 +2,7 @@ import type { MessageCatalog } from '@billie-coop/hereabouts';
 import type { MessageKey } from './en';
 
 export const es: MessageCatalog<MessageKey> = {
+  'More examples': 'Más ejemplos',
   'Loading locale data…': 'Cargando datos de idioma…',
   "Couldn't load locale data: {error}": 'No se pudieron cargar los datos de idioma: {error}',
   'v{version} · CLDR {cldr} · plain functions over plain data · every example runs live':

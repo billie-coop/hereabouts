@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { Children, type ReactNode } from 'react';
 
 /** Runs `f`, showing the error message instead of throwing so one bad input can't break a page. */
 export const attempt = (f: () => string): string => {
@@ -15,21 +15,31 @@ export const Section = (props: {
   intro: ReactNode;
   controls?: ReactNode;
   children: ReactNode;
+  moreLabel: string;
 }) => (
-  <section
-    id={props.id}
-    className="scroll-mt-4 sm:scroll-mt-56 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
-  >
-    <h2 className="text-lg font-semibold tracking-tight">{props.title}</h2>
-    <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">{props.intro}</p>
-    {props.controls && <div className="mt-4 flex flex-wrap items-end gap-3">{props.controls}</div>}
-    <div className="mt-4 divide-y divide-zinc-100 dark:divide-zinc-800">{props.children}</div>
+  <section id={props.id} className="feature-card scroll-mt-6">
+    <div className="card-heading">
+      <h2>{props.title}</h2>
+    </div>
+    <div className="card-body">
+      <p className="card-intro">{props.intro}</p>
+      {props.controls && (
+        <div className="mt-4 flex flex-wrap items-end gap-3">{props.controls}</div>
+      )}
+      <div className="card-examples">{Children.toArray(props.children).slice(0, 2)}</div>
+      {Children.count(props.children) > 2 && (
+        <details className="card-more">
+          <summary>{props.moreLabel}</summary>
+          <div>{Children.toArray(props.children).slice(2)}</div>
+        </details>
+      )}
+    </div>
   </section>
 );
 
 /** One example: the call on the left, its result on the right. */
 export const Example = (props: { code: string; result: ReactNode; note?: string }) => (
-  <div className="grid grid-cols-[minmax(0,1fr)] gap-1 py-2.5 sm:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] sm:gap-4">
+  <div className="example-row grid grid-cols-[minmax(0,1fr)] gap-1 py-2.5 sm:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] sm:gap-4">
     <code
       dir="ltr"
       className="overflow-x-auto whitespace-pre font-mono text-xs text-zinc-500 dark:text-zinc-400"
@@ -47,7 +57,7 @@ export const Example = (props: { code: string; result: ReactNode; note?: string 
 );
 
 const fieldClass =
-  'rounded-lg border border-zinc-300 bg-white px-2.5 py-1.5 text-sm shadow-xs focus:border-indigo-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-950';
+  'rounded-lg border border-zinc-300 bg-white px-2.5 py-1.5 text-sm shadow-xs focus:border-teal-600 focus:outline-none dark:border-zinc-700 dark:bg-zinc-950';
 
 export const Field = (props: {
   label: string;

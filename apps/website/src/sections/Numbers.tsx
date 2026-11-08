@@ -46,6 +46,7 @@ export const Numbers = ({ cldr, t }: { cldr: LocaleData; t: T }) => {
   ];
   return (
     <Section
+      moreLabel={t('More examples')}
       id="numbers"
       title={t('Numbers')}
       intro={t(
@@ -108,6 +109,7 @@ export const Currency = ({ cldr, t }: { cldr: LocaleData; t: T }) => {
   ];
   return (
     <Section
+      moreLabel={t('More examples')}
       id="currency"
       title={t('Currency')}
       intro={rich(
