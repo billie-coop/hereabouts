@@ -18,14 +18,11 @@ const Code = ({ children }: { children: string }) => (
 export const Docs = () => (
   <main id="docs-main" tabIndex={-1} className="site-container docs-page">
     <div className="docs-heading">
-      <p className="eyebrow">hereabouts</p>
-      <h1>Documentation</h1>
-      <p>Plain functions, plain data, and the locale data you need.</p>
+      <h1>Docs</h1>
     </div>
     <div className="docs-layout">
       <aside className="docs-toc">
         <nav aria-label="Documentation sections">
-          <p className="eyebrow">On this page</p>
           {topics.map(([id, title]) => (
             <a key={id} href={`#docs/${id}`}>
               {title}
@@ -94,8 +91,7 @@ formatQuantity(de, { value: '42.195', unit: 'kilometer' }, { length: 'short' });
           <h2>Decimal math</h2>
           <p>
             Immutable decimal values keep arithmetic exact and survive JSON serialization. Add,
-            subtract and multiply without floating-point surprises; division and rounding accept a
-            precision or scale.
+            subtract and multiply exactly; division and rounding accept a precision or scale.
           </p>
           <Code>{`import { decimal, decimalAdd, decimalToString } from '@billie-coop/hereabouts/decimal';
 

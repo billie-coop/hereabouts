@@ -1,6 +1,6 @@
 import { cldrVersion, type LocaleData, systemTimeZone, timeZoneIds } from '@billie-coop/hereabouts';
 import { useEffect, useMemo, useState } from 'react';
-import { pageLanguage, rich, translatorFor } from './i18n';
+import { pageLanguage, translatorFor } from './i18n';
 import { cldrDataVersion, initialLocale, LOCALES, loadLocale } from './locale';
 import { localeDetail, localeItems, zoneDetail, zoneItems } from './pickers';
 import { SearchSelect } from './SearchSelect';
@@ -143,30 +143,23 @@ export const App = () => {
       ) : (
         <main id="main" tabIndex={-1}>
           <section className="site-container site-hero">
-            <p className="eyebrow">Open source by Billie co-op</p>
-            <h1>
-              Internationalization.
-              <br />
-              Plain data. Plain functions.
-            </h1>
+            <h1>hereabouts</h1>
             <p className="hero-description">
-              Numbers, currencies, dates, messages and exact decimal math for JavaScript and
-              TypeScript. Built on Unicode CLDR data, for 429 locales.
+              Internationalization for JavaScript and TypeScript, with formatting, decimal math and
+              translations for 429 locales.
             </p>
             <div className="hero-actions">
+              <code className="install-command">npm install @billie-coop/hereabouts</code>
               <a className="primary-link" href="#docs">
-                Read the docs →
+                Docs →
               </a>
-              <a href="#demo">Try the live examples ↓</a>
+              <a href="#demo">Examples ↓</a>
             </div>
-            <code className="install-command">npm install @billie-coop/hereabouts</code>
           </section>
           <section id="demo" className="demo-area">
             <div className="site-container">
               <div className="demo-heading">
-                <p className="eyebrow">Explore hereabouts</p>
-                <h2>A world of small details, handled.</h2>
-                <p>Change a locale, edit a value, and see each function at work.</p>
+                <h2>Examples</h2>
               </div>
               <div dir={dir} lang={pageLanguage(localeId)}>
                 {error ? (
@@ -176,14 +169,9 @@ export const App = () => {
                 ) : (
                   <>
                     <div className="demo-toolbar">
-                      <p className="text-xs text-muted mb-4">
-                        {t(
-                          'v{version} · CLDR {cldr} · plain functions over plain data · every example runs live',
-                          { version: cldrVersion(), cldr: cldrDataVersion },
-                        )}
+                      <p className="text-xs text-muted mb-4" dir="ltr">
+                        v{cldrVersion()} · CLDR {cldrDataVersion}
                       </p>
-                      {/* Pickers on their own row, so their place doesn't depend on how long the
-              translated line above is. */}
                       <div className="flex flex-wrap gap-3">
                         <SearchSelect
                           label={t('Locale')}
@@ -241,13 +229,6 @@ export const App = () => {
                     </div>
 
                     <div className="feature-mosaic">
-                      <p className="mosaic-intro text-sm text-muted">
-                        {rich(
-                          t(
-                            'Locale data is a plain object (`loadLocaleAsync(framework, locale)`) passed to plain functions. Bundlers keep only the functions you import: number formatting alone is about 42 KB gzipped, day math alone about 1.3 KB.',
-                          ),
-                        )}
-                      </p>
                       <Numbers cldr={cldr} t={t} />
                       <Currency cldr={cldr} t={t} />
                       <DecimalMath cldr={cldr} t={t} />

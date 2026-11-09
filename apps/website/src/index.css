@@ -122,35 +122,26 @@ a:hover {
   font-weight: 600;
 }
 .site-hero {
-  padding-block: 64px 56px;
-}
-.eyebrow {
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-weight: 600;
-  color: var(--site-accent);
+  padding-block: 24px;
 }
 .site-hero h1 {
-  font-size: 48px;
+  font-size: 36px;
   line-height: 1.12;
   font-weight: 650;
   letter-spacing: -0.04em;
-  margin-top: 16px;
 }
 .hero-description {
   color: var(--site-muted);
-  font-size: 18px;
-  line-height: 1.7;
-  max-width: 690px;
-  margin-top: 24px;
+  font-size: 16px;
+  line-height: 1.6;
+  margin-top: 12px;
 }
 .hero-actions {
   display: flex;
   align-items: center;
   gap: 24px;
   flex-wrap: wrap;
-  margin-top: 28px;
+  margin-top: 16px;
   font-size: 14px;
   color: var(--site-accent);
 }
@@ -158,7 +149,7 @@ a:hover {
   background: var(--site-accent);
   color: var(--site-page);
   border-radius: 8px;
-  padding: 12px 18px;
+  padding: 8px 12px;
   font-weight: 600;
 }
 .install-command {
@@ -167,8 +158,8 @@ a:hover {
   max-width: 100%;
   overflow-x: auto;
   white-space: nowrap;
-  margin-top: 24px;
-  padding: 12px 16px;
+  margin-top: 0;
+  padding: 10px 14px;
   background: var(--site-surface);
   border: 1px solid var(--site-border);
   border-radius: 8px;
@@ -178,39 +169,29 @@ a:hover {
 .demo-area {
   background: var(--site-surface);
   border-block: 1px solid var(--site-border);
-  padding-block: 48px;
+  padding-block: 24px;
 }
 .demo-heading {
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 .demo-heading h2 {
-  font-size: 28px;
+  font-size: 24px;
   letter-spacing: -0.025em;
   font-weight: 650;
-  margin-top: 10px;
   line-height: 1.25;
-}
-.demo-heading > p:last-child {
-  color: var(--site-muted);
-  margin-top: 12px;
-  line-height: 1.6;
 }
 .demo-toolbar {
   border: 1px solid var(--site-border);
   background: var(--site-page);
   border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 24px;
+  padding: 16px;
+  margin-bottom: 16px;
 }
 .feature-mosaic {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
   align-items: start;
-}
-.mosaic-intro {
-  grid-column: 1 / -1;
-  line-height: 1.7;
 }
 .feature-card {
   min-width: 0;
@@ -322,11 +303,7 @@ a:hover {
   font-weight: 650;
   letter-spacing: -0.035em;
   line-height: 1.15;
-  margin-block: 12px 16px;
-}
-.docs-heading > p:last-child {
-  color: var(--site-muted);
-  line-height: 1.7;
+  margin: 0;
 }
 .docs-layout {
   display: grid;
@@ -341,9 +318,6 @@ a:hover {
   gap: 12px;
   font-size: 14px;
   color: var(--site-muted);
-}
-.docs-toc .eyebrow {
-  margin-bottom: 6px;
 }
 .docs-content {
   max-width: 780px;
@@ -450,10 +424,10 @@ a:hover {
     padding: 8px;
   }
   .site-hero {
-    padding-block: 40px;
+    padding-block: 24px;
   }
   .site-hero h1 {
-    font-size: 36px;
+    font-size: 30px;
   }
   .hero-description {
     font-size: 16px;
@@ -466,10 +440,10 @@ a:hover {
     padding-inline: 12px;
   }
   .demo-area {
-    padding-block: 36px;
+    padding-block: 24px;
   }
   .demo-heading h2 {
-    font-size: 26px;
+    font-size: 24px;
   }
   .feature-mosaic {
     grid-template-columns: minmax(0, 1fr);
