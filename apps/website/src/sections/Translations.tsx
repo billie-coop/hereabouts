@@ -4,7 +4,7 @@ import {
   type LocaleData,
   resolveMessage,
 } from '@billie-coop/hereabouts';
-import { rich, type T, translator } from '../i18n';
+import { rich, type T, translator, translatorFor } from '../i18n';
 import { Example, q, Section } from '../ui';
 
 const SOURCE_SAMPLE = `// i18n/en.ts: the source catalog, keyed by its English text
@@ -41,7 +41,19 @@ export const Translations = ({
   const issues = checkCatalogs(translator);
   return (
     <Section
+      moreLabel={t('More examples')}
       id="translations"
+      size="wide"
+      preview={
+        <div className="translation-chips">
+          {[...new Set([localeId, 'de', 'fr', 'ja', 'ar'])].map((id) => (
+            <span key={id}>
+              <small>{id}</small>
+              <span dir="auto">{translatorFor(id)('Due date')}</span>
+            </span>
+          ))}
+        </div>
+      }
       title={t('Translations')}
       intro={rich(
         t(
@@ -76,11 +88,11 @@ export const Translations = ({
       />
       <pre
         dir="ltr"
-        className="mt-3 overflow-x-auto rounded-lg bg-zinc-100 p-3 text-xs leading-relaxed text-zinc-700 dark:bg-zinc-950 dark:text-zinc-300"
+        className="mt-3 overflow-x-auto rounded-lg bg-surface p-3 text-xs leading-relaxed text-muted"
       >
         {SOURCE_SAMPLE}
       </pre>
-      <p className="pt-3 text-xs text-zinc-500">
+      <p className="pt-3 text-xs text-muted">
         {t(
           'Translations on this site were written by an AI and have not been reviewed by native speakers.',
         )}

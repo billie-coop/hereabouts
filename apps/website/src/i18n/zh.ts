@@ -2,6 +2,7 @@ import type { MessageCatalog } from '@billie-coop/hereabouts';
 import type { MessageKey } from './en';
 
 export const zh: MessageCatalog<MessageKey> = {
+  'More examples': '更多示例',
   'Loading locale data…': '正在加载语言区域数据…',
   "Couldn't load locale data: {error}": '无法加载语言区域数据:{error}',
   'v{version} · CLDR {cldr} · plain functions over plain data · every example runs live':

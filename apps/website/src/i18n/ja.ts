@@ -2,6 +2,7 @@ import type { MessageCatalog } from '@billie-coop/hereabouts';
 import type { MessageKey } from './en';
 
 export const ja: MessageCatalog<MessageKey> = {
+  'More examples': 'その他の例',
   'Loading locale data…': 'ロケールデータを読み込んでいます…',
   "Couldn't load locale data: {error}": 'ロケールデータを読み込めませんでした: {error}',
   'v{version} · CLDR {cldr} · plain functions over plain data · every example runs live':

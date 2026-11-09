@@ -70,7 +70,31 @@ export const Units = ({ cldr, t }: { cldr: LocaleData; t: T }) => {
   ];
   return (
     <Section
+      moreLabel={t('More examples')}
       id="units"
+      preview={
+        <div className="unit-conversion">
+          <div>
+            <strong dir="auto">
+              {attempt(() => formatQuantity(cldr, { value, unit: u }, { length: 'short' }))}
+            </strong>
+            <span aria-hidden="true">→</span>
+            <strong dir="auto">
+              {attempt(() => {
+                const result = converted();
+                return result
+                  ? formatQuantity(
+                      cldr,
+                      { value: result, unit: other },
+                      { length: 'short', maximumFractionDigits: 2 },
+                    )
+                  : t('no conversion');
+              })}
+            </strong>
+          </div>
+          <div className="unit-ruler" aria-hidden="true" />
+        </div>
+      }
       title={t('Units')}
       intro={rich(
         t(

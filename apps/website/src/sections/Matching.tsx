@@ -23,7 +23,21 @@ export const Matching = ({ cldr, t }: { cldr: LocaleData; t: T }) => {
   }
   return (
     <Section
+      moreLabel={t('More examples')}
       id="matching"
+      preview={
+        <div className="matching-chips">
+          {[...new Set([...desiredList, 'es-MX', 'zh-TW'])].slice(0, 2).map((want) => (
+            <span key={want} dir="ltr">
+              <code>{want}</code>
+              <span aria-hidden="true">→</span>
+              <strong>
+                {attempt(() => matchLocale(createLocaleMatcher(supported), want).locale.id)}
+              </strong>
+            </span>
+          ))}
+        </div>
+      }
       title={t('Locale matching')}
       intro={t(
         "Pick the best of your app's supported locales for what a user asks for, using CLDR's language distances (es-MX matches es-419, zh-TW matches zh-Hant).",

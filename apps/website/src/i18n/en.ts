@@ -5,6 +5,7 @@
  * `i18n.test.ts` fails until every catalog has it with the same placeholders.
  */
 export const en = {
+  'More examples': 'More examples',
   // Page
   'Loading locale data…': 'Loading locale data…',
   "Couldn't load locale data: {error}": "Couldn't load locale data: {error}",

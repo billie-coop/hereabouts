@@ -54,7 +54,7 @@ const highlight = (text: string, ranges: Ranges | undefined): ReactNode => {
   for (const [start, end] of ranges) {
     if (start > at) out.push(text.slice(at, start));
     out.push(
-      <mark key={start} className="rounded-sm bg-amber-200/70 text-inherit dark:bg-amber-500/30">
+      <mark key={start} className="rounded-sm bg-accent/20 text-inherit">
         {text.slice(start, end + 1)}
       </mark>,
     );
@@ -194,7 +194,7 @@ export const SearchSelect = (props: {
 
   return (
     <div ref={root} className={`relative flex flex-col gap-1 ${props.className ?? ''}`}>
-      <span id={`${id}-label`} className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
+      <span id={`${id}-label`} className="text-xs font-medium text-muted">
         {props.label}
       </span>
       <button
@@ -210,18 +210,18 @@ export const SearchSelect = (props: {
             setOpen(true);
           }
         }}
-        className="flex items-center gap-2 rounded-lg border border-zinc-300 bg-white py-1 ps-2 pe-2.5 text-start text-sm shadow-xs focus:border-indigo-500 focus:outline-none dark:border-zinc-700 dark:bg-zinc-950"
+        className="flex items-center gap-2 rounded-lg border border-edge bg-page py-1 ps-2 pe-2.5 text-start text-sm shadow-xs focus:border-accent focus:outline-none"
       >
         <Flag flag={selected?.flag} />
         <span id={`${id}-value`} className="min-w-0 flex-1 leading-tight">
           <span className="block truncate">{selected?.title ?? value}</span>
-          <span className="block truncate text-xs text-zinc-500">{selected?.subtitle}</span>
+          <span className="block truncate text-xs text-muted">{selected?.subtitle}</span>
         </span>
         <svg
           aria-hidden="true"
           viewBox="0 0 20 20"
           fill="currentColor"
-          className={`h-4 w-4 shrink-0 text-zinc-500 transition-transform ${open ? 'rotate-180' : ''}`}
+          className={`h-4 w-4 shrink-0 text-muted transition-transform ${open ? 'rotate-180' : ''}`}
         >
           <path
             fillRule="evenodd"
@@ -232,7 +232,7 @@ export const SearchSelect = (props: {
       </button>
 
       {open && (
-        <div className="absolute top-full start-0 z-20 mt-1 flex w-full flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-lg sm:w-96 dark:border-zinc-700 dark:bg-zinc-900">
+        <div className="absolute top-full start-0 z-20 mt-1 flex w-full flex-col overflow-hidden rounded-xl border border-edge bg-page shadow-lg sm:w-96">
           <input
             // biome-ignore lint/a11y/noAutofocus: the list opened to be searched
             autoFocus
@@ -245,7 +245,7 @@ export const SearchSelect = (props: {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onKey}
-            className="border-b border-zinc-200 bg-transparent px-3 py-2.5 text-sm focus:outline-none dark:border-zinc-700"
+            className="border-b border-edge bg-transparent px-3 py-2.5 text-sm focus:outline-none"
           />
           <div
             ref={list}
@@ -266,7 +266,7 @@ export const SearchSelect = (props: {
                 onPointerMove={() => i !== active && setActive(i)}
                 onClick={() => pick(item.value)}
                 className={`flex cursor-pointer items-center gap-2 px-2.5 py-1.5 text-sm ${
-                  i === active ? 'bg-indigo-50 dark:bg-indigo-500/15' : ''
+                  i === active ? 'bg-accent/10' : ''
                 }`}
               >
                 <Flag flag={item.flag} />
@@ -274,25 +274,25 @@ export const SearchSelect = (props: {
                   <span className={`block truncate ${item.value === value ? 'font-semibold' : ''}`}>
                     {highlight(item.title, marks.title)}
                   </span>
-                  <span className="block truncate text-xs text-zinc-500">
+                  <span className="block truncate text-xs text-muted">
                     {highlight(item.subtitle, marks.subtitle)}
                   </span>
                 </span>
                 {item.meta && (
-                  <span dir="ltr" className="shrink-0 font-mono text-xs text-zinc-500">
+                  <span dir="ltr" className="shrink-0 font-mono text-xs text-muted">
                     {highlight(item.meta, marks.meta)}
                   </span>
                 )}
               </div>
             ))}
             {!rows.length && (
-              <div className="px-3 py-6 text-center text-sm text-zinc-500">
+              <div className="px-3 py-6 text-center text-sm text-muted">
                 {props.empty(query.trim())}
               </div>
             )}
           </div>
           {current && props.detail && (
-            <div className="border-t border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-600 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-400">
+            <div className="border-t border-edge bg-surface px-3 py-2 text-xs text-muted">
               {props.detail(current)}
             </div>
           )}
