@@ -167,9 +167,30 @@ export const Dates = ({ cldr, zone, t }: { cldr: LocaleData; zone: string; t: T 
 
   return (
     <Section
-      previewIndex={1}
       moreLabel={t('More examples')}
       id="dates"
+      size="full"
+      preview={
+        <div className="date-strip">
+          <div className="calendar-stamp">
+            <span>{formatDay(cldr, due ?? today, { skeleton: 'MMM' })}</span>
+            <strong>{formatDay(cldr, due ?? today, { skeleton: 'd' })}</strong>
+          </div>
+          {[...new Set([zone, 'Etc/UTC', 'Asia/Tokyo', 'Europe/Berlin'])].slice(0, 3).map((id) => (
+            <div className="zone-clock" key={id}>
+              <span className="visual-label">{id}</span>
+              <strong dir="auto">
+                {attempt(() => formatInstant(cldr, reminder ?? Date.now(), id, { skeleton: 'jm' }))}
+              </strong>
+              <small dir="auto">
+                {attempt(() =>
+                  formatInstant(cldr, reminder ?? Date.now(), id, { skeleton: 'MMMEd' }),
+                )}
+              </small>
+            </div>
+          ))}
+        </div>
+      }
       title={t('Days, times and zones')}
       intro={rich(
         t(

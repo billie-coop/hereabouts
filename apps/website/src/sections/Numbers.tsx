@@ -9,12 +9,30 @@ import {
   getPluralOrdinal,
   type LocaleData,
 } from '@billie-coop/hereabouts';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { loadLocale } from '../locale';
 import { rich, type T } from '../i18n';
 import { attempt, Example, Field, q, Section, Select } from '../ui';
 
 export const Numbers = ({ cldr, t }: { cldr: LocaleData; t: T }) => {
   const [n, setN] = useState('1234567.891');
+  const [comparisons, setComparisons] = useState<LocaleData[]>([]);
+  useEffect(() => {
+    let live = true;
+    Promise.all(['en-US', 'de-DE', 'ja-JP'].map(loadLocale)).then(
+      (data) => {
+        if (live) setComparisons(data);
+      },
+      () => {},
+    );
+    return () => {
+      live = false;
+    };
+  }, []);
+  const locales = [
+    cldr,
+    ...comparisons.filter((data) => data.language !== cldr.language || data.region !== cldr.region),
+  ].slice(0, 3);
   const rows: [string, () => string][] = [
     [`formatDecimal(locale, ${q(n)})`, () => formatDecimal(cldr, n)],
     [
@@ -48,6 +66,22 @@ export const Numbers = ({ cldr, t }: { cldr: LocaleData; t: T }) => {
     <Section
       moreLabel={t('More examples')}
       id="numbers"
+      size="wide"
+      preview={
+        <div className="number-comparison">
+          {locales.map((data) => (
+            <div key={`${data.language}-${data.region}`}>
+              <span className="visual-label">
+                {data.language}-{data.region}
+              </span>
+              <strong dir="auto">
+                {attempt(() => formatDecimal(data, n, { maximumFractionDigits: 2 }))}
+              </strong>
+              <small dir="auto">{attempt(() => formatDecimal(data, n, { style: 'short' }))}</small>
+            </div>
+          ))}
+        </div>
+      }
       title={t('Numbers')}
       intro={t(
         'Numbers are formatted from strings or numbers with exact decimal digits, so nothing is lost to floating point.',
@@ -111,6 +145,18 @@ export const Currency = ({ cldr, t }: { cldr: LocaleData; t: T }) => {
     <Section
       moreLabel={t('More examples')}
       id="currency"
+      preview={
+        <div className="currency-receipt">
+          {[...new Set([c, 'USD', 'EUR', 'JPY'])].slice(0, 3).map((currency) => (
+            <div key={currency}>
+              <span>{currency}</span>
+              <strong dir="auto">
+                {attempt(() => formatCurrency(cldr, amount, currency as CurrencyType))}
+              </strong>
+            </div>
+          ))}
+        </div>
+      }
       title={t('Currency')}
       intro={rich(
         t(

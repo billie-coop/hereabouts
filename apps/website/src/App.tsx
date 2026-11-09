@@ -186,11 +186,11 @@ export const App = () => {
                       <Numbers cldr={cldr} t={t} />
                       <Currency cldr={cldr} t={t} />
                       <DecimalMath cldr={cldr} t={t} />
-                      <Dates cldr={cldr} zone={zone} t={t} />
                       <Units cldr={cldr} t={t} />
                       <Messages cldr={cldr} t={t} />
                       <Matching cldr={cldr} t={t} />
                       <Translations cldr={cldr} localeId={localeId} t={t} />
+                      <Dates cldr={cldr} zone={zone} t={t} />
                     </div>
                   </>
                 )}

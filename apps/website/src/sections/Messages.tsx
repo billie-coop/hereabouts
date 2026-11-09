@@ -33,6 +33,20 @@ export const Messages = ({ cldr, t }: { cldr: LocaleData; t: T }) => {
     <Section
       moreLabel={t('More examples')}
       id="messages"
+      preview={
+        <div className="list-visual">
+          <ul>
+            {list.slice(0, 3).map((item, index) => (
+              <li key={`${index}-${item}`}>
+                <span className="list-dot" aria-hidden="true" />
+                <span>{item}</span>
+                <small>{getPluralCardinal(cldr, index + 1)}</small>
+              </li>
+            ))}
+          </ul>
+          <p dir="auto">{attempt(() => formatList(cldr, list))}</p>
+        </div>
+      }
       title={t('Lists, plurals and messages')}
       intro={t(
         "ICU message format with the locale's plural rules, list formatting, and the plural category of any number.",

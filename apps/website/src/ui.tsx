@@ -1,4 +1,4 @@
-import { Children, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 /** Runs `f`, showing the error message instead of throwing so one bad input can't break a page. */
 export const attempt = (f: () => string): string => {
@@ -16,14 +16,13 @@ export const Section = (props: {
   controls?: ReactNode;
   children: ReactNode;
   moreLabel: string;
-  previewIndex?: number;
+  preview: ReactNode;
+  size?: 'wide' | 'full';
 }) => (
-  <details id={props.id} className="feature-card scroll-mt-6">
+  <details id={props.id} className={`feature-card tile-${props.size ?? 'small'} scroll-mt-6`}>
     <summary className="card-preview" aria-label={`${props.title} · ${props.moreLabel}`}>
       <h2>{props.title}</h2>
-      <div className="card-preview-result">
-        {Children.toArray(props.children)[props.previewIndex ?? 0]}
-      </div>
+      <div className="card-preview-result">{props.preview}</div>
     </summary>
     <div className="card-body">
       <p className="card-intro">{props.intro}</p>

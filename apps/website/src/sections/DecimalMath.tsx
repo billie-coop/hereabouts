@@ -7,6 +7,7 @@ import {
   decimalSubtract,
   decimalToString,
   formatCurrency,
+  formatDecimal,
   type LocaleData,
 } from '@billie-coop/hereabouts';
 import { useState } from 'react';
@@ -45,9 +46,16 @@ export const DecimalMath = ({ cldr, t }: { cldr: LocaleData; t: T }) => {
   ];
   return (
     <Section
-      previewIndex={1}
       moreLabel={t('More examples')}
       id="math"
+      preview={
+        <div className="decimal-equation" dir="ltr">
+          <span>
+            {attempt(() => formatDecimal(cldr, a))} + {attempt(() => formatDecimal(cldr, b))} =
+          </span>
+          <strong>{attempt(() => formatDecimal(cldr, s(decimalAdd(a, b))))}</strong>
+        </div>
+      }
       title={t('Decimal math')}
       intro={rich(
         t(
