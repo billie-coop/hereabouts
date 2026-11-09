@@ -13,30 +13,7 @@ import { Currency, Numbers } from './sections/Numbers';
 import { Translations } from './sections/Translations';
 import { Units } from './sections/Units';
 
-const QUICK = [
-  'en-US',
-  'en-GB',
-  'de-DE',
-  'fr-FR',
-  'es-MX',
-  'pt-BR',
-  'ja-JP',
-  'zh-Hant-TW',
-  'ar-EG',
-  'hi-IN',
-];
 const ZONES = [...timeZoneIds()].sort();
-
-const NAV = [
-  ['numbers', 'Numbers'],
-  ['currency', 'Currency'],
-  ['math', 'Decimal math'],
-  ['dates', 'Dates'],
-  ['units', 'Units'],
-  ['messages', 'Messages'],
-  ['matching', 'Matching'],
-  ['translations', 'Translations'],
-] as const;
 
 // Languages written right to left that have a catalog.
 const RTL = new Set(['ar']);
@@ -103,8 +80,11 @@ export const App = () => {
     document.title = docs ? 'hereabouts · Docs' : 'hereabouts · Internationalization';
     const target = docs ? hash.replace('#docs/', 'docs-') : hash.slice(1);
     requestAnimationFrame(() => {
-      if (target && target !== '#docs') document.getElementById(target)?.scrollIntoView();
-      else window.scrollTo(0, 0);
+      if (target && target !== '#docs') {
+        const element = document.getElementById(target);
+        if (element instanceof HTMLDetailsElement) element.open = true;
+        element?.scrollIntoView();
+      } else window.scrollTo(0, 0);
     });
   }, [docs, hash, demoReady]);
 
@@ -169,10 +149,7 @@ export const App = () => {
                 ) : (
                   <>
                     <div className="demo-toolbar">
-                      <p className="text-xs text-muted mb-4" dir="ltr">
-                        v{cldrVersion()} · CLDR {cldrDataVersion}
-                      </p>
-                      <div className="flex flex-wrap gap-3">
+                      <div className="demo-pickers">
                         <SearchSelect
                           label={t('Locale')}
                           placeholder={t('Search languages and regions')}
@@ -187,7 +164,7 @@ export const App = () => {
                               </div>
                             ))
                           }
-                          className="w-full sm:w-72"
+                          className="min-w-0"
                         />
                         <SearchSelect
                           label={t('Time zone')}
@@ -197,35 +174,12 @@ export const App = () => {
                           onChange={setZone}
                           items={zoneOptions}
                           detail={(item) => <div dir="auto">{zoneDetail(cldr, item.value)}</div>}
-                          className="w-full sm:w-72"
+                          className="min-w-0"
                         />
                       </div>
-                      <nav
-                        aria-label="Live examples"
-                        className="flex flex-wrap gap-x-4 gap-y-2 pt-4 text-sm"
-                      >
-                        {NAV.map(([id, label]) => (
-                          <a key={id} href={`#${id}`} className="text-accent hover:underline">
-                            {t(label)}
-                          </a>
-                        ))}
-                        <span dir="ltr" className="ms-auto flex flex-wrap gap-1.5">
-                          {QUICK.map((id) => (
-                            <button
-                              key={id}
-                              type="button"
-                              onClick={() => setLocaleId(id)}
-                              className={`rounded-full px-2 py-0.5 text-xs ${
-                                id === localeId
-                                  ? 'bg-accent text-page'
-                                  : 'bg-surface text-muted hover:text-ink'
-                              }`}
-                            >
-                              {id}
-                            </button>
-                          ))}
-                        </span>
-                      </nav>
+                      <p className="text-xs text-muted" dir="ltr">
+                        v{cldrVersion()} · CLDR {cldrDataVersion}
+                      </p>
                     </div>
 
                     <div className="feature-mosaic">

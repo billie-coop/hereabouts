@@ -23,8 +23,8 @@ placeholders), and add it to each catalog; the test fails until every catalog ha
 It replaces the old `cldr-engine-react-demo` (Create React App + Redux) with the function
 API and adds the day / time / zone examples.
 
-The overview has a responsive feature mosaic: each card shows two live examples and expands
-with **More examples** to show the rest. The locale and time zone apply to every card. The
+The overview has a responsive feature grid: each card shows a live result and opens to its
+full examples and controls. The locale and time zone apply to every card. The
 shared Billie co-op shell defaults to dark regardless of the system theme. The header’s
 Light/Dark switch remembers the visitor’s choice in `billie-coop-theme` localStorage when
 available. An inline head script applies it before styles load, avoiding a theme flash.

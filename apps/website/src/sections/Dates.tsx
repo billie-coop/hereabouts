@@ -167,6 +167,7 @@ export const Dates = ({ cldr, zone, t }: { cldr: LocaleData; zone: string; t: T 
 
   return (
     <Section
+      previewIndex={1}
       moreLabel={t('More examples')}
       id="dates"
       title={t('Days, times and zones')}

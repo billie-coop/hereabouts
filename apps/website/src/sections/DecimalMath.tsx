@@ -45,6 +45,7 @@ export const DecimalMath = ({ cldr, t }: { cldr: LocaleData; t: T }) => {
   ];
   return (
     <Section
+      previewIndex={1}
       moreLabel={t('More examples')}
       id="math"
       title={t('Decimal math')}

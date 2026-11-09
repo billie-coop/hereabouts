@@ -16,25 +16,23 @@ export const Section = (props: {
   controls?: ReactNode;
   children: ReactNode;
   moreLabel: string;
+  previewIndex?: number;
 }) => (
-  <section id={props.id} className="feature-card scroll-mt-6">
-    <div className="card-heading">
+  <details id={props.id} className="feature-card scroll-mt-6">
+    <summary className="card-preview" aria-label={`${props.title} · ${props.moreLabel}`}>
       <h2>{props.title}</h2>
-    </div>
+      <div className="card-preview-result">
+        {Children.toArray(props.children)[props.previewIndex ?? 0]}
+      </div>
+    </summary>
     <div className="card-body">
       <p className="card-intro">{props.intro}</p>
       {props.controls && (
         <div className="mt-4 flex flex-wrap items-end gap-3">{props.controls}</div>
       )}
-      <div className="card-examples">{Children.toArray(props.children).slice(0, 2)}</div>
-      {Children.count(props.children) > 2 && (
-        <details className="card-more">
-          <summary>{props.moreLabel}</summary>
-          <div>{Children.toArray(props.children).slice(2)}</div>
-        </details>
-      )}
+      <div className="card-examples">{props.children}</div>
     </div>
-  </section>
+  </details>
 );
 
 /** One example: the call on the left, its result on the right. */

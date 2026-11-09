@@ -181,16 +181,32 @@ a:hover {
   line-height: 1.25;
 }
 .demo-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
   border: 1px solid var(--site-border);
   background: var(--site-page);
   border-radius: 12px;
-  padding: 16px;
+  padding: 12px;
   margin-bottom: 16px;
+}
+.demo-pickers {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  width: min(100%, 560px);
+}
+.demo-pickers > div > .absolute {
+  width: min(24rem, calc(100vw - 40px));
+}
+.demo-pickers > div:last-child > .absolute {
+  inset-inline-start: auto;
+  inset-inline-end: 0;
 }
 .feature-mosaic {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
   align-items: start;
 }
 .feature-card {
@@ -198,27 +214,58 @@ a:hover {
   border: 1px solid var(--site-border);
   border-radius: 12px;
   overflow: hidden;
+  background: var(--site-page);
+}
+.feature-card[open] {
+  grid-column: 1 / -1;
+}
+.card-preview {
+  min-height: 148px;
+  padding: 16px;
+  cursor: pointer;
+  list-style: none;
+}
+.card-preview::-webkit-details-marker {
+  display: none;
+}
+.card-preview:hover {
   background: var(--site-surface);
-  height: 100%;
 }
-.feature-card:nth-of-type(1),
-.feature-card:nth-of-type(4),
-.feature-card:nth-of-type(6),
-.feature-card:nth-of-type(8) {
-  grid-column: span 2;
-}
-.card-heading {
-  background: var(--site-surface);
-  border-bottom: 1px solid var(--site-border);
-  padding: 16px 20px;
-}
-.card-heading h2 {
-  font-size: 18px;
+.card-preview h2 {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 15px;
   font-weight: 600;
-  letter-spacing: -0.025em;
+  line-height: 1.4;
+}
+.card-preview h2::after {
+  content: "+";
+  color: var(--site-accent);
+}
+.feature-card[open] .card-preview h2::after {
+  content: "−";
+}
+.card-preview-result {
+  margin-top: 10px;
+}
+.feature-card .card-preview .example-row {
+  padding: 0;
+  gap: 6px;
+}
+.feature-card .card-preview .example-row > div {
+  font-size: 18px;
+  line-height: 1.35;
+}
+.feature-card .card-preview .example-row > code {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 10px;
 }
 .card-body {
   padding: 20px;
+  border-top: 1px solid var(--site-border);
 }
 .card-intro {
   font-size: 14px;
@@ -228,8 +275,7 @@ a:hover {
 .card-examples {
   margin-top: 16px;
 }
-.card-examples > * + *,
-.card-more > div > * + * {
+.card-examples > * + * {
   border-top: 1px solid var(--site-border);
 }
 .feature-card .example-row {
@@ -255,19 +301,6 @@ a:hover {
 .feature-card input,
 .feature-card select {
   max-width: 100%;
-}
-.card-more {
-  margin-top: 12px;
-  border-top: 1px solid var(--site-border);
-  font-size: 14px;
-}
-.card-more summary {
-  color: var(--site-accent);
-  font-weight: 500;
-  padding-top: 14px;
-}
-.card-more[open] summary {
-  margin-bottom: 8px;
 }
 .site-footer {
   margin-top: 0;
@@ -396,13 +429,6 @@ a:hover {
   .feature-mosaic {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .feature-card:nth-of-type(n) {
-    grid-column: auto;
-  }
-  .feature-card:nth-of-type(4),
-  .feature-card:nth-of-type(8) {
-    grid-column: 1 / -1;
-  }
   .docs-layout {
     gap: 32px;
     grid-template-columns: 170px minmax(0, 1fr);
@@ -446,15 +472,22 @@ a:hover {
     font-size: 24px;
   }
   .feature-mosaic {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 16px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
   }
-  .feature-card:nth-of-type(n) {
-    grid-column: auto;
+  .demo-toolbar {
+    flex-wrap: wrap;
+    gap: 8px;
   }
-  .demo-toolbar,
   .card-body {
     padding: 16px;
+  }
+  .card-preview {
+    padding: 12px;
+    min-height: 164px;
+  }
+  .card-preview h2 {
+    font-size: 14px;
   }
   .site-footer nav {
     gap: 20px;
