@@ -515,6 +515,8 @@ Yarn 4 workspaces (`.prototools` pins Node and Yarn):
 - `packages/cldr-compiler`: private build tool that downloads CLDR and writes the resource
   packs and generated code. It runs from its TypeScript sources with tsx.
 - `apps/website`: the live examples.
+- `zig/`: a port of the library to Zig ([zig/README.md](zig/README.md)), kept in step with the
+  TypeScript by the shared cases in `conformance/` (`yarn conformance`, `yarn zig-data`).
 
 ```sh
 yarn install

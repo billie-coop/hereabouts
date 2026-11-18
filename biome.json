@@ -20,7 +20,10 @@
       "!packages/cldr-compiler/.cldr",
       "!packages/timezone/src/autogen.zonedata.ts",
       "!**/autogen.*.ts",
-      "!**/*.generated.ts"
+      "!**/*.generated.ts",
+      "!conformance/*.json",
+      "!zig/.zig-cache",
+      "!zig/zig-out"
     ]
   },
   "formatter": {
