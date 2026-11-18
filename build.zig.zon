@@ -1,0 +1,8 @@
+.{
+    .name = .hereabouts,
+    .version = "0.1.1",
+    .minimum_zig_version = "0.16.0",
+    .fingerprint = 0x93cf34fee7ee1a81,
+    // Only the Zig sources and the shipped packs: the conformance cases and the TypeScript stay out.
+    .paths = .{ "build.zig", "build.zig.zon", "zig/src", "zig/packs", "LICENSE", "NOTICE" },
+}

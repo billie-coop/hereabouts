@@ -3,10 +3,30 @@
 A port of [hereabouts](../README.md) to Zig, with no dependencies beyond the standard library.
 It covers the whole TypeScript library: exact decimal math, number, currency, unit and date
 formatting, calendars, time zones, plurals, ICU messages, language tags, locale matching and
-unit conversion. Needs Zig 0.16. Not yet published as a package.
+unit conversion. Needs Zig 0.16.
 
 The TypeScript in `packages/hereabouts` is the reference. Both test suites run the shared cases
 in [`conformance/`](../conformance) (about 107,000), so the two give the same answers.
+
+## Using it as a package
+
+The repo's root is the package: its `build.zig.zon` keeps only `zig/src`, `zig/packs` and the
+licence, so the conformance cases and the TypeScript stay out. Pin a commit:
+
+```sh
+zig fetch --save=hereabouts https://github.com/billie-coop/hereabouts/archive/<commit>.tar.gz
+```
+
+```zig
+const dep = b.dependency("hereabouts", .{ .target = target, .optimize = optimize });
+mod.addImport("hereabouts", dep.module("hereabouts"));
+mod.addImport("hereabouts_packs", dep.module("packs"));
+```
+
+`packs` holds the built English pack (`@import("hereabouts_packs").get("en")`), for a loader
+that needs names; it's embedded only when used. Other languages come from the npm package's
+`packs/` at the same major.minor. After `yarn build` changes the packs, `yarn zig-packs`
+copies the English one here; `zig build test` fails until it matches.
 
 ## Example
 
