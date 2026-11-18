@@ -8,6 +8,8 @@ lib-es/
 node_modules/
 off/
 packs/
+# The built packs that ship with the Zig package (yarn zig-packs).
+!/zig/packs/
 scratch/
 temp/
 
@@ -39,4 +41,6 @@ bench-results
 
 # Zig
 zig/.zig-cache/
+/.zig-cache/
+/zig-out/
 zig/zig-out/

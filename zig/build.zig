@@ -63,6 +63,22 @@ pub fn build(b: *std.Build) void {
     packs_src.appendSlice(b.allocator, " };\n") catch @panic("OOM");
     const packs_mod = b.createModule(.{ .root_source_file = pack_files.add("packs.zig", packs_src.items) });
 
+    // The en pack shipped in packs/ (for the package's users) must be the built one.
+    const shipped = b.addWriteFiles();
+    _ = shipped.addCopyFile(b.path("../packages/hereabouts/packs/en.json"), "built.json");
+    _ = shipped.addCopyFile(b.path("packs/en.json"), "shipped.json");
+    const shipped_src = shipped.add("shipped.zig",
+        \\const std = @import("std");
+        \\test "the shipped en pack is the built one (else yarn zig-packs)" {
+        \\    try std.testing.expect(std.mem.eql(u8, @embedFile("built.json"), @embedFile("shipped.json")));
+        \\}
+        \\
+    );
+    const shipped_test = b.addTest(.{ .name = "shipped_packs", .root_module = b.createModule(.{ .root_source_file = shipped_src, .target = target, .optimize = optimize }) });
+    const run_shipped = b.addRunArtifact(shipped_test);
+    b.step("test-shipped-packs", "Check the shipped en pack against the built one").dependOn(&run_shipped.step);
+    test_all.dependOn(&run_shipped.step);
+
     for (suites) |name| {
         const zig_name = b.dupe(name);
         std.mem.replaceScalar(u8, zig_name, '-', '_');
